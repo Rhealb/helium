@@ -1,0 +1,62 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: monitor-streaming-tracing
+  namespace: {{ namespace }}
+  labels:
+    name: monitor-streaming-tracing
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: monitor-streaming-tracing
+    spec:
+      containers:
+        - name: monitor-streaming-tracing
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: {{ streaming_request_memory }}
+              cpu: {{ streaming_request_cpu }}
+            limits:
+              memory: {{ streaming_limit_memory }}
+              cpu: {{ streaming_limit_cpu }}
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.namespace"
+            - name: "METANAME"
+              value: "monitor-streaming-tracing"
+            - name: SPARK_MASTER
+              value: spark://pre1-master1.monitor-essential-service:7077,pre1-master2.monitor-essential-service:7077,pre1-master3.monitor-essential-service:7077
+            - name: TOTAL_CORES
+              value: "2"
+            - name: EXECUTOR_MEM
+              value: 2000m
+            - name: EXECUTOR_CORES
+              value: "2"
+            - name: MAX_RATE
+              value: "1000"
+            - name: WORKSPACE
+              value: /opt/workspace
+            - name: JOB_JAR
+              value: streaming-trace.jar
+            - name: MAIN_CLASS
+              value: enn.monitor.trace.streaming.Collector
+            - name: KAFKA
+              value: pre1-kafka1.monitor-essential-service:9092,pre1-kafka2.monitor-essential-service:9092,pre1-kafka3.monitor-essential-service:9092
+            - name: GROUP_ID
+              value: monitor-steaming
+            - name: ESCLUSTERNAME
+              value: es-log
+            - name: ES_REST
+              value: pre1-esclient-ex.monitor-essential-service:9200
+            - name: ES_TCP
+              value: pre1-esclient-ex.monitor-essential-service:9300
+          image: {{ registry_url }}/monitor/monitor-streaming-jobs:{{ streaming_image_version }}
+          ports:
+            - containerPort: 4040
+          command:
+            - /opt/workspace/start-streaming-trace.sh

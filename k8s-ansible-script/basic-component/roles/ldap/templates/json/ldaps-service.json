@@ -1,0 +1,35 @@
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "ldaps-ha-svc",
+        "namespace": "{{ ldap_namespace }}",
+        "labels": {
+            "run": "ldaps-ha",
+            "X_APP": "ldap"
+        }
+    },
+    "spec": {
+        "ports": [
+            {
+                "name": "ldap",
+                "port": 389,
+                "nodePort": 29015
+            },
+            {
+                "name":"ldaps",
+                "port": 636,
+                "nodePort": 29016
+            },
+            {
+                "name":"check",
+                "port": 8888,
+                "nodePort": 29017
+            }
+        ],
+        "type": "NodePort",
+        "selector": {
+            "run": "ldaps-ha"
+        }
+    }
+}

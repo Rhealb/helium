@@ -1,0 +1,39 @@
+---
+- name: upload secret file
+  template:
+    src: kube/external-kubeconfig
+    dest: /tmp/kubeconfig
+
+- name: create configMap
+  ignore_errors: yes
+  command: kubectl create cm api-config --from-file=/tmp/kubeconfig -n kube-system
+
+- name: add annotations to allow hostpath
+  command: kubectl annotate --overwrite ns kube-system io.enndata.namespace/alpha-allowhostpath='true'
+
+- name: add annotations to allow privilege
+  command: kubectl annotate --overwrite ns kube-system io.enndata.namespace/alpha-allowprivilege='true'
+
+- name: copy files to remote  
+  template:
+    src: "templates/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: kube/kubedns-deploy.yaml, dest: /tmp/kubedns-deploy.yaml}
+    - {src: kube/kubedns-svc.yaml, dest: /tmp/kubedns-svc.yaml}
+
+- name: delete k8s app
+  ignore_errors: yes
+  command: kubectl delete -f /tmp/{{ item }}
+  with_items:
+    - kubedns-deploy.yaml
+    - kubedns-svc.yaml
+
+- name: necessary wait incase svc is just deleted
+  shell: sleep 5
+
+- name: create k8s app
+  command: kubectl create -f /tmp/{{ item }}
+  with_items:
+    - kubedns-deploy.yaml
+    - kubedns-svc.yaml

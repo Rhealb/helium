@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mgr-{{ item }}
+  namespace: ceph
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ceph
+      daemon: mgr
+      name: mgr-{{ item }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ceph
+        daemon: mgr
+        name: mgr-{{ item }}
+    spec:
+      automountServiceAccountToken: false
+      priorityClassName: enndata-podpriority-systempod
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/hostname: {{ item }}
+      containers:
+      - name: ceph-mgr
+        image: {{ ceph_image }}
+        imagePullPolicy: IfNotPresent
+        command:
+        - /entrypoint.sh
+        - mgr
+        resources:
+          limits:
+            cpu: {{ mgr_limit_cpu }}
+            memory: {{ mgr_limit_memory }}
+          requests:
+            cpu: {{ mgr_request_cpu }}
+            memory: {{ mgr_request_memory }}
+        volumeMounts:
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.conf
+          subPath: ceph.conf
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.client.admin.keyring
+          subPath: ceph.client.admin.keyring
+      volumes:
+      - name: ceph-config
+        secret:
+          defaultMode: 420
+          secretName: ceph-conf-keyring

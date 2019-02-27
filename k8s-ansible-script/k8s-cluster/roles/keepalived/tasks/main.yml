@@ -1,0 +1,21 @@
+---
+# tasks file for keepalived
+- set_fact:
+    kl_interface: "{{ ansible_default_ipv4.alias }}"
+  when:
+    - (kl_interface is not defined) or (kl_interface == "")
+
+- name: upload conf files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "keepalived.conf", dest: "/etc/keepalived/keepalived.conf" }
+    - { src: "sysconfig-keepalived", dest: "/etc/sysconfig/keepalived" }
+
+
+- name: restart keepalived service
+  service:
+    name: keepalived
+    enabled: true
+    state: restarted

@@ -1,0 +1,51 @@
+# Read device information (always use unit when probing)
+- parted: 
+   device: "{{ item.key }}" 
+   unit: MB
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+  register: dev_info
+
+- name: umount the file system
+  mount:
+    path: "{{ item.value.path }}"
+    state: absent
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+
+- name: clear partition
+  parted:
+    device: "{{ item.key }}"
+    number: "{{ item.value.num }}"
+    state: absent
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+
+- name: create partition
+  parted:
+    device: "{{ item.key }}"
+    number: "{{ item.value.num }}"
+    state: present
+    label: "{{ dev_info.results[0].disk.table  }}"
+    part_start: "{{ dev_info.results[0].partitions[item.value.num-2].end }}MB"
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+
+- name: create file system
+  filesystem:
+    fstype: xfs
+    dev: "{{ item.key }}{{ item.value.num }}"
+    force: yes
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined 
+
+- name: mount the file system
+  mount:
+    fstype: xfs
+    path: "{{ item.value.path }}"
+    src:  "{{ item.key }}{{ item.value.num  }}"
+    opts:  "{{ item.value.opt }}"
+    state: mounted
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+

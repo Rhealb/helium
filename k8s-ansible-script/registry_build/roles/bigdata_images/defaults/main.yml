@@ -1,0 +1,38 @@
+#harbor url to pull images from 
+release_harbor_url: 10.19.140.200:29006
+local_harbor_url: 127.0.0.1
+harbor_port: 29006
+registry_url: 127.0.0.1
+harbor_tools_project: tools 
+
+
+
+bigdata_image:
+  druid_image: "{{harbor_tools_project}}/dep-centos7-druid-0.10.0:{{ release_version }}"
+  elasticsearch_image: "{{harbor_tools_project}}/dep-centos7-elasticsearch-5.4.0:{{ release_version }}"
+  hadoop_hdfs_image: "{{harbor_tools_project}}/dep-centos7-hadoop-2.7.4:{{ release_version }}"
+  hbase_image: "{{harbor_tools_project}}/dep-centos7-hbase-1.2.6:{{ release_version }}"
+  kafka_image: "{{harbor_tools_project}}/dep-centos7-kafka-2.11-0.10.1.1:{{ release_version }}"
+  kafkamanager_image: "{{harbor_tools_project}}/dep-centos7-kafka-manager-1.3.3.8:{{ release_version }}"
+  mongodb_image: "{{harbor_tools_project}}/dep-centos7-mongodb-3.6.4:{{ release_version }}"
+  opentsdb_image: "{{harbor_tools_project}}/dep-centos7-opentsdb-2.3.0:{{ release_version }}"
+  ping_image: "{{harbor_tools_project}}/dep-centos7-ping-0.0.1:{{ release_version }}"
+  plyql_image: "{{harbor_tools_project}}/dep-centos7-plyql-0.11.2:{{ release_version }}"
+  spark_image: "{{harbor_tools_project}}/dep-centos7-spark-2.1.1-hadoop2.7:{{ release_version }}"
+  zookeeper_image: "{{harbor_tools_project}}/dep-centos7-zookeeper-3.5.3-beta:{{ release_version }}"
+  mysql_image: "{{harbor_tools_project}}/dep-debian-mysql-5.7.18:{{ release_version }}"
+  haproxy_image: "{{harbor_tools_project}}/haproxy-1.7.0:{{ release_version }}"
+  redis_image: "{{ harbor_tools_project }}/dep-redis4.0.2-redis:{{ release_version }}"
+  centos7_jdk_image: "{{harbor_tools_project}}/he2-centos7-jdk8:0.2"
+  amah_druid_image: "{{harbor_tools_project}}/amah-druid-0.10.0:{{ release_version }}"
+  amah_elasticsearch_image: "{{harbor_tools_project}}/amah-elasticsearch-5.4.0:{{ release_version }}"
+  amah_hadoop_image: "{{harbor_tools_project}}/amah-hadoop-2.7.4:{{ release_version }}"
+  amah_hbase_image: "{{harbor_tools_project}}/amah-hbase-1.2.6:{{ release_version }}"
+  amah_kafka_image: "{{harbor_tools_project}}/amah-kafka-2.11-0.10.1.1:{{ release_version }}"
+  amah_mongodb_image: "{{harbor_tools_project}}/amah-mongodb-3.6.4:{{ release_version }}"
+  amah_mysql_image: "{{harbor_tools_project}}/amah-mysql-5.7.18-1debian8:{{ release_version }}"
+  amah_opentsdb_image: "{{harbor_tools_project}}/amah-opentsdb-2.3.0:{{ release_version }}"
+  amah_redis_image: "{{harbor_tools_project}}/amah-redis-4.0.2:{{ release_version }}"
+  amah_spark_image: "{{harbor_tools_project}}/amah-spark-2.1.1-hadoop2.7:{{ release_version }}"
+  amah_zookeeper_image: "{{harbor_tools_project}}/amah-zookeeper-3.5.3-beta:{{ release_version }}"
+  redisstandalone_image: "tools/dep-debian-redisstandalone-4.0.11:{{ release_version }}"

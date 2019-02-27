@@ -1,0 +1,14 @@
+---
+# vars file for autoscalemanager
+
+
+csi_attacher_image_url: library/csi-attacher:v0.3.0
+driver_registrar_image_url: library/driver-registrar:v0.3.0
+hostpathcsi_image_url: library/hostpathcsi:v0.1.1
+
+##The initial password of Harbor admin, only works for the first time when Harbor starts.
+#It has no effect after the first launch of Harbor.
+#Change the admin password from UI after launching Harbor.
+harbor_admin_password: admin
+registry_url: 127.0.0.1:29006
+is_agile: false

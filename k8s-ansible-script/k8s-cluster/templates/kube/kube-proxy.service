@@ -1,0 +1,21 @@
+[Unit]
+Description=Kubernetes Kube-Proxy Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target apiserver-haproxy.service syslocalconf.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/proxy
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/bin
+ExecStart=/usr/bin/kube-proxy \
+        $KUBE_LOG_TOSTDERR \
+	    $KUBE_LOG_LEVEL \
+	    $KUBE_CONFIG \
+	    $KUBE_PROXY_ARGS
+
+Restart=on-failure
+LimitNOFILE=65536
+StandardOutput=null
+# StandardError=null
+
+[Install]
+WantedBy=multi-user.target

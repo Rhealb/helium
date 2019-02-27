@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: User
+metadata:
+  namespace: awesome-ns # name of namespace
+spec:
+  users:
+    - userId: awesome-user1 # username of ldap user
+      role: NS_ADMIN # Role, must be either NS_ADMIN or DEVELOPER
+    - userId: awesome-user2
+      role: DEVELOPER

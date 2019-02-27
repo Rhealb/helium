@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harbor-adminserver
+  namespace: {{ harbor_namespace }}
+  labels:
+    X_APP: harbor
+    app: harbor
+    daemon: adminserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor
+      daemon: adminserver
+  template:
+    metadata:
+      labels:
+        app: harbor
+        daemon: adminserver
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: adminserver
+        image: "{{ harbor_image }}"
+        imagePullPolicy: IfNotPresent
+        args:
+        - /harbor/adminserver
+        envFrom:
+          - configMapRef:
+              name: harbor-environment
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+        resources:
+          limits:
+            cpu: "{{ harbor_cpu_limits }}"
+            memory: {{ harbor_memory_limits }}
+          requests:
+            cpu: "{{ harbor_cpu_requests }}"
+            memory: {{ harbor_memory_requests }}
+        volumeMounts:
+        - name: secretkey
+          mountPath: /etc/adminserver
+      volumes:
+      - name: secretkey
+        configMap:
+          name: harbor-config
+          items:
+          - key: secret_key
+            path: key

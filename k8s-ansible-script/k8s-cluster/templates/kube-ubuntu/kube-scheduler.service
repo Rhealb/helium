@@ -1,0 +1,21 @@
+[Unit]
+Description=Kubernetes Scheduler Plugin
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=apiserver-haproxy.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/scheduler
+User=kube
+ExecStart=/usr/bin/kube-scheduler \
+      $KUBE_MASTER \
+      $KUBE_LOG_LEVEL \
+      $KUBE_LOGTOSTDERR \
+      $KUBE_SCHEDULER_ARGS
+Restart=on-failure
+LimitNOFILE=65536
+StandardOutput=null
+# StandardError=null
+
+[Install]
+WantedBy=multi-user.target

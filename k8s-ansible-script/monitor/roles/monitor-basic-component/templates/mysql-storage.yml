@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Storage
+metadata:
+  name: {{ monitor_ns_monitor_essential_service }}-mysql-storage
+  namespace: {{ monitor_ns_monitor_essential_service }}
+spec:
+  type: {{ 'NFS' if (storage_type == 'nfs') else 'HostPath' }}
+  accessModes: ReadWriteMany
+  persisted: true
+  unshared: true
+  resources:
+    requests:
+      storage: 20Gi

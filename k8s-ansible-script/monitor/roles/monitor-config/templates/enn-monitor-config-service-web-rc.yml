@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: enn-monitor-config-service-web
+    labels:
+        name: enn-monitor-config-service-web
+    namespace: {{ monitor_ns_monitor_application }}
+spec:
+    replicas: {{ monitor_config_service_web_num }}
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 0
+    template:
+        metadata:
+            labels:
+                name: enn-monitor-config-service-web
+        spec:
+            containers:
+                -
+                    name: enn-monitor-config-service-web
+                    image: {{ registry_url }}/{{ monitor_config_service_web_image }}
+                    resources:
+                        requests:
+                            memory: {{ monitor_config_service_web_memory_request }}
+                            cpu: {{ monitor_config_service_web_cpu_request }}
+                        limits:
+                            memory: {{ monitor_config_service_web_memory_limit }}
+                            cpu: {{ monitor_config_service_web_cpu_limit }}
+                    ports:
+                        -
+                            protocol: TCP
+                            containerPort: 8080
+                    env:
+                        -
+                            name: NAMESPACE
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.namespace
+                        -
+                            name: PODNAME
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.name
+                        -
+                            name: APPNAME
+                            value: enn-monitor-config-service-web

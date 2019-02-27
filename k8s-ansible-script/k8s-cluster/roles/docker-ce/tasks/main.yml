@@ -1,0 +1,22 @@
+---
+# tasks file for docker-coreos
+- name: delete all images containers and volumes
+  file:
+    path: "{{ docker_dir }}"
+    state: absent
+
+- name: upload config files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "docker.service", dest: "/usr/lib/systemd/system/docker.service" }
+    - { src: "sysconfig-docker", dest: "/etc/sysconfig/docker" }
+    - { src: "sysconfig-docker-storage", dest: "/etc/sysconfig/docker-storage" }
+
+- name: restart-docker
+  systemd:
+    name: docker
+    enabled: yes
+    state: restarted
+    daemon_reload: yes

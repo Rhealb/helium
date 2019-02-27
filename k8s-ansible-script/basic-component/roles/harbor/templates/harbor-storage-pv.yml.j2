@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_namespace }}-harbor-db-pv
+  labels:
+    namespaceName: {{ harbor_namespace }}
+    storageName: harbor-db
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: {{ harbor_db_image_size }}
+  persistentVolumeReclaimPolicy: Retain
+{% if storage_type == 'nfs' %}
+  nfs:
+    path: {{ nfs_path }}k8s/system-tools/harbor-db
+    server: {{ nfs_host }}
+{% elif storage_type == 'ceph' %}
+  rbd:
+    monitors:
+{% for host in mon_list %}
+    - {{ host }}:6789{% if not loop.last %},{% endif %}
+
+{% endfor %}
+    user: {{ harbor_namespace }}
+    pool: k8s.{{ harbor_namespace }}
+    image: harbor-db
+    fsType: xfs
+    secretRef:
+      name: {{ harbor_namespace }}
+{% else %}
+  awsElasticBlockStore:
+    volumeID: {{ ec2_vol_db.volume_id }}
+    fsType: xfs
+{% endif %}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_namespace }}-harbor-registry-pv
+  labels:
+    namespaceName: {{ harbor_namespace }}
+    storageName: harbor-registry
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: {{ harbor_registry_image_size }}
+  persistentVolumeReclaimPolicy: Retain
+{% if storage_type == 'nfs' %}
+  nfs:
+    path: {{ nfs_path }}k8s/system-tools/harbor-registry
+    server: {{ nfs_host }}
+{% elif storage_type == 'ceph' %}
+  rbd:
+    monitors:
+{% for host in mon_list %}
+    - {{ host }}:6789{% if not loop.last %},{% endif %}
+
+{% endfor %}
+    user: {{ harbor_namespace }}
+    pool: k8s.{{ harbor_namespace }}
+    image: harbor-registry
+    fsType: xfs
+    secretRef:
+      name: {{ harbor_namespace }}
+{% else %}
+  awsElasticBlockStore:
+    volumeID: {{ ec2_vol_registry.volume_id }}
+    fsType: xfs
+{% endif %}
+
+
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ harbor_namespace }}-harbor-redis-pv
+  labels:
+    namespaceName: {{ harbor_namespace }}
+    storageName: harbor-redis
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: {{ harbor_redis_image_size }}
+  persistentVolumeReclaimPolicy: Retain
+{% if storage_type == 'nfs' %}
+  nfs:
+    path: {{ nfs_path }}k8s/system-tools/harbor-redis
+    server: {{ nfs_host }}
+{% elif storage_type == 'ceph' %}
+  rbd:
+    monitors:
+{% for host in mon_list %}
+    - {{ host }}:6789{% if not loop.last %},{% endif %}
+
+{% endfor %}
+    user: {{ harbor_namespace }}
+    pool: k8s.{{ harbor_namespace }}
+    image: harbor-redis
+    fsType: xfs
+    secretRef:
+      name: {{ harbor_namespace }}
+{% else %}
+  awsElasticBlockStore:
+    volumeID: {{ ec2_vol_redis.volume_id }}
+    fsType: xfs
+{% endif %}

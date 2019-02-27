@@ -1,0 +1,18 @@
+# KUBELET_API_SERVER="--address {{ inventory_hostname }}"
+# KUBELET_ADDRESS="--node-ip {{ inventory_hostname }}"
+KUBELET_PORT="--port=10250 --read-only-port=0"
+# KUBELET_HOSTNAME="--hostname-override {{ inventory_hostname }}"
+KUBELET_ARGS="--log-dir=/var/log/kubernetes/kubelet \
+              --fail-swap-on=false \
+              --pod-infra-container-image={{ pause_image }} \
+              --cluster-dns={{ cluster_ip_range.split('.')[:-1]|join('.') }}.100 \
+              --cluster-domain={{ domain }} \
+              --clusterName={{ cluster_name }} \
+              --max-pods={{ max_pods }} --kube-reserved=cpu={{ cpu_reserved }},memory={{ memory_reserved }} \
+              --storage_driver=kafka --storage_driver_kafka_broker_list={{ ca_vip }}:29420,{{ ca_vip }}:29421,{{ ca_vip }}:29422 --storage_driver_kafka_topic=k8s-kubelet --storage_driver_kafka_ssl_verify=false \
+              --root-dir={{ kubelet_dir }} \
+              --pod-manifest-path={{ kubelet_manifests_dir }} \
+              --feature-gates=ExpandInUsePersistentVolumes=true \
+              --anonymous-auth=false --client-ca-file=/etc/ssl/ca.pem \
+              --tls-cert-file=/etc/ssl/kube/client.pem --tls-private-key-file=/etc/ssl/kube/client-key.pem \
+              "

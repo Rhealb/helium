@@ -1,0 +1,35 @@
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "haproxy-ldaps-ha-svc",
+        "namespace": "{{ ldap_namespace }}",
+        "labels": {
+            "run": "haproxy-ldaps-ha",
+            "X_APP": "ldap"
+        }
+    },
+    "spec": {
+        "ports": [
+            {
+                "name": "ldap",
+                "port": 389,
+                "nodePort": 29018
+            },
+            {
+                "name":"ldaps",
+                "port": 636,
+                "nodePort": 29019
+            },
+            {
+                "name":"monitor",
+                "port": 8101,
+                "nodePort": 29020
+            }
+        ],
+        "type": "NodePort",
+        "selector": {
+            "run": "haproxy-ldaps-ha"
+        }
+    }
+}

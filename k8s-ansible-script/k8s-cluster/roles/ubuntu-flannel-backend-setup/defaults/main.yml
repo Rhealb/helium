@@ -1,0 +1,4 @@
+---
+# defaults file for flannel-setup
+backend_type: "vxlan"
+flanneld_subnetlen: 24

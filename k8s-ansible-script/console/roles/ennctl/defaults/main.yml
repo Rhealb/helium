@@ -1,0 +1,3 @@
+auth_enabled: "true"
+
+keystone_admin_password: admin

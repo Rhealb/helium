@@ -1,0 +1,28 @@
+---
+# tasks file for kubectl
+- name: upload binary
+  copy:
+    src: "kube/kubectl"
+    dest: "/usr/bin/kubectl"
+    mode: "a+rx"
+
+- name: mkdir config dir
+  file:
+    name: "~{{ ansible_ssh_user }}/.kube"
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+
+- name: upload cert files
+  copy:
+    src: "ssl/kube/{{ item }}"
+    dest: "/etc/ssl/kube/{{ item }}"
+    owner: "kube"
+  with_items:
+    - admin.pem
+    - admin-key.pem
+
+- name: upload config
+  template:
+    src: "kube/kube-config"
+    dest: "~{{ ansible_ssh_user }}/.kube/config"
+    owner: "{{ ansible_ssh_user }}"

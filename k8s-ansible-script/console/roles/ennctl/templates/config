@@ -1,0 +1,20 @@
+clusters:
+- name: dev-cluster
+  cluster:
+    gatewayURL: https://{{ master_list[0] }}:{{ gateway_https_node_port }}
+    terminalURL: ws://{{ master_list[0] }}:{{ terminal_node_port }}/api/v1
+{% if auth_enabled == 'false' %}
+    skipAuth: true
+{% endif %}
+users:
+- name: dev-user
+  user:
+    username: "{{ keystone_admin_username }}"
+    password: "{{ keystone_admin_password }}"
+contexts:
+- name: dev-context
+  context:
+    cluster: dev-cluster
+    namespace: console
+    user: dev-user
+current-context: dev-context

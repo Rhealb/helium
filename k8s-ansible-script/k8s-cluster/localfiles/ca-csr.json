@@ -1,0 +1,20 @@
+{
+    "CN": "helium.io",
+    "hosts": [
+        "enndata.cn",
+        "helium.io"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "L": "SHANGHAI",
+            "ST": "SHANGHAI",
+            "O": "helium"
+        }
+    ]
+}
+

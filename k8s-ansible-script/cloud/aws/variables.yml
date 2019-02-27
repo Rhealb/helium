@@ -1,0 +1,13 @@
+STATE_RES_NAME: state
+ec2_region: cn-north-1
+ec2_zone: cn-north-1b
+ec2_instance_type: t2.large
+ec2_image: ami-020edc6e6367e7cb7
+ec2_keypair: aws-key-bj
+ec2_volume_size_sdb: 100
+ec2_volume_size_sdc: 400
+ec2_count: 3
+ec2_security_group_id: sg-4f833428
+ec2_subnet_id: subnet-fbb8b68c
+ec2_tag_Type: name
+ec2_tag_Role: helium.ec2

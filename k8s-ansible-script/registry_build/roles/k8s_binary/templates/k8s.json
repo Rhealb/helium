@@ -1,0 +1,220 @@
+{
+"name": "newest",
+"versionRegFilters": {
+"k8s": "v[0-9]+.[0-9]+.[0-9]+-[0-9]+",
+"docker": "v[0-9]+.[0-9]+.[0-9]+",
+"ennplicy": "[0-9].[0-9][0-9]"
+},
+"files": [
+{
+"fileName": "kube-apiserver",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kube-controller-manager",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kube-scheduler",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "enndata-scheduler",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "nshostpathprivilege",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kube-rescheduler",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kubelet",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kubectl",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kube-proxy",
+"versionFilter": "k8s",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "dnsmasq.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "dnssidecar.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "enn-policy",
+"versionFilter": "ennplicy",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "exechealthz.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "flanneld",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "haproxy.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "keepalived.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kube-dnsmasq.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kube-dns.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "pause.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "kubedns.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "containerd",
+"versionFilter": "docker",
+"version": "newest",
+"path": "docker",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "containerd-shim",
+"versionFilter": "docker",
+"version": "newest",
+"path": "docker",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "docker-client",
+"versionFilter": "docker",
+"version": "newest",
+"path": "docker",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "dockerd-18.01.0-ce-helium",
+"versionFilter": "docker",
+"version": "newest",
+"path": "docker",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "dockerd-dev",
+"versionFilter": "docker",
+"version": "newest",
+"path": "docker",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "runc",
+"versionFilter": "docker",
+"version": "newest",
+"path": "docker",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "tini",
+"versionFilter": "docker",
+"version": "newest",
+"path": "docker",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "coredns.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "kube",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "healthcheck.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "health-check",
+"bucketName": "kubernetes"
+},
+{
+"fileName": "memcached.tar",
+"versionFilter": "docker",
+"version": "newest",
+"path": "health-check",
+"bucketName": "kubernetes"
+}
+]
+}

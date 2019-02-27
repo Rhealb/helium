@@ -1,0 +1,61 @@
+---
+# tasks file for etcd3
+- name: upload binary file
+  copy:
+    src: "etcd/{{ item }}"
+    dest: "{{ bin_dir }}/{{ item }}"
+    mode: "a+x"
+  with_items:
+    - etcdctl
+    - etcd
+  when: ubuntu_system is defined
+
+- name: create etcd dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+  with_items:
+    - "{{ etcd_data_dir}}"
+    - /etc/ssl/etcd
+    - /etc/etcd
+
+- name: copy files
+  copy:
+    src: "ssl/etcd/{{ item }}"
+    dest: "/etc/ssl/etcd/{{ item }}"
+    owner: "{{ ansible_ssh_user }}"
+  when: inventory_hostname in etcd_init_servers
+  with_items:
+    - etcd-server-{{ inventory_hostname }}.pem
+    - etcd-server-{{ inventory_hostname }}-key.pem
+    - etcd-peer-{{ inventory_hostname }}.pem
+    - etcd-peer-{{ inventory_hostname }}-key.pem
+    - etcd-admin.pem
+    - etcd-admin-key.pem
+
+- name: upload service file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "etcd.service", dest: "/etc/systemd/system/etcd.service" }
+    - { src: "etcd.conf", dest: "/etc/etcd/etcd.conf" }
+
+
+- name: ETCD | Set etcd client
+  lineinfile:
+    dest: /root/.bashrc
+    line: "{{ item }}"
+  with_items:
+    - "export ETCDCTL_CA_FILE=/etc/ssl/ca.pem"
+    - "export ETCDCTL_CERT_FILE=/etc/ssl/etcd/etcd-admin.pem"
+    - "export ETCDCTL_KEY_FILE=/etc/ssl/etcd/etcd-admin-key.pem"
+
+- name: ETCD | Start etcd service
+  systemd:
+    name: etcd
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+

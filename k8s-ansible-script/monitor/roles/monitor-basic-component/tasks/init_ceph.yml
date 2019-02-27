@@ -1,0 +1,28 @@
+- name: get ceph secret key
+  shell: ceph auth get-key client.{{ monitor_ns_monitor_essential_service }}
+  register: ceph_secret_key
+
+- name: create mount directory
+  file:
+    path=/mnt/{{ monitor_ns_monitor_essential_service }}
+    state=directory
+
+- name: mount ceph path
+  shell: mount -t ceph {{ mon_list[0] }}:6789:/k8s/{{ monitor_ns_monitor_essential_service }} /mnt/{{ monitor_ns_monitor_essential_service }}/ -o name={{ monitor_ns_monitor_essential_service }},secret={{ ceph_secret_key.stdout }}
+
+- name: create directorys
+  file:
+    path={{ item }}
+    state=directory
+  with_items:
+    - /mnt/{{ monitor_ns_monitor_essential_service }}/data/mysql
+    - /mnt/{{ monitor_ns_monitor_essential_service }}/config
+
+- name: copy config files to ceph
+  copy:
+    src: "../configfiles/"
+    dest: /mnt/{{ monitor_ns_monitor_essential_service }}/config/
+    force: yes
+
+- name: umount ceph path
+  shell: umount /mnt/{{ monitor_ns_monitor_essential_service }}

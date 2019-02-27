@@ -1,0 +1,15 @@
+- name: upload config files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "docker.service", dest: "/lib/systemd/system/docker.service" }
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: restart-docker
+  service:
+    name: docker
+    enabled: yes
+    state: restarted

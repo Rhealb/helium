@@ -1,0 +1,36 @@
+---
+- hosts: all
+  vars:
+    install_mode: local
+  roles:
+    - role: cadvisor
+      when: inventory_hostname in master_list[0]
+    # monitor resource calculate
+    #- role: monitor-resource-cal
+    #  when: inventory_hostname in master_list[0]
+    # big data
+    - role: monitor-namespace
+      when: inventory_hostname in master_list[0]
+    - role: monitor-bigdata
+      when: inventory_hostname in master_list[0]
+    # monitor
+    - role: monitor-basic-component
+      when: inventory_hostname in master_list[0]
+    - role: monitor-system-alert
+      when: inventory_hostname in master_list[0]
+    - role: monitor-security
+      when: inventory_hostname in master_list[0]
+    - role: monitor-config
+      when: inventory_hostname in master_list[0]
+    - role: monitor-collector
+      when: inventory_hostname in master_list[0]
+    - role: monitor-graph
+      when: inventory_hostname in master_list[0]
+    - role: monitor-log
+      when: inventory_hostname in master_list[0]
+    - role: monitor-system-graph
+      when: inventory_hostname in master_list[0]
+    - role: monitor-streaming-jobs
+      when: inventory_hostname in master_list[0]
+    # - role: monitor-system-trace
+    #   when: inventory_hostname in master_list[0]

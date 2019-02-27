@@ -1,0 +1,3 @@
+---
+# defaults file for centos-packages
+kernel_version: "kernel"

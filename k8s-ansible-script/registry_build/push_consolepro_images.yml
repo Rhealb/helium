@@ -1,0 +1,9 @@
+---
+- hosts: all
+  vars:
+    build: false 
+    push: true
+    edition: pro
+  roles:
+    - role: console_images 
+      when: inventory_hostname in master_list[0]

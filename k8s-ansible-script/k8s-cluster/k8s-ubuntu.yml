@@ -1,0 +1,30 @@
+---
+- hosts: all
+  remote_user: root
+  # serial: 1
+  max_fail_percentage: 0
+  gather_facts: False 
+  become: true
+  become_method: sudo
+  roles:
+    - { role: date-check, become: false }
+    - { role: certificate, become: false }
+    - rootca
+    - { role: etcd3, when: inventory_hostname in etcd_init_servers }
+    - { role:  ubuntu-flannel-backend-setup, when: inventory_hostname == flannel_etcd_list.0 }
+    - { role: special-storage-setup, when: inventory_hostname in host_path_list }
+    - { role: loop-device, when: special_mounts is defined and disk_type is defined and disk_type == "loop" }
+    - flannel
+    - docker-ubuntu
+    - log-cleanup
+    - kubeconfig
+    - apiserver-haproxy
+    - { role:  k8s-apiserver, when: inventory_hostname in master_list }
+    - kubectl
+    - { role: k8s-controller-manager, when: inventory_hostname in master_list }
+    - { role: k8s-scheduler, when: inventory_hostname in master_list }
+    - k8s-proxy
+    - k8s-kubelet
+    - dns-images
+    - { role: kube-dns, become: false, when: inventory_hostname == master_list.0 }
+    

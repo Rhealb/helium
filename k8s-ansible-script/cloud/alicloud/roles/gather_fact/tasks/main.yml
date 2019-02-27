@@ -1,0 +1,47 @@
+---
+- name: gather fact about aliyun instance based on the specified names
+  ali_instance_facts:
+    alicloud_region: "{{ alicloud_region }}"
+    instance_names:
+    - "{{ instance_name }}"
+  register: instancefact
+
+- name: write master_list to cluster.yml
+  lineinfile:
+    path: cluster.yml
+    regexp: 'master_list'
+    line: "    master_list: [{{ instancefact.instances.0.private_ip_address }}, {{ instancefact.instances.1.private_ip_address }}, {{ instancefact.instances.2.private_ip_address }}]"
+  when: add_node == "false"
+
+- name: write etcd_init_servers to cluster.yml
+  lineinfile:
+    path: cluster.yml
+    regexp: 'etcd_init_servers'
+    line: "    etcd_init_servers: [{{ instancefact.instances.0.private_ip_address }}, {{ instancefact.instances.1.private_ip_address }}, {{ instancefact.instances.2.private_ip_address }}]"
+  when: add_node == "false"
+
+- name: write flannel_etcd_list to cluster.yml
+  lineinfile:
+    path: cluster.yml
+    regexp: 'flannel_etcd_list'
+    line: "    flannel_etcd_list: [{{ instancefact.instances.0.private_ip_address }}, {{ instancefact.instances.1.private_ip_address }}, {{ instancefact.instances.2.private_ip_address }}]"
+  when: add_node == "false"
+
+- name: write ca_vip to cluster.yml
+  lineinfile:
+    path: cluster.yml
+    regexp: 'ca_vip'
+    line: "    ca_vip: \"{{ instancefact.instances.0.private_ip_address }}\""
+  when: add_node == "false"
+
+- name: write host_path_list to cluster.yml
+  lineinfile:
+    path: cluster.yml
+    regexp: 'host_path_list'
+    line: "    host_path_list: [{%  for host in instancefact.instances %}{{ host.private_ip_address }}{% if not loop.last %}, {% endif %}{% endfor %}]"
+
+- name: write hosts to cluster.yml
+  lineinfile:
+    line: "        {{ item.private_ip_address }}:"
+    dest: cluster.yml
+  with_items: "{{ instancefact.instances }}"

@@ -1,0 +1,25 @@
+---
+# vars file for ldap
+
+ldap_image_url: enncloud/enn-ldap:2017.07.r8
+haproxy_image_url: enncloud/enn-haproxy-ldap:2017.08.r1
+ldap_register_image: console/ldapregister:v0.8
+
+# namespace in k8s
+ldap_namespace: system-tools
+
+# need to clean; you can bypass this by setting value in inventory file or command line
+clean_ldap: true
+
+# default is single. could set value at inventory file, posible value:shanghai,yancheng...
+deploy_env: single
+
+##The initial password of Harbor admin, only works for the first time when Harbor starts.
+#It has no effect after the first launch of Harbor.
+#Change the admin password from UI after launching Harbor.
+harbor_admin_password: admin
+
+# rootdn directive for specifying a superuser on the database. This is needed
+# for syncrepl.
+root_dn: "cn=admin,dc=enncloud,dc=com"
+root_pw: pass@rrr123

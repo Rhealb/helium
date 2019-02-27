@@ -1,0 +1,157 @@
+---
+
+# build bigdata images and push to repo
+
+- name: Create required projects (tools)
+  uri:
+    url: http://{{ registry_url }}/api/projects
+    method: POST
+    user: admin
+    password: "{{ harbor_repo_admin_password }}"
+    body: {"project_name": "{{ item }}","public": 1}
+    force_basic_auth: yes
+    status_code: 201
+    body_format: json
+  with_items:
+    - tools
+  ignore_errors: yes
+
+- name: build and push basis image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh basis {{ registry_url }} {{ release_version }}"
+
+- name: build and push zookeeper image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh zookeeper {{ registry_url }} {{ release_version }}"
+
+- name: build and push kafka image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh kafka {{ registry_url }} {{ release_version }}"
+
+- name: build and push hadoop image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh hadoop {{ registry_url }} {{ release_version }}"
+
+- name: build and push hbase image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh hbase {{ registry_url }} {{ release_version }}"
+
+- name: build and push spark image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh spark {{ registry_url }} {{ release_version }}"
+
+- name: build and push opentsdb image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh opentsdb {{ registry_url }} {{ release_version }}"
+
+- name: build and push elasticsearch image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh elasticsearch {{ registry_url }} {{ release_version }}"
+
+- name: build and push druid image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh druid {{ registry_url }} {{ release_version }}"
+
+- name: build and push mongodb image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh mongodb {{ registry_url }} {{ release_version }}"
+
+- name: build and push ping image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh ping {{ registry_url }} {{ release_version }}"
+
+- name: build and push redis image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh redis {{ registry_url }} {{ release_version }}"
+
+- name: build and push haproxy image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh haproxy {{ registry_url }} {{ release_version }}"
+
+- name: build and push plyql image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh plyql {{ registry_url }} {{ release_version }}"
+
+- name: build and push mysql image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh mysql {{ registry_url }} {{ release_version }}"
+
+- name: build and push kafka-manager image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh kafka-manager {{ registry_url }} {{ release_version }}"
+
+- name: download amah code from gitlab for amah images
+  command: "{{ item }}"
+  with_items:
+    - "git clone ssh://git@gitlab.cloud.enndata.cn:10885/kubernetes/amah.git /tmp/amah"
+
+- name: build and push amah-zookeeper image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-zookeeper {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-kafka image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-kafka {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-hadoop image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-hadoop {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-spark image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-spark {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-hbase image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-hbase {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-opentsdb image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-opentsdb {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-elasticsearch image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-elasticsearch {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-druid image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-druid {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-mongodb image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-mongodb {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-mysql image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-mysql {{ registry_url }} {{ release_version }}"
+
+- name: build and push amah-redis image
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/build_and_push_bigdata_image.sh amah-redis {{ registry_url }} {{ release_version }}"

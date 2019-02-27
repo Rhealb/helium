@@ -1,0 +1,15 @@
+---
+- name: make console direcotry
+  file:
+    path={{ item }}
+    state=directory
+  with_items:
+    - /cadvisor
+
+- name: copy kubernetes specification
+  template:
+    src: "templates/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    # configmap
+    - {src: cadvisor-configmap.yml, dest: /cadvisor/cadvisor-configmap.yml}

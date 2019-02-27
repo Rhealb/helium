@@ -1,0 +1,14 @@
+---
+- name: Ceph Client | Check if rbd command exist
+  stat:
+    path: /usr/bin/rbd
+  register: rbd_status
+
+- name: Ceph Client | Install ceph-common in all kube node
+  yum:
+    name: ceph-common
+    disablerepo: "*"
+    enablerepo: local
+    state: latest
+    disable_gpg_check: yes
+  when: not rbd_status.stat.exists

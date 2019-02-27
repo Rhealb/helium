@@ -1,0 +1,12 @@
+---
+- name: create {{ workspace }} components
+  command: "{{ item }}"
+  with_items:
+    - ennctl create app streaming-jobs -n {{ namespace }}
+    - ennctl create -a streaming-jobs -f /{{ workspace }}/svcs.yml
+    - ennctl create -a streaming-jobs -f /{{ workspace }}/deployment-streaming-app.yml
+    - ennctl create -a streaming-jobs -f /{{ workspace }}/deployment-streaming-metric.yml
+    - ennctl create -a streaming-jobs -f /{{ workspace }}/deployment-streaming-log-pod.yml
+    - ennctl create -a streaming-jobs -f /{{ workspace }}/deployment-streaming-log-system.yml
+    - ennctl create -a streaming-jobs -f /{{ workspace }}/deployment-streaming-metric-agg.yml
+    # - ennctl create -a streaming-jobs -f /{{ workspace }}/deployment-streaming-tracing.yml

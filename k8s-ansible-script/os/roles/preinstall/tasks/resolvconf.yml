@@ -1,0 +1,30 @@
+---
+- name: generate nameservers to resolvconf
+  set_fact:
+    nameserverentries:
+      nameserver {{( ["{{cluster_ip_range.split('.')[:-1]|join('.')}}.100"] + nameservers|d([]) ) | join(',nameserver ')}}
+
+- name: generate search domains to resolvconf
+  set_fact:
+    searchentries:
+      search {{ ([ 'default.svc.' + domain, 'svc.' + domain ] + searchdomains|default([])) | join(' ') }}
+
+- name: backup resolv.conf
+  ignore_errors: yes
+  command: mv /etc/resolv.conf /etc/resolv.conf.bak
+
+- name: Add domain/search/nameservers/options to resolv.conf
+  blockinfile:
+    path: "/etc/resolv.conf"
+    block: |-
+      {% for item in [searchentries] + nameserverentries.split(',') -%}
+      {{ item }}
+      {% endfor %}
+      options ndots:{{ ndots }}
+      options timeout:2
+      options attempts:2
+    state: present
+    insertbefore: BOF
+    create: yes
+    backup: no
+    marker: "# Ansible entries {mark}"

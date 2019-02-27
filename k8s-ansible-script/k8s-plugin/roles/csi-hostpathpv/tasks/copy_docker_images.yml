@@ -1,0 +1,34 @@
+---
+- name: create csi-hostpathpv image files dir
+  file: path=/tmp/csi-hostpathpv/images/ state=directory
+
+- name: copy images
+  copy:
+    src: "../../../files/images/k8splugin/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: driver-registrar.tar, dest: /tmp/csi-hostpathpv/images/}
+    - {src: csi-attacher.tar, dest: /tmp/csi-hostpathpv/images/}
+    - {src: hostpathcsi.tar, dest: /tmp/csi-hostpathpv/images/}
+
+- name: load docker images
+  command: "{{ item}}"
+  with_items:
+    - docker load -i /tmp/csi-hostpathpv/images/driver-registrar.tar
+    - docker load -i /tmp/csi-hostpathpv/images/csi-attacher.tar
+    - docker load -i /tmp/csi-hostpathpv/images/hostpathcsi.tar
+
+- name: copy push image script
+  template: src=push_images.sh dest=/tmp/csi-hostpathpv/images/
+
+- name: push images files
+  command: bash  /tmp/csi-hostpathpv/images/push_images.sh
+
+# clean up temp files
+- name: clean up "/tmp/csi-hostpathpv/images/"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/csi-hostpathpv/images/"
+

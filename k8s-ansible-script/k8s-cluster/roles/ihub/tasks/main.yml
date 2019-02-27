@@ -1,0 +1,6 @@
+---
+# tasks file for ihub
+- name: change /etc/hosts
+  shell: |
+    sed -i 's/.*ihub.helium.io.*//g' /etc/hosts
+    echo "127.0.0.1 ihub.helium.io" >> /etc/hosts

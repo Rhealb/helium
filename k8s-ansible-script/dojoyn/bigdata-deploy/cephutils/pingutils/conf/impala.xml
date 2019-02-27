@@ -1,0 +1,11 @@
+<?xml version ="1.0" encoding= "UTF-8" ?>
+<c3p0-config>
+    <!-- 默认配置，c3p0框架默认加载这段默认配置 -->
+    <default-config>
+        <!-- 配置JDBC 四个基本属性 -->
+        <property name ="driverClass" >com.cloudera.impala.jdbc41.Driver</property >
+        <property name ="jdbcUrl" >jdbc:impala://10.38.240.28:21050/default</property >
+        <!--<property name ="user" > 数据库用户名</property >-->
+        <!--<property name ="password" > 数据库密码</property >-->
+    </default-config>
+</c3p0-config>

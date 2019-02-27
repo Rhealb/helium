@@ -1,0 +1,10 @@
+KUBE_CONTROLLER_MANAGER_ARGS="--log-dir=/var/log/kubernetes/controller-manager \
+                              --cluster-name={{ cluster_name }} \
+                              --service-account-private-key-file /etc/ssl/kube/serviceaccount-key.pem \
+                              --root-ca-file /etc/ssl/ca.pem \
+                              --feature-gates=CSIPersistentVolume=true \
+							{% if storage_type == 'ebs'  %}
+                              --cloud-provider=aws \
+                              --cloud-config=/etc/kubernetes/cloud-config \
+                              {% endif %}
+                              "

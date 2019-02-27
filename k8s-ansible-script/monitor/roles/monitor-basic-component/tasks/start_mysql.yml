@@ -1,0 +1,8 @@
+---
+- name: create {{ monitor_ns_monitor_essential_service }} mysql
+  command: "{{ item }}"
+  with_items:
+    - ennctl create app {{ monitor_mysql_app }} -n {{ monitor_ns_monitor_essential_service }}
+    - ennctl create -a {{ monitor_mysql_app }} -f /monitor/mysql-storage.yml
+    - ennctl create -a {{ monitor_mysql_app }} -f /monitor/mysql-configmap.yml
+    - ennctl create -a {{ monitor_mysql_app }} -f /monitor/deployments-mysql.yml

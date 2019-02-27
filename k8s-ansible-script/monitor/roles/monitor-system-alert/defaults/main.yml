@@ -1,0 +1,180 @@
+---
+
+nfs_host: nfs.dev.enndata.cn
+nfs_path: "/"
+
+registry_url: 127.0.0.1:29006
+monitor_release_verison: helium-1.4.0
+
+# indicate whethor or not to monitor ceph
+ceph_check_or_not: "0"
+
+# var config for targer server
+alert_workspace: monitor-system-alert
+
+monitor_jsonnet_example_dir: /{{ alert_workspace }}/monitor-deploy/jsonnet/example
+monitor_initsql_dir: /{{ alert_workspace }}/monitor-deploy/cephutils/mysqlutils/scripts
+monitor_engineconfig_dir: /{{ alert_workspace }}/monitor-deploy/cephutils/engineutils/engine/conf
+
+install_mode: "internet"
+deploy_mode: "-s"
+
+##############################################
+
+monitor_basic_namespace: monitor-essential-service
+monitor_prometheus_namespace: monitor-application
+monitor_prometheus_suiteprefix: prometheus
+
+
+
+initcontainer_image: "{{ registry_url }}/tools/init-container:1.0"
+
+mysql_nodeport: "\"29384\""
+engine_nodeport: "\"29011\""
+engine_amah_nodeport: "\"29382\""
+alert_manager_nodeport: "\"29010\""
+script_exporter_nodeport: "\"29302\""
+push_gateway_nodeport: "\"29301\""
+inner_admin_nodeport: "\"29012\""
+jmx_exporter_nodeport: "\"30096\""
+mock_server_nodeport: "\"29303\""
+acw_nodeport: "\"29308\""
+admincenter_nodeport1: "\"29383\""
+admincenter_nodeport2: "\"29385\""
+automation_nodeport: "\"29386\""
+pushprom_nodeport: "\"29387\""
+
+
+svc_mysql: "monitor-mysql1.{{ monitor_basic_namespace }}:3306"
+svc_engine: "{{ monitor_prometheus_suiteprefix }}-engine1.{{ monitor_prometheus_namespace }}:9090"
+svc_engineamah: "{{ monitor_prometheus_suiteprefix }}-engine1.{{ monitor_prometheus_namespace }}:8092"
+svc_script_exporter: "{{ monitor_prometheus_suiteprefix }}-scriptexporter1.{{ monitor_prometheus_namespace }}:9172"
+svc_push_gateway: "{{ monitor_prometheus_suiteprefix }}-pushgateway1.{{ monitor_prometheus_namespace }}:9091"
+svc_admin_center: "{{ monitor_prometheus_suiteprefix }}-admin-center.{{ monitor_prometheus_namespace }}:50051"
+svc_automation: "{{ monitor_prometheus_suiteprefix }}-automation1.{{ monitor_prometheus_namespace }}:8091"
+svc_admin_center_web: "{{ monitor_prometheus_suiteprefix }}-acw1.{{ monitor_prometheus_namespace }}:8090"
+svc_pushprom: "{{ monitor_prometheus_suiteprefix }}-pushprom1.{{ monitor_prometheus_namespace }}:9091"
+svc_alertmanager: "{{ monitor_prometheus_suiteprefix }}-alertmanager1.{{ monitor_prometheus_namespace }}:9093"
+svc_console_grpc: cc-notification.console:8812
+svc_osticket: osticket.{{ monitor_prometheus_namespace }}:8000
+svc_configserviceserver: "10.19.140.200:30136"
+
+
+s3bucket: "s3-{{ monitor_prometheus_namespace }}"
+
+
+# mysql
+mysql_image: "{{ registry_url }}/tools/dep-debian-mysql-5.7.18:{{ monitor_release_verison }}"
+mysql_instancecount: 1
+mysql_datapvcstoragesize: "5Gi"
+mysql_requestcpu: "500m"
+mysql_requestmem: "500Mi"
+mysql_limitcpu: "1"
+mysql_limitmem: "2000Mi"
+mysql_amah_image: "{{ registry_url }}/tools/amah-mysql-5.7.18:{{ monitor_release_verison }}"
+
+
+# engine
+engine_image: "{{ registry_url }}/monitor/prometheus-engine-s3:{{ monitor_release_verison }}"
+engine_instancecount: 1
+engine_requestcpu: "500m"
+engine_requestmem: "500Mi"
+engine_limitcpu: "3"
+engine_limitmem: "3000Mi"
+engine_GoMaxProcs: "8"
+engine_RetainTime: "1440h"
+engine_SyncInterval: "3600"
+engine_Timeout: "120"
+
+
+# admin-center
+admincenter_image: "{{ registry_url }}/monitor/prometheus-admin-center-s3:{{ monitor_release_verison }}"
+admincenter_instancecount: 1
+admincenter_requestcpu: "500m"
+admincenter_requestmem: "1Gi"
+admincenter_limitcpu: "1"
+admincenter_limitmem: "1.5Gi"
+admincenter_Timeout: "120"
+admincenter_osticketswitch: "OFF"
+
+
+# admin-center-web 
+acw_image: "{{ registry_url }}/monitor/prometheus-admin-center-web-s3:{{ monitor_release_verison }}"
+acw_instancecount: 1
+acw_requestcpu: "0.5"
+acw_requestmem: "1Gi"
+acw_limitcpu: "1"
+acw_limitmem: "1.5Gi"
+acw_Timeout: "120"
+
+
+# script-exporter
+scriptexporter_image: "{{ registry_url }}/monitor/prometheus-script-exporter-s3:{{ monitor_release_verison }}"
+scriptexporter_instancecount: 1
+scriptexporter_requestcpu: "1"
+scriptexporter_requestmem: "1Gi"
+scriptexporter_limitcpu: "2"
+scriptexporter_limitmem: "2Gi"
+scriptexporter_workspace: "/opt/script-exporter"
+scriptexporter_cephpath: "/opt/mntcephutils/acw/scripts"
+scriptexporter_Timeout: "120"
+
+
+# automation
+automation_image: "{{ registry_url }}/monitor/prometheus-automation-s3:{{ monitor_release_verison }}"
+automation_instancecount: 1
+automation_requestcpu: "500m"
+automation_requestmem: "1Gi"
+automation_limitcpu: "1"
+automation_limitmem: "1.5Gi"
+automation_workspace: "/opt/automation"
+automation_cephpath: "/opt/mntcephutils/acw/scripts"
+automation_Timeout: "120"
+
+# alert manager
+alertmanager_image: "{{ registry_url }}/monitor/prometheus-alertmanager-s3:{{ monitor_release_verison }}"
+alertmanager_instancecount: 1
+alertmanager_requestcpu: "500m"
+alertmanager_requestmem: "800Mi"
+alertmanager_limitcpu: "1"
+alertmanager_limitmem: "1.5Gi"
+alertmanager_wechatrobot: "10.19.140.200:29330"
+
+# pushgateway
+pushgateway_image: "{{ registry_url }}/monitor/prometheus-pushgateway-s3:{{ monitor_release_verison }}"
+pushgateway_instancecount: 1
+pushgateway_requestcpu: "0.5"
+pushgateway_requestmem: "300Mi"
+pushgateway_limitcpu: "1"
+pushgateway_limitmem: "1000Mi"
+
+# pushprom
+pushprom_image: "{{ registry_url }}/monitor/prometheus-pushprom-s3:{{ monitor_release_verison }}"
+pushprom_instancecount: 1
+pushprom_requestcpu: "0.5"
+pushprom_requestmem: "300Mi"
+pushprom_limitcpu: "1"
+pushprom_limitmem: "1000Mi"
+
+# mockserver
+mockserver_image: "{{ registry_url }}/monitor/mock-server:{{ monitor_release_verison }}"
+mockserver_instancecount: 1
+mockserver_requestcpu: "0.2"
+mockserver_requestmem: "300Mi"
+mockserver_limitcpu: "0.3"
+mockserver_limitmem: "350Mi"
+
+
+# msc
+msc_console_disk_req: 300Mi
+fe_api_mem_req: 1Gi
+fe_api_cpu_req: 0.3
+fe_api_mem_limit: 1Gi
+fe_api_cpu_limit: 0.5
+
+
+
+msc_fe_mem_req: 1Gi
+msc_fe_cpu_req: 0.5
+msc_fe_mem_limit: 1Gi
+msc_fe_cpu_limit: 1

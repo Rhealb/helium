@@ -1,0 +1,10 @@
+[Unit]
+Description=collect system local config
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart={{ bin_dir }}/alilocalconf.sh
+
+[Install]
+WantedBy=multi-user.target

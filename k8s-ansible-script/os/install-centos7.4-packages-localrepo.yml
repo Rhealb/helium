@@ -1,0 +1,14 @@
+- hosts: all
+  remote_user: root
+  # serial: 1
+  max_fail_percentage: 0
+  gather_facts: False 
+  become: true
+  become_method: sudo
+  roles:
+    - centos-packages
+    - sys-local-config
+    - { role: ali-local-config, when: alicloud is defined }
+    - { role: ali-hosts, when: alicloud is defined }
+    - { role: ntpd-orphan,  when: single_node is not defined }
+    - preinstall

@@ -1,0 +1,79 @@
+
+
+# tasks file for bigdata components for monitor
+
+- name: make sure directory /monitor-systerm-alert exists on target server
+  file:
+    path: "{{ item }}"
+    state: "directory"
+    mode: 0644
+  with_items:
+    - "/{{ alert_workspace }}"
+
+# some variable replace
+- name: set deploy_mode -p
+  set_fact:
+    deploy_mode: -p
+  when: 
+        storage_type == "ceph" or
+        storage_type == "nfs" or
+        storage_type == "ebs"
+
+- name: set ceph_check_or_not 1
+  set_fact:
+    ceph_check_or_not: 1
+  when: ceph_enabled == "false"
+
+- name: set v_ip
+  set_fact:
+    v_ip: "{{ ca_vip }}"
+
+- name: set v_ip
+  set_fact:
+    v_ip: "{{ public_vip }}"
+  when: public_vip is defined
+
+- name: copy files
+  import_tasks: copy_files.yml
+
+
+- name: start mysql
+  command: "{{ item }}"
+  with_items:
+    - "{{ monitor_jsonnet_example_dir }}/bigctl.sh create -c -ns {{ monitor_basic_namespace }} -sp monitor -md  CephFS {{ monitor_jsonnet_example_dir }}/mysql_example.jsonnet"
+
+- name: start engine and admin-center
+  command: "{{ item }}"
+  with_items:
+    - "{{ monitor_jsonnet_example_dir }}/bigctl.sh create {{ deploy_mode }} -ns {{ monitor_prometheus_namespace }} -sp {{ monitor_prometheus_suiteprefix }} -md {{ storage_type }} {{ monitor_jsonnet_example_dir }}/engine_example.jsonnet"
+
+- name: start admin-center-web automation and scriptexporter
+  command: "{{ item }}"
+  with_items:
+    - "{{ monitor_jsonnet_example_dir }}/bigctl.sh create {{ deploy_mode }} -ns {{ monitor_prometheus_namespace }} -sp {{ monitor_prometheus_suiteprefix }} -md {{ storage_type }} {{ monitor_jsonnet_example_dir }}/acw_example.jsonnet"
+
+- name: start alertmanager
+  command: "{{ item }}"
+  with_items:
+    - "{{ monitor_jsonnet_example_dir }}/bigctl.sh create -c -ns {{ monitor_prometheus_namespace }} -sp {{ monitor_prometheus_suiteprefix }} -md  CephFS {{ monitor_jsonnet_example_dir }}/alertmanager_example.jsonnet"
+
+- name: start pushgateway
+  command: "{{ item }}"
+  with_items:
+    - "{{ monitor_jsonnet_example_dir }}/bigctl.sh create -c -ns {{ monitor_prometheus_namespace }} -sp {{ monitor_prometheus_suiteprefix }} -md  CephFS {{ monitor_jsonnet_example_dir }}/pushgateway_example.jsonnet"
+
+- name: start pushprom
+  command: "{{ item }}"
+  with_items:
+    - "{{ monitor_jsonnet_example_dir }}/bigctl.sh create -c -ns {{ monitor_prometheus_namespace }} -sp {{ monitor_prometheus_suiteprefix }} -md  CephFS {{ monitor_jsonnet_example_dir }}/pushprom_example.jsonnet"
+
+- name: start mock-server
+  command: "{{ item }}"
+  with_items:
+    - "{{ monitor_jsonnet_example_dir }}/bigctl.sh create -c -ns {{ monitor_prometheus_namespace }} -sp {{ monitor_prometheus_suiteprefix }} -md  CephFS {{ monitor_jsonnet_example_dir }}/mockserver_example.jsonnet"
+
+- name: start msc-console
+  command: "{{ item }}"
+  with_items:
+    - ennctl create app msc-console -n {{ monitor_prometheus_namespace }}
+    - ennctl create -a msc-console -f /{{ alert_workspace }}/msc-console.yml

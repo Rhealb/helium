@@ -1,0 +1,29 @@
+registry_url: 127.0.0.1:29006
+
+monitor_config_service_server_image: monitor/enn-monitor-config-service-server:0.3.0.RELEASE
+monitor_config_service_server_cpu_request: 0.5
+monitor_config_service_server_cpu_limit: 1
+monitor_config_service_server_memory_request: 1000Mi
+monitor_config_service_server_memory_limit: 1000Mi
+monitor_config_service_server_num: 1
+monitor_config_service_server_listenport: 10000
+monitor_config_service_server_token: micklongen-config-server
+
+monitor_config_service_web_image: monitor/enn-monitor-config-service-web:0.3.1.RELEASE
+monitor_config_service_web_num: 1
+monitor_config_service_web_cpu_request: 0.5
+monitor_config_service_web_cpu_limit: 1.5
+monitor_config_service_web_memory_request: 1024Mi
+monitor_config_service_web_memory_limit: 2048Mi
+monitor_config_service_web_externport: 29310
+
+monitor_ns_monitor_application: monitor-application
+monitor_ns_monitor_essential_service: monitor-essential-service
+
+monitor_mongo_svr: mongo
+monitor_mongo_port: 27017
+
+monitor_security_gateway_server_listenport: 10000
+monitor_security_gateway_server_servername: enn-monitor-security-gateway-server.monitor-application
+
+monitor_config_service_app: security

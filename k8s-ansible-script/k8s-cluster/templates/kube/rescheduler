@@ -1,0 +1,12 @@
+KUBE_LOG_LEVEL="--v=2"
+
+KUBE_LOG_TOSTDERR="--logtostderr=false --log-dir=/var/log/kubernetes/rescheduler"
+
+KUBE_CONFIG="--kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig"
+
+KUBE_RESCHEDULER_ARGS="\
+--prometheus-listenaddr=0.0.0.0:9235 \
+--enable-namespace-reschedule-debug=true \
+--reschedule-debug-port=8899 \
+--leader-elect=true \
+"

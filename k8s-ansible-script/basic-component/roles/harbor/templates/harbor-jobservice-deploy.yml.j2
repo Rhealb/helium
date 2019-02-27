@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harbor-jobservice
+  namespace: {{ harbor_namespace }}
+  labels:
+    X_APP: harbor
+    app: harbor
+    daemon: jobservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor
+      daemon: jobservice
+  template:
+    metadata:
+      labels:
+        app: harbor
+        daemon: jobservice
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: jobservice
+        image: {{ harbor_image }}
+        imagePullPolicy: IfNotPresent
+        args:
+        - /harbor/jobservice
+        - -c
+        - /etc/jobservice/config.yml
+        env:
+        - name: ADMINSERVER_URL
+          value: http://harbor-adminserver:8080
+        - name: UI_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: harbor-environment
+              key: UI_SECRET
+        - name: JOBSERVICE_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: harbor-environment
+              key: JOBSERVICE_SECRET
+        - name: GODEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: harbor-environment
+              key: GODEBUG
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+        resources:
+          limits:
+            cpu: "{{ harbor_cpu_limits }}"
+            memory: {{ harbor_memory_limits }}
+          requests:
+            cpu: "{{ harbor_cpu_requests }}"
+            memory: {{ harbor_memory_requests }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/jobservice
+      volumes:
+      - name: config
+        configMap:
+          name: harbor-config
+          items:
+          - key: jobservice_config
+            path: config.yml

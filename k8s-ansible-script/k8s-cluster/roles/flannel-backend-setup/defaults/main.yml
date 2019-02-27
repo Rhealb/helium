@@ -1,0 +1,4 @@
+---
+# defaults file for flannel-setup
+flanneld_subnetlen: 24
+DirectRouting: True

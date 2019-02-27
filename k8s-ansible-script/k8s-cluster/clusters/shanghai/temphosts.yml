@@ -1,0 +1,41 @@
+---
+all:
+  vars:
+    ntp_lannet: "192.168.57.1 mask 255.255.0.0"
+    ntp_orphan_parents: ["192.168.57.101", "192.168.57.102"]
+    host_path_list: ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+    ntp_server: "192.168.57.1"
+    etcd_init_servers: ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+    master_list: ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+    cluster_ip_range: "10.254.0.0/16"
+    flannel_etcd_list: ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+    backend_type: "vxlan-over-hostgw"
+    flanneld_subnet: "172.16.0.0/12"
+    pause_image: "registry.alauda.cn/googlecontainer/pause-amd64:3.0"
+    domain: "enn.cn"
+    cluster_name: "shanghai"
+    max_pods: 100
+    cpu_reserved: 0
+    memory_reserved: 0
+    kubelet_dir: "/data/kubelet"
+    local_repo: "10.19.138.173:8009"
+    vip: "192.168.57.200"
+    ca_vip: "192.168.57.200"
+    hanode_list: ["192.168.57.102", "192.168.57.103"]
+    admin_password: admin
+    admin_username: admin
+    interface: external0
+  children:
+    centos:
+      vars:
+        ansible_ssh_user: root
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+        osissue: "centos"
+        kernel_version: "kernel"
+      hosts:
+        192.168.57.101:
+        192.168.57.102:
+        192.168.57.103:
+
+

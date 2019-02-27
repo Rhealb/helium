@@ -1,0 +1,65 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: mongo
+    namespace: {{ monitor_ns_monitor_essential_service }}
+    labels:
+        name: mongo
+spec:
+    replicas: 1
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 0
+    template:
+        metadata:
+            labels:
+                name: mongo
+            annotations:
+                pod.beta.kubernetes.io/hostname: mongo
+        spec:
+            containers:
+                -
+                    name: mongo
+                    image: {{ registry_url }}/{{ monitor_mongo_image }}
+                    imagePullPolicy: IfNotPresent
+                    resources:
+                        requests:
+                            memory: {{ monitor_mongo_memory_request }}
+                            cpu: {{ monitor_mongo_cpu_request }}
+                        limits:
+                            memory: {{ monitor_mongo_memory_limit }}
+                            cpu: {{ monitor_mongo_cpu_limit }}
+                    env:
+                        -
+                            name: NAMESPACE
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.namespace
+                        -
+                            name: PODNAME
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.name
+                        -
+                            name: METANAME
+                            value: mongo
+                        -
+                            name: LOGPATTERN
+                            value: '^(?<date>[\d\-]+)T(?<time>[\d\:\.]+)[^\s]*[\s]*(?<logLevel>[^\s]+)[\s]*(?<position>[^\s]*)[\s]*\[(?<threadName>[^\s\]]*)\][\s]*(?<log>.*)$'
+                        -
+                            name: LOGASSEMBLE
+                            value: '%logLevel[I:INFO/W:WARN/E:ERROR/F:FATAL]%,%position%,%log%,<dateTime>%date% %time%,%threadName%'
+                    ports:
+                        -
+                            name: p1
+                            protocol: TCP
+                            containerPort: {{monitor_mongo_port}}
+                    volumeMounts:
+                        -
+                            name: {{ monitor_ns_monitor_essential_service }}-monitor-security-mongo-storage
+                            mountPath: /data/db
+            storage:
+                -
+                    name: {{ monitor_ns_monitor_essential_service }}-monitor-security-mongo-storage

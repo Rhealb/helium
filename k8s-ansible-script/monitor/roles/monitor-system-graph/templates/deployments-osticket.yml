@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitor-osticket
+      namespace: {{ namespace }}
+      labels:
+        app: osticket
+        name: monitor-osticket
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 8000
+          targetPort: 80
+          nodePort: 32088
+      type: NodePort
+      selector:
+        name: monitor-osticket
+
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: monitor-osticket
+      namespace: {{ namespace }}
+      labels:
+        name: monitor-osticket
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            name: monitor-osticket
+        spec:
+          containers:
+            - name: monitor-osticket
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  memory: {{ request_memory_low }}
+                  cpu: {{ request_cpu_low }}
+                limits:
+                  memory: {{ limit_memory_low }}
+                  cpu: {{ limit_cpu_low }}
+              env:
+                - name: NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: "metadata.namespace"
+                - name: "METANAME"
+                  value: "monitor-osticket"
+                - name: "MYSQL_USER"
+                  value: "root"
+                - name: "MYSQL_PASSWORD"
+                  value: "enncloud"
+                - name: "MYSQL_DATABASE"
+                  value: "osticket"
+                - name: "MYSQL_HOST"
+                  value: "monitor-mysql.{{ namespace }}:3306"
+              image: {{ registry_url }}/enncloud/osticket:0.1
+              ports:
+                - containerPort: 80

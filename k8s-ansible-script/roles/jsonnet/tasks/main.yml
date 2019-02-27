@@ -1,0 +1,7 @@
+---
+# tasks file for jsonnet
+- name: copy jsonnet binary
+  copy:
+    src: "../../../files/bin/jsonnet"
+    dest: "/usr/local/bin"
+    mode: 0755

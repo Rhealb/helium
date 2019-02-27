@@ -1,0 +1,125 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "extensions/v1beta1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ldap-register",
+        "namespace": "{{ ldap_namespace }}",
+        "labels": {
+          "role": "ldap-register",
+          "X_APP": "ldap"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "strategy": {
+          "type": "RollingUpdate",
+          "rollingUpdate": {
+            "maxUnavailable": 1,
+            "maxSurge": 0
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "role": "ldapregister",
+              "X_APP": "ldap",
+              "X_NAMESPACE": "system-tools"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "ldap-reg-container",
+                "image": "{{ registry_url }}/{{ ldap_register_image }}",
+                "ports": [
+                  {
+                    "name": "ldap-reg-port",
+                    "containerPort": 80,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "ldap_url",
+                    "value": "{{ ldap_url }}"
+                  },
+                  {
+                    "name": "ldap_binddn",
+                    "value": "cn=admin,dc=enncloud,dc=com"
+                  },
+                  {
+                    "name": "ldap_bindpw",
+                    "value": "pass@rrr123"
+                  },
+                  {
+                    "name": "ldap_base",
+                    "value": "dc=enncloud,dc=com"
+                  },
+                  {
+                    "name": "mail_from",
+                    "value": "enncloud@126.com"
+                  },
+                  {
+                    "name": "mail_smtp_host",
+                    "value": "smtp.126.com"
+                  },
+                  {
+                    "name": "mail_smtp_user",
+                    "value": "enncloud"
+                  },
+                  {
+                    "name": "mail_smtp_pass",
+                    "value": "1qaz2wsx"
+                  },
+                  {
+                    "name": "mail_smtp_port",
+                    "value": "25"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": 0.4,
+                    "memory": "400Mi"
+                  },
+                  "limits": {
+                    "cpu": 0.4,
+                    "memory": "500Mi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ldap-register-svc",
+        "namespace": "{{ ldap_namespace }}",
+        "labels": {
+          "app": "ldap-register",
+          "X_APP": "ldap"
+        }
+      },
+      "spec": {
+        "type": "NodePort",
+        "ports": [
+          {
+            "port": 80,
+            "targetPort": 80,
+            "nodePort": 29007
+          }
+        ],
+        "selector": {
+          "role": "ldapregister"
+        }
+      }
+    }
+  ],
+  "kind": "List"
+}

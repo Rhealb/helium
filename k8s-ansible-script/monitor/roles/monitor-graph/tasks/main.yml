@@ -1,0 +1,42 @@
+- name: create /monitor
+  file: path=/monitor state=directory
+
+# - name: copy images
+#   copy:
+#     src: "../files/images/monitor/{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#   with_items:
+#     - {src: kibana-5.4.0.tar, dest: /monitor}
+
+# - name: load docker images
+#   command: docker load -i /monitor/{{ item }}
+#   with_items:
+#     - kibana-5.4.0.tar
+
+# - name: push image to registry
+#   command: "{{ item }}"
+#   with_items:
+#     - echo "nonsense" | docker login -uadmin -p{{ harbor_admin_password }} {{ registry_url }}
+#     - docker push {{ registry_url }}/{{monitor_kibana_image}}
+
+- name: copy files
+  template:
+    src: "templates/{{item.src}}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: kibana-svc.yml, dest: /monitor}
+    - {src: kibana-rc.yml, dest: /monitor}
+    - {src: kibana.yml, dest: /monitor}
+
+- name: create configmap
+  ignore_errors: yes
+  command: kubectl --namespace={{ monitor_ns_monitor_application }} create configmap kibana-conf --from-file /monitor/{{ item }}
+  with_items:
+   - kibana.yml
+
+- name: create kibana
+  ignore_errors: yes
+  command: ennctl create -a {{ monitor_kibana_app }} -f /monitor/{{ item }}
+  with_items:
+   - kibana-svc.yml
+   - kibana-rc.yml

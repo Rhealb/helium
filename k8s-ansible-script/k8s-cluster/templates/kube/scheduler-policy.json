@@ -1,0 +1,62 @@
+{
+    "kind" : "Policy",
+    "apiVersion" : "v1",
+    "predicates" : [ 
+      {"name" : "NoDiskConflict"},
+      {"name" : "MatchInterPodAffinity"},
+      {"name" : "CheckNodePIDPressure"},
+      {"name" : "PodToleratesNodeTaints"},
+      {"name" : "CheckVolumeBinding"},
+      {"name" : "GeneralPredicates"},
+      {"name" : "CheckNodeMemoryPressure"},
+      {"name" : "NoDiskConflict"},
+      {"name" : "CheckNodeDiskPressure"},
+      {"name" : "CheckNodeCondition"}
+    ],
+    "priorities" : [
+      {"name" : "LeastRequestedPriority", "weight" : 1},
+      {"name" : "BalancedResourceAllocation", "weight" : 1}, 
+      {"name" : "SelectorSpreadPriority", "weight" : 10},
+      {"name" : "InterPodAffinityPriority", "weight" : 1}, 
+      {"name" : "NodePreferAvoidPodsPriority", "weight" : 1},
+      {"name" : "NodeAffinityPriority", "weight" : 1},
+      {"name" : "TaintTolerationPriority", "weight" : 1},
+      {"name" : "ImageLocalityPriority", "weight" : 1}
+    ],
+     "extenders" : [{
+      "urlPrefix": "http://localhost:6445/scheduler",
+      "filterVerb": "predicates/hostpathpvdiskpressure",
+      "enableHttps": false,
+      "nodeCacheCapable": false,
+      "ignorable" : false
+    },
+    {
+      "urlPrefix": "http://localhost:6445/scheduler",
+      "filterVerb": "predicates/hostpathpvaffinity",
+      "enableHttps": false,
+      "nodeCacheCapable": false,
+      "ignorable" : false
+    },
+    {
+      "urlPrefix": "http://localhost:6445/scheduler",
+      "filterVerb": "predicates/namespacenodeselector",
+      "enableHttps": false,
+      "nodeCacheCapable": false,
+      "ignorable" : false
+    },
+    {
+      "urlPrefix": "http://localhost:6445/scheduler",
+      "prioritizeVerb": "priorities/hostpathpvdiskuse",
+      "weight": 1,
+      "enableHttps": false,
+      "nodeCacheCapable": false
+    },
+    {
+      "urlPrefix": "http://localhost:6445/scheduler",
+      "prioritizeVerb": "priorities/hostpathpvspread",
+      "weight": 1,
+      "enableHttps": false,
+      "nodeCacheCapable": false
+    }],
+    "hardPodAffinitySymmetricWeight" : 10
+}

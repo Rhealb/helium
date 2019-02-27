@@ -1,0 +1,24 @@
+---
+- name: clean console agile
+  async: 3600
+  poll: 10
+  make:
+    chdir: /console/cc-devop
+    target: clean
+  become: yes
+
+- name: install console agile
+  async: 3600
+  poll: 10
+  make:
+    chdir: /console/cc-devop
+    target: install-agile
+  become: yes
+
+- name: check console agile
+  async: 3600
+  poll: 10
+  make:
+    chdir: /console/cc-devop
+    target: install-agile-check
+  become: yes

@@ -1,0 +1,14 @@
+---
+# defaults file for console
+registry_url: 127.0.0.1:29006
+monitor_fluent_bit_image: monitor/fluent-bit:0.3.1.RELEASE
+monitor_fluent_bit_cpu_request: 0.4
+monitor_fluent_bit_cpu_limit: 0.5
+monitor_fluent_bit_memory_request: 300Mi
+monitor_fluent_bit_memory_limit: 500Mi
+
+monitor_ns_monitor_application: monitor-application
+monitor_ns_monitor_essential_service: monitor-essential-service
+
+monitor_security_gateway_server_listenport: 10000
+monitor_security_gateway_server_servername: enn-monitor-security-gateway-server.monitor-application

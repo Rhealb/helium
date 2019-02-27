@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harbor-clair
+  namespace: {{ harbor_namespace }}
+  labels:
+    app: harbor
+    daemon: clair
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor
+      daemon: clair
+  template:
+    metadata:
+      labels:
+        app: harbor
+        daemon: clair
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: harbor-clair
+        image: {{ harbor_clair_image }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 6061
+            scheme: HTTP
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 6061
+            scheme: HTTP
+        resources:
+          limits:
+            cpu: "{{ harbor_cpu_limits }}"
+            memory: {{ harbor_memory_limits }}
+          requests:
+            cpu: "{{ harbor_cpu_requests }}"
+            memory: {{ harbor_memory_requests }}
+        volumeMounts:
+        - mountPath: /etc/clair
+          name: config
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: harbor-clair-config
+        name: config

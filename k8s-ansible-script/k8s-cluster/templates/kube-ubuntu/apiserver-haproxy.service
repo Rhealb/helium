@@ -1,0 +1,15 @@
+[Unit]
+Description=haproxy for apiserver
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=1h
+Restart=always
+PermissionsStartOnly=true
+ExecStartPre=-/usr/bin/docker rm -f apiserver-haproxy
+ExecStart=/usr/bin/docker run  --name apiserver-haproxy -v /etc/kubernetes/apiserver-haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro --network=host haproxy:alpine
+ExecStop=/usr/bin/docker rm -f apiserver-haproxy
+ 
+[Install]
+WantedBy=multi-user.target

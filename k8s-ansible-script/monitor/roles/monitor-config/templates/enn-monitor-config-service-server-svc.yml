@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: enn-monitor-config-service-server
+    labels:
+        name: enn-monitor-config-service-server
+    namespace: {{ monitor_ns_monitor_application }}
+spec:
+    type: ClusterIP
+    ports:
+        -
+            protocol: TCP
+            targetPort: {{ monitor_config_service_server_listenport }}
+            port: {{ monitor_config_service_server_listenport }}
+    selector:
+        name: enn-monitor-config-service-server
+

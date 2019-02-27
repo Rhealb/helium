@@ -1,0 +1,23 @@
+---
+- name: mkdir 
+  file: 
+    path={{ item }}
+    state=directory
+  with_items:
+    - /xfs
+    - /xfs/disk1
+    - /xfs/disk2
+    - /xfs/disk3
+    - /xfs/disk4
+
+- name: copy file
+  copy: 
+    src: files/kubelet_mount.sh
+    dest: /tmp/kubelet_mount.sh
+    mode: 0755
+
+- name: shell
+  shell: ./kubelet_mount.sh
+  args:
+    chdir: /tmp/
+

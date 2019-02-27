@@ -1,0 +1,41 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=http://docs.docker.com
+After=network.target flanneld.service containerd.service
+Requires=flanneld.service containerd.service
+
+[Service]
+Type=notify
+EnvironmentFile=-/run/flannel/docker
+# EnvironmentFile=-/etc/sysconfig/docker-network
+EnvironmentFile=-/etc/sysconfig/docker-storage
+EnvironmentFile=-/etc/sysconfig/docker
+Environment=GOTRACEBACK=crash
+Environment=DOCKER_HTTP_HOST_COMPAT=1
+Environment=PATH=/usr/bin:/usr/sbin
+
+ExecStart={{ bin_dir }}/dockerd \
+          --containerd=/run/containerd/containerd.sock \
+          --log-level warn \
+          --add-runtime docker-runc={{ bin_dir }}/runc \
+          --default-runtime=docker-runc \
+          --exec-opt native.cgroupdriver={{ cgroup_driver }} \
+          $OPTIONS \
+          $DOCKER_STORAGE_OPTIONS \
+          $DOCKER_NETWORK_OPTIONS \
+          $ADD_REGISTRY \
+          $BLOCK_REGISTRY \
+          $INSECURE_REGISTRY\
+	        $REGISTRIES
+ExecReload=/bin/kill -s HUP $MAINPID
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+TimeoutStartSec=0
+Restart=on-abnormal
+# MountFlags=slave
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+

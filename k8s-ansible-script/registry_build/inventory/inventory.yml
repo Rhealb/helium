@@ -1,0 +1,221 @@
+---
+all:
+  vars:
+    k8s_version: newest
+    k8s_download_url: "http://10.19.140.200:29198"
+    
+    wizard:
+      wizard_project: tools
+      wizard_version: latest
+      wizard_dest: wizard
+    harbor:
+      url: 10.19.140.200:29006
+      local: 127.0.0.1:29006
+      username: admin
+      password: enncloud
+
+    #ceph variable
+    ceph_version: 12.2.7
+    ceph_project: ceph
+    ceph_dest: files/images/k8s
+
+    local_registry_port: 5000
+
+    #harbor image variable
+    harbor_dest: files/images/k8s
+    harbor_version: enn-1.6.0
+    harbor_db: enn-1.6.0
+    harbor_redis: enn-1.6.0
+    harbor_registry: enn-1.6.0
+    harbor_clair: enn-1.6.0
+    harbor_nginx: enn-1.6.0
+    harbor_project: library
+    harbor_dest: files/images/k8s
+
+    #ldap image variable
+    ldap_dest: "files/images/system-tools"
+    enn_ldap_version: 2017.07.r8
+    enn_haproxy_ldap_version: 2017.08.r1
+    ldap_project: enncloud
+    ldapregister_version: v0.8
+    ldapregister_project: console
+
+
+    #scaler image variable
+    autoscaler_dest: "files/images/auto-scaler"
+    autoscaler_project: "library"
+    autoscaler_monitor_version: v2
+    autoscaler_manager_version: v2
+
+    csi_dest: "files/images/k8splugin"
+    csi_attacher_image_url: library/csi-attacher:v0.3.0
+    driver_registrar_image_url: library/driver-registrar:v0.3.0
+    hostpathcsi_image_url: library/hostpathcsi:v0.1.1
+    podpriority_image_url: library/podpriority-admission-controller:v0.1.0
+    enndata_scheduler_url: library/enndata-scheduler:v0.1.0
+
+      ##The initial password of Harbor admin, only works for the first time when Harbor starts.
+          #It has no effect after the first launch of Harbor.
+      #Change the admin password from UI after launching Harbor.
+    harbor_admin_password: admin
+    registry_url: 127.0.0.1:29006
+
+
+    #ingress  image
+    ingress_dest: "files/images/system-tools"
+    ingress_project: library
+    ingress_backend_version: "1.4"
+    ingress_controller_version: enn-0.9.0
+
+
+    # library/nfs-client:1.0
+    nfs_client_dest: "files/images/system-tools"
+    nfs_client_image_url: "library/nfs-client:1.0"
+
+    #tools image
+    tools_dest: "files/images/tools"
+    net_perf_version: v0.1
+    mtr_version: icy
+    k8sft_version: icy
+    tools_project: library
+
+    #ennctl
+    ennctl_dest: files/bin
+    ennctl_version: "helium-1.4.0"
+
+
+
+
+    ##########################################################################
+    #########################console #########################################
+    ##########################################################################
+
+
+    #harbor url to pull images from
+    console_version: release-1.5.0
+    release_harbor_url: 10.19.140.200:29006
+    local_harbor_url: 127.0.0.1
+    harbor_port: 29006
+    registry_url: 127.0.0.1
+    harbor_console_project: console
+    harbor_release_project: release
+
+    console_image:
+      init_container: "{{harbor_console_project}}/init-container:1.0"
+      edit_rbd_image: "{{ harbor_console_project }}/cc-rbd-file-delegate:1.0"
+      mongo: "{{ harbor_release_project }}/mongo:3.4"
+      mysql: "{{ harbor_release_project }}/mysql-binlog-utf8:5.7.1"
+      edit_rbd: "{{ harbor_release_project }}/cc-rbd-file-delegate:1.0"
+      redis: "{{ harbor_release_project }}/cc-redis:4.0.1"
+      rabbitmq: "{{ harbor_release_project }}/rabbitmq:3-management"
+      account: "{{ harbor_release_project }}/cc-account:{{ console_version }}"
+      ansible: "{{ harbor_release_project }}/cc-ansible:{{ console_version }}"
+      audit: "{{ harbor_release_project }}/cc-audit:{{ console_version }}"
+      backend: "{{ harbor_release_project }}/cc-backend:{{ console_version }}"
+      config_server: "{{ harbor_release_project }}/cc-config-server:1.0.0"
+      console: "{{ harbor_release_project }}/cc-console:{{ console_version }}"
+      gateway: "{{ harbor_release_project }}/cc-gateway:{{ console_version }}"
+      gc: "{{ harbor_release_project }}/cc-gc:{{ console_version }}"
+      gitbook: "{{ harbor_release_project }}/cc-gitbook:{{ console_version }}"
+      harbor: "{{ harbor_release_project }}/cc-harbor:{{ console_version }}"
+      initializer: "{{ harbor_release_project }}/cc-initializer:{{ console_version }}"
+      kubeorigin: "{{ harbor_release_project }}/cc-kubeorigin:{{ console_version }}"
+      local_repository: "{{ harbor_release_project }}/cc-local-repository:{{ console_version }}"
+      log: "{{ harbor_release_project }}/cc-log:{{ console_version }}"
+      metric: "{{ harbor_release_project }}/cc-metric:{{ console_version }}"
+      notification: "{{ harbor_release_project }}/cc-notification:{{ console_version }}"
+      storage: "{{ harbor_release_project }}/cc-storage:{{ console_version }}"
+      storage_listener: "{{ harbor_release_project }}/cc-storage-listener:{{ console_version }}"
+      template: "{{ harbor_release_project }}/cc-template:{{ console_version }}"
+      terminal: "{{ harbor_release_project }}/cc-terminal:{{ console_version }}"
+      watch: "{{ harbor_release_project }}/cc-watch:{{ console_version }}"
+      scale_console_image: "{{ harbor_release_project }}/scale-console:{{ console_version }}"
+      ftp: "{{ harbor_console_project }}/ftp:0.2"
+      jupyterhub: "{{ harbor_console_project }}/jupyterhub:0.2"
+      keycloak: "{{harbor_release_project}}/keycloak:4.1.0.console"
+      pom: "{{harbor_release_project}}/lmdashboard:{{console_version}}"
+
+
+    ##########################################################################
+    ######################### bigdata #########################################
+    ##########################################################################
+    #harbor url to pull images from
+    release_harbor_url: 10.19.140.200:29006
+    local_harbor_url: 127.0.0.1
+    harbor_port: 29006
+    registry_url: 127.0.0.1
+    harbor_tools_project: tools
+    release_version: helium-1.4.0
+
+
+
+    bigdata_image:
+      druid_image: "{{harbor_tools_project}}/dep-centos7-druid-0.10.0:{{ release_version }}"
+      elasticsearch_image: "{{harbor_tools_project}}/dep-centos7-elasticsearch-5.4.0:{{ release_version }}"
+      hadoop_hdfs_image: "{{harbor_tools_project}}/dep-centos7-hadoop-2.7.4:{{ release_version }}"
+      hbase_image: "{{harbor_tools_project}}/dep-centos7-hbase-1.2.6:{{ release_version }}"
+      kafka_image: "{{harbor_tools_project}}/dep-centos7-kafka-2.11-0.10.1.1:{{ release_version }}"
+      kafkamanager_image: "{{harbor_tools_project}}/dep-centos7-kafka-manager-1.3.3.8:{{ release_version }}"
+      mongodb_image: "{{harbor_tools_project}}/dep-centos7-mongodb-3.6.4:{{ release_version }}"
+      opentsdb_image: "{{harbor_tools_project}}/dep-centos7-opentsdb-2.3.0:{{ release_version }}"
+      ping_image: "{{harbor_tools_project}}/dep-centos7-ping-0.0.1:{{ release_version }}"
+      plyql_image: "{{harbor_tools_project}}/dep-centos7-plyql-0.11.2:{{ release_version }}"
+      spark_image: "{{harbor_tools_project}}/dep-centos7-spark-2.1.1-hadoop2.7:{{ release_version }}"
+      zookeeper_image: "{{harbor_tools_project}}/dep-centos7-zookeeper-3.5.3-beta:{{ release_version }}"
+      mysql_image: "{{harbor_tools_project}}/dep-debian-mysql-5.7.18:{{ release_version }}"
+      haproxy_image: "{{harbor_tools_project}}/haproxy-1.7.0:{{ release_version }}"
+      redis_image: "{{ harbor_tools_project }}/dep-redis4.0.2-redis:{{ release_version }}"
+      centos7_jdk_image: "{{harbor_tools_project}}/he2-centos7-jdk8:0.2"
+      amah_druid_image: "{{harbor_tools_project}}/amah-druid-0.10.0:{{ release_version }}"
+      amah_elasticsearch_image: "{{harbor_tools_project}}/amah-elasticsearch-5.4.0:{{ release_version }}"
+      amah_hadoop_image: "{{harbor_tools_project}}/amah-hadoop-2.7.4:{{ release_version }}"
+      amah_hbase_image: "{{harbor_tools_project}}/amah-hbase-1.2.6:{{ release_version }}"
+      amah_kafka_image: "{{harbor_tools_project}}/amah-kafka-2.11-0.10.1.1:{{ release_version }}"
+      amah_mongodb_image: "{{harbor_tools_project}}/amah-mongodb-3.6.4:{{ release_version }}"
+      amah_mysql_image: "{{harbor_tools_project}}/amah-mysql-5.7.18-1debian8:{{ release_version }}"
+      amah_opentsdb_image: "{{harbor_tools_project}}/amah-opentsdb-2.3.0:{{ release_version }}"
+      amah_redis_image: "{{harbor_tools_project}}/amah-redis-4.0.2:{{ release_version }}"
+      amah_spark_image: "{{harbor_tools_project}}/amah-spark-2.1.1-hadoop2.7:{{ release_version }}"
+      amah_zookeeper_image: "{{harbor_tools_project}}/amah-zookeeper-3.5.3-beta:{{ release_version }}"
+      redisstandalone_image: "tools/dep-debian-redisstandalone-4.0.11:{{ release_version }}"
+
+
+
+    ##########################################################################
+    ######################### monitor #########################################
+    ##########################################################################
+    #harbor url to pull images from
+    harbor_monitor_project: monitor
+    monitor_release_version: helium-1.4.0
+    monitor_image_version: 1.3-release
+
+
+    monitor_image:
+      init_container: "{{ harbor_tools_project }}/init-container:1.0"
+      monitor_mongo: "{{harbor_monitor_project}}/mongo-3.4:0.1.0.RELEASE"
+      monitor_mysql: "{{harbor_tools_project}}/dep-debian-mysql-5.7.18:{{ monitor_release_version }}"
+      fluent_bit: "{{ harbor_monitor_project }}/fluent-bit:0.3.1.RELEASE"
+      config_service_server: "{{ harbor_monitor_project }}/enn-monitor-config-service-server:0.3.0.RELEASE"
+      config_service_web:  "{{ harbor_monitor_project }}/enn-monitor-config-service-web:0.3.1.RELEASE"
+      prometheus_engine: "{{ harbor_monitor_project }}/prometheus-engine-s3:{{ monitor_release_version }}"
+      prometheus_alertmanager: "{{ harbor_monitor_project }}/prometheus-alertmanager-s3:{{ monitor_release_version }}"
+      prometheus_pushgateway:  "{{ harbor_monitor_project }}/prometheus-pushgateway-s3:{{ monitor_release_version }}"
+      prometheus_script_exporter: "{{ harbor_monitor_project }}/prometheus-script-exporter-s3:{{ monitor_release_version }}"
+      cloudcmd: "{{ harbor_monitor_project }}/cloudcmd:{{ monitor_image_version }}"
+      prometheus_admin_center: "{{ harbor_monitor_project }}/prometheus-admin-center-s3:{{ monitor_release_version }}"
+      prometheus_admin_center_web:  "{{ harbor_monitor_project }}/prometheus-admin-center-web-s3:{{ monitor_release_version }}"
+      prometheus_pushprom: "{{ harbor_monitor_project }}/prometheus-pushprom-s3:{{ monitor_release_version }}"
+      prometheus_automation: "{{ harbor_monitor_project }}/prometheus-automation-s3:{{ monitor_release_version }}"
+      mock_server: "{{ harbor_monitor_project }}/mock-server:{{ monitor_release_version }}"
+      msc_console: "{{ harbor_monitor_project }}/msc-console:{{ monitor_release_version }}"
+      enn_monitor_tracing:  "{{ harbor_monitor_project }}/enn-monitor-tracing:1.3-release"
+      enn_monitor_trace_data_api: "{{harbor_monitor_project}}/enn-monitor-trace-data-api:1.3-release"
+      mt_console: "{{ harbor_monitor_project }}/mt-console:1.3-release"
+      grafana: "{{ harbor_monitor_project }}/monitor-grafana:1.3-release"
+      monitor_streaming_jobs: "{{ harbor_monitor_project }}/monitor-streaming-jobs:1.3.2-release"
+      security_gateway_server: "{{ harbor_monitor_project }}/enn-monitor-security-gateway-server:0.3.2.RELEASE"
+      security_config_server: "{{ harbor_monitor_project }}/enn-monitor-security-config-server:0.1.0.RELEASE"
+      security_config_web: "{{ harbor_monitor_project }}/enn-monitor-security-config-web:0.1.0.RELEASE"
+      security_gateway_web: "{{harbor_monitor_project}}/enn-monitor-security-gateway-web:0.1.0.RELEASE"
+      enn_monitor_log_archive_server: "{{ harbor_monitor_project }}/enn-monitor-log-archive-server:0.2.0.RELEASE"
+      kibana: "{{ harbor_monitor_project }}/kibana-5.4.0:0.1.0.RELEASE"

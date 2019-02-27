@@ -1,0 +1,65 @@
+---
+- name: "Set default value for 'fetch_certs'"
+  set_fact:
+    fetch_certs: false
+
+- name: "Check_certs | check if certs have already been generated on ansible node"
+  stat:
+    path: files/ssl/{{ item }}
+  delegate_to: 127.0.0.1
+  register: ca_cert
+  run_once: true
+  with_items:
+    - ca.pem
+    - ca-key.pem
+    - etcd/etcd-admin.pem
+    - etcd/etcd-admin-key.pem
+    - kube/admin.pem
+    - kube/admin-key.pem
+
+- name: "Set 'fetch_certs' to true"
+  set_fact:
+    fetch_certs: true
+  when: item.stat.exists == false
+  run_once: true
+  with_items: "{{ ca_cert.results  }}"
+
+- name: fetch cert file from master node
+  fetch:
+    src:  /etc/ssl/{{ item }}
+    dest: files/ssl/{{ item }}
+    flat: yes
+  with_items:
+    - ca.pem
+    - ca-key.pem
+    - etcd/etcd-admin.pem
+    - etcd/etcd-admin-key.pem
+    - kube/admin.pem
+    - kube/admin-key.pem
+  delegate_to: "{{ master_list[0] }}"
+  run_once: yes
+  when: fetch_certs
+
+- name: Gen_K8S_certs | Create kube-proxy cert
+  shell:
+    echo '{"CN":"system:kube-proxy:{{ inventory_hostname }}","hosts":[""],"key":{"algo":"rsa","size":2048},"names":[{"O":"system:node-proxier"}]}' | cfssl gencert \
+    -ca=../ca.pem \
+    -ca-key=../ca-key.pem \
+    -config={{ role_path }}/files/ca-config.json \
+    -profile=client \
+    -hostname {{ inventory_hostname }} -| cfssljson -bare kube-proxy-{{ inventory_hostname }}
+  args:
+    chdir: "files/ssl/kube"
+  delegate_to: 127.0.0.1
+
+- name: Gen_K8S_certs | Create kubelet cert
+  shell:
+    echo '{"CN":"system:node:{{ inventory_hostname }}","hosts":[""],"key":{"algo":"rsa","size":2048},"names":[{"O":"system:nodes"}]}' | cfssl gencert \
+    -ca=../ca.pem \
+    -ca-key=../ca-key.pem \
+    -config={{ role_path }}/files/ca-config.json \
+    -profile=client \
+    -hostname {{ inventory_hostname }} -| cfssljson -bare kubelet-{{ inventory_hostname }}
+  args:
+    chdir: "files/ssl/kube"
+  delegate_to: 127.0.0.1

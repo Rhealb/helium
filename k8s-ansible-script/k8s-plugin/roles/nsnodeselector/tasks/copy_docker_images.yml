@@ -1,0 +1,30 @@
+---
+- name: create nsnodeselector image files dir
+  file: path=/tmp/nsnodeselector/images/ state=directory
+
+- name: copy images
+  copy:
+    src: "../../../files/images/k8splugin/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: nsnodeselector.tar, dest: /tmp/nsnodeselector/images/}
+
+- name: load docker images
+  command: "{{ item}}"
+  with_items:
+    - docker load -i /tmp/nsnodeselector/images/nsnodeselector.tar
+
+- name: copy push image script
+  template: src=push_images.sh dest=/tmp/nsnodeselector/images/
+
+- name: push images files
+  command: bash  /tmp/nsnodeselector/images/push_images.sh
+
+# clean up temp files
+- name: clean up "/tmp/nsnodeselector/images"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/nsnodeselector/images"
+

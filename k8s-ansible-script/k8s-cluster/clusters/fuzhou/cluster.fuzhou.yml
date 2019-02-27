@@ -1,0 +1,98 @@
+---
+all:
+  vars:
+    etcd_init_servers: ["35.39.114.44", "35.39.114.45", "35.39.114.46"]
+    flannel_etcd_list: ["35.39.114.44", "35.39.114.45", "35.39.114.46"]
+    flanneld_subnet: "172.16.0.0/16"
+    ntp_orphan_parents: ["35.39.114.44", "35.39.114.45", "35.39.114.46"]
+    ntp_server: ""
+    admin_password: "IampAssword"
+    admin_username: "iAmAdmin"
+    master_list: ["35.39.114.44", "35.39.114.45", "35.39.114.46"]
+    cluster_ip_range: "10.254.0.0/16"
+    cluster_name: "fuzhou"
+    domain: "cluster.local"
+    interface: "eno1"
+    vip: "35.39.114.47"
+    ca_vip: "35.39.114.47"
+    hanode_list: ["35.39.114.42", "35.39.114.43"]
+    backend_type: "vxlan"
+    mon_list: ["35.39.114.42", "35.39.114.43", "35.39.114.44"]
+    osd_list: ["35.39.114.42","35.39.114.43","35.39.114.44","35.39.114.45", "35.39.114.46"]
+    ceph_public_network: "35.39.114.0/24"
+    ceph_cluster_network: "35.39.114.0/24"
+    rgw_dns_name: "enncloud.ceph.s3"
+    ceph_image_tag: "12.2.4"
+    rbd_dev_list: ["sdd", "sde"]
+    console_version: release-1.3.0
+    storage_type: "ceph"
+    install_mode: "local"
+    hostname_prefix: "cluster"
+    local_repo: "35.39.114.41:8009"
+    sample_rate: 30
+    cluster_total_cores: 192
+    cluster_total_mem: 384
+    # ingress
+    ingress_dns_domain: enn.ingress.cn
+    # harbor
+    harbor_admin_password: admin
+    # keystone
+    keystone_admin_password: admin
+    # console
+    console_version: release-1.3.0
+    title_cn: 容器云
+    title_en: Data Platform +
+
+    #bigdata image vesion
+    release_version: helium-1.3.0
+
+  children:
+    centos:
+      vars:
+        ansible_ssh_user: root
+        ansible_ssh_pass: root
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+      children:
+        nodes:
+          vars:
+            special_mounts:
+              /dev/sda:
+                path: /xfs/disk1
+                opt: prjquota
+              /dev/sdc:
+                path: /xfs/disk2
+                opt: prjquota
+          hosts:
+            35.39.114.42:
+              special_mounts:
+                /dev/sda:
+                  path: /xfs/disk1
+                  opt: prjquota
+            35.39.114.43:
+            35.39.114.44:
+        nodees:
+          vars:
+            special_mounts:
+              /dev/sda:
+                path: /xfs/disk1
+                opt: prjquota
+              /dev/sdb:
+                path: /xfs/disk2
+                opt: prjquota
+          hosts:
+            35.39.114.45:
+            35.39.114.46:
+            35.39.114.41:
+        add:
+          vars:
+            special_mounts:
+              /dev/sda:
+                path: /xfs/disk1
+                opt: prjquota
+              /dev/sdb:
+                path: /xfs/disk2
+                opt: prjquota
+          hosts:
+            35.39.114.51:
+            35.39.114.52:

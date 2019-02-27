@@ -1,0 +1,37 @@
+# Please use command below to build the image:
+# docker build -f Dockerfile -t <image_name>:<version> .
+FROM centos:7
+
+WORKDIR /opt
+
+RUN yum update -y
+
+# install dev tools
+RUN yum install -y curl \
+                   xinetd \
+                   expect \
+                   nc.x86_64 \
+                   util-linux \
+                   bind-utils \
+                   which && \
+    yum clean all && \
+    rm -rf /var/cache/yum/*
+
+# jdk
+ENV JDK_URL http://download.oracle.com/otn-pub/java/jdk
+ENV JDK_VER 8u131-b11
+ENV JDK_AUTHCODE d54c1d3a095b4ff2b6607d096fa80163
+ENV JDK_VER2 jdk-8u131
+ENV JAVA_HOME /usr/local/$JDK_VER2
+ENV PATH $PATH:$JAVA_HOME/bin
+RUN curl -L -C - -b "oraclelicense=accept-securebackup-cookie" \
+         "$JDK_URL/$JDK_VER/$JDK_AUTHCODE/$JDK_VER2-linux-x64.tar.gz" | \
+         tar -xz -C /usr/local/ && \
+    mv /usr/local/jdk1* $JAVA_HOME
+
+# for dependency checking
+ADD ./check /usr/bin/
+
+# add entrypoint.sh
+COPY entrypoint.sh /opt/entrypoint.sh
+RUN chmod a+x /opt/entrypoint.sh

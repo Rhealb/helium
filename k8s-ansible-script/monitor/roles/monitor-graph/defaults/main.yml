@@ -1,0 +1,16 @@
+registry_url: 127.0.0.1:29006
+monitor_kibana_image: monitor/kibana-5.4.0:0.1.0.RELEASE
+monitor_kibana_cpu_request: 0.5
+monitor_kibana_cpu_limit: 2
+monitor_kibana_memory_request: 500Mi
+monitor_kibana_memory_limit: 2000Mi
+
+monitor_kibana_export_port: 29304
+
+monitor_kibana_app: kibana
+
+monitor_es_host: pre1-esclient-ex.monitor-essential-service
+monitor_es_port: 9200
+
+monitor_ns_monitor_application: monitor-application
+monitor_ns_monitor_essential_service: monitor-essential-service

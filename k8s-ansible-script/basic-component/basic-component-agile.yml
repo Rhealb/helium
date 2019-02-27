@@ -1,0 +1,16 @@
+- hosts: all
+  vars:
+    auth_enabled: "false"
+    ceph_enabled: "false"
+    nfs_enabled: "false"
+    install_mode: "standalone"
+  roles:
+  - role: system-tools
+    when: inventory_hostname in master_list[0]
+  - role: harbor-images
+  - role: registry
+    when: inventory_hostname in master_list[0]
+  - role: pause-image
+    when: inventory_hostname in master_list[0]
+  - role: nfs-provisioner
+    when: inventory_hostname in master_list[0] and storage_type == "nfs"

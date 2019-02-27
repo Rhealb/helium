@@ -1,0 +1,83 @@
+- name: create /monitor
+  file: path=/monitor state=directory
+
+# - name: copy images
+#   copy:
+#     src: "../files/images/monitor/{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#   with_items:
+#     - {src: config-server.tar, dest: /monitor}
+#     - {src: config-web.tar, dest: /monitor}
+#     - {src: gateway-server.tar, dest: /monitor}
+#     - {src: gateway-web.tar, dest: /monitor}
+
+# - name: load docker images
+#   command: docker load -i /monitor/{{ item }}
+#   with_items:
+#     - config-server.tar
+#     - config-web.tar
+#     - gateway-server.tar
+#     - gateway-web.tar
+
+# - name: push image to registry
+#   command: "{{ item }}"
+#   with_items:
+#     - docker login -uadmin -p{{ harbor_admin_password }} {{ registry_url }}
+#     - docker push {{ registry_url }}/{{monitor_security_config_server_image}}
+#     - docker push {{ registry_url }}/{{monitor_security_config_web_image}}
+#     - docker push {{ registry_url }}/{{monitor_security_gateway_server_image}}
+#     - docker push {{ registry_url }}/{{monitor_security_gateway_web_image}}
+
+- name: copy files
+  template:
+    src: "templates/{{item.src}}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: enn-monitor-security-config-server-svc.yml, dest: /monitor}
+    - {src: enn-monitor-security-config-server-rc.yml, dest: /monitor}
+    - {src: enn-monitor-security-config-web-svc.yml, dest: /monitor}
+    - {src: enn-monitor-security-config-web-rc.yml, dest: /monitor}
+    - {src: enn-monitor-security-gateway-server-cm.yml, dest: /monitor}
+    - {src: enn-monitor-security-gateway-server-svc.yml, dest: /monitor}
+    - {src: enn-monitor-security-gateway-server-rc.yml, dest: /monitor}
+    - {src: enn-monitor-security-gateway-web-svc.yml, dest: /monitor}
+    - {src: enn-monitor-security-gateway-web-rc.yml, dest: /monitor}
+
+- name: create security
+  command: ennctl create -a {{ monitor_security_test_app }} -f /monitor/{{ item }}
+  with_items:
+   - enn-monitor-security-config-server-svc.yml
+   - enn-monitor-security-config-server-rc.yml
+   - enn-monitor-security-config-web-svc.yml
+   - enn-monitor-security-config-web-rc.yml
+   - enn-monitor-security-gateway-server-cm.yml
+   - enn-monitor-security-gateway-server-svc.yml
+   - enn-monitor-security-gateway-server-rc.yml
+   - enn-monitor-security-gateway-web-svc.yml
+   - enn-monitor-security-gateway-web-rc.yml
+
+- name: test
+  shell: curl http://{{ master_list[0] }}:{{monitor_security_config_web_externport}}/enn-monitor-security-config-web/token/insert/insert?userid=micklongen\&tokenname=monitortest\&token=monitortest
+  register: result
+  until: result.stdout.find("monitortest") != -1
+  retries: 10
+  delay: 10
+
+- name: create token
+  command: curl http://{{ master_list[0] }}:{{monitor_security_config_web_externport}}/enn-monitor-security-config-web/token/insert/insert?userid=micklongen\&tokenname={{item}}\&token={{item}}
+  with_items:
+   - monitor-app
+   - micklongen-gateway-server
+   - micklongen-config-server
+   - 0634126496E2DF493C2820A1DA187C57
+   - EDAE3C40B04DACEDCA797921C91DEB81
+   - system-k8s
+   - micklongen-log-server
+
+- name: create topic
+  command: curl http://{{ master_list[0] }}:{{monitor_security_config_web_externport}}/enn-monitor-security-config-web/topic/insert/insert?userid=micklongen\&source={{item.source}}\&topic={{item.topic}}
+  with_items:
+   - {source: monitor-app, topic: monitor-app}
+   - {source: log-k8s, topic: log-k8s-system}
+   - {source: log-pod, topic: log-k8s-pod}
+   - {source: zipkin_gw, topic: zipkin_gw}

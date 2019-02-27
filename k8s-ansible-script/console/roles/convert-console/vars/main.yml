@@ -1,0 +1,334 @@
+---
+audit_clear:
+  clear_percent: 0.05
+  storage_limit: 0.4
+  table_limit: 0.15
+ceph:
+  admin_user: admin
+  health:
+    port: 5000
+    service: ceph-rest
+confidential:
+  appautoscale:
+    username: zhtsC1002
+    password: zhtsC1002
+  elastic_search:
+    password: changeme
+    username: elastic
+  harbor:
+    username: admin
+    password: "{{ harbor_admin_password }}"
+  keycloak:
+    username: root
+    password: root
+  keystone:
+    username: admin
+    password: "{{ keystone_admin_password }}"
+  mysql:
+    password: root
+    username: root
+  rabbitmq:
+    password: enn123456
+    username: admin
+  redis:
+    password: enn123456
+    username: admin
+resource:
+  account:
+    limits_cpu: 800m
+    limits_memory: 1600Mi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  audit:
+    limits_cpu: 800m
+    limits_memory: 1600Mi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  backend:
+    limits_cpu: 1000m
+    limits_memory: 3600Mi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 1500Mi
+  config_server:
+    limits_cpu: 800m
+    limits_memory: 1600Mi
+    probe: 120
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  console:
+    limits_cpu: 100m
+    limits_memory: 128Mi
+    probe: 30
+    requests_cpu: 100m
+    requests_memory: 128Mi
+  dependency_checker:
+    limits_cpu: 800m
+    limits_memory: 1600Mi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  etcd:
+    limits_cpu: 100m
+    limits_memory: 256Mi
+    requests_cpu: 100m
+    requests_memory: 256Mi
+  gateway:
+    limits_cpu: 800m
+    limits_memory: 2500Mi
+    probe: 250
+    requests_cpu: 100m
+    requests_memory: 1300Mi
+  gc:
+    limits_cpu: 800m
+    limits_memory: 1600Mi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  gitbook:
+    limits_cpu: 100m
+    limits_memory: 128Mi
+    requests_cpu: 100m
+    requests_memory: 128Mi
+  harbor:
+    limits_cpu: 500m
+    limits_memory: 1600Mi
+    probe: 250
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  initializer:
+    limits_cpu: 600m
+    limits_memory: 1600Mi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  keycloak:
+    limits_cpu: 500m
+    limits_memory: 2400Mi
+    probe: 200
+    requests_cpu: 100m
+    requests_memory: 1000Mi
+  kubeorigin:
+    limits_cpu: 500m
+    limits_memory: 2Gi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 1Gi
+  lmd:
+    limits_cpu: 100m
+    limits_memory: 128Mi
+    probe: 60
+    requests_cpu: 100m
+    requests_memory: 128Mi
+  log:
+    limits_cpu: 500m
+    limits_memory: 1600Mi
+    probe: 100
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  metric:
+    limits_cpu: 500m
+    limits_memory: 1600Mi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  mongo:
+    limits_cpu: 200m
+    limits_memory: 256Mi
+    requests_cpu: 100m
+    requests_memory: 256Mi
+  mysql:
+    limits_cpu: 400m
+    limits_memory: 4Gi
+    requests_cpu: 100m
+    requests_memory: 2Gi
+  notification:
+    limits_cpu: 500m
+    limits_memory: 1300Mi
+    probe: 400
+    requests_cpu: 100m
+    requests_memory: 800Mi
+  rabbitmq:
+    limits_cpu: 500m
+    limits_memory: 1Gi
+    requests_cpu: 200m
+    requests_memory: 256Mi
+  redis:
+    limits_cpu: 100m
+    limits_memory: 256Mi
+    requests_cpu: 100m
+    requests_memory: 256Mi
+  storage:
+    limits_cpu: 400m
+    limits_memory: 1300Mi
+    probe: 200
+    requests_cpu: 100m
+    requests_memory: 700Mi
+  storage_listener:
+    limits_cpu: 200m
+    limits_memory: 800Mi
+    probe: 300
+    requests_cpu: 100m
+    requests_memory: 500Mi
+  template:
+    limits_cpu: 400m
+    limits_memory: 800Mi
+    probe: 500
+    requests_cpu: 100m
+    requests_memory: 500Mi
+  terminal:
+    limits_cpu: 300m
+    limits_memory: 1Gi
+    probe: 250
+    requests_cpu: 100m
+    requests_memory: 500Mi
+  watch:
+    limits_cpu: 400m
+    limits_memory: 1500Mi
+    probe: 400
+    requests_cpu: 100m
+    requests_memory: 800Mi
+namespace:
+  bigdata: monitor-essential-service
+  ceph: ceph
+  console: console
+  default: default
+  kube_system: kube-system
+  monitor: monitor-application
+  system_tools: system-tools
+node_port:
+  console: 29000
+  gateway_http: 29002
+  gateway_https: 29001
+  gitbook: 29004
+  grafana: 29008
+  harbor: 29006
+  keycloak: 29270
+  lmd: 29005
+  rgw: 29100
+  scaler: 29021
+  terminal: 29003
+global:
+  vip: "{{ ca_vip }}"
+  public_vip: "{{ public_vip }}"
+ca_vport: 6442
+# Docker
+docker_user: admin
+harbor_project: release
+registry_url: 127.0.0.1:{{ node_port.harbor }}
+registry_host: 127.0.0.1
+harbor_url: http://hub.system-tools:80
+harbor_admin_username: admin
+mysql:
+  rbd_image: mysql
+  size: 200Gi
+  pool_size: 204800
+mongo:
+  rbd_image: mongo
+  size: 10Gi
+  pool_size: 10240
+# Images
+image:
+  account: "{{ registry_url }}/{{ harbor_project }}/cc-account:{{ console_version }}"
+  audit: "{{ registry_url }}/{{ harbor_project }}/cc-audit:{{ console_version }}"
+  backend: "{{ registry_url }}/{{ harbor_project }}/cc-backend:{{ console_version }}"
+  config_server: "{{ registry_url }}/{{ harbor_project }}/cc-config-server:1.0.0"
+  console: "{{ registry_url }}/{{ harbor_project }}/cc-console:{{ console_version }}"
+  dc: "{{ registry_url }}/{{ harbor_project }}/dependency-checker:{{ console_version }}"
+  edit_rbd: "{{ registry_url }}/console/cc-rbd-file-delegate:1.0"
+  etcd: "{{ registry_url }}/{{ harbor_project }}/etcd:3.2"
+  gateway: "{{ registry_url }}/{{ harbor_project }}/cc-gateway:{{ console_version }}"
+  gc: "{{ registry_url }}/{{ harbor_project }}/cc-gc:{{ console_version }}"
+  gitbook: "{{ registry_url }}/{{ harbor_project }}/cc-gitbook:{{ console_version }}"
+  harbor: "{{ registry_url }}/{{ harbor_project }}/cc-harbor:{{ console_version }}"
+  init_container: "{{ registry_url }}/console/init-container:1.0"
+  initializer: "{{ registry_url }}/{{ harbor_project }}/cc-initializer:{{ console_version }}"
+  kubeorigin: "{{ registry_url }}/{{ harbor_project }}/cc-kubeorigin:{{ console_version }}"
+  log: "{{ registry_url }}/{{ harbor_project }}/cc-log:{{ console_version }}"
+  metric: "{{ registry_url }}/{{ harbor_project }}/cc-metric:{{ console_version }}"
+  mongo: "{{ registry_url }}/{{ harbor_project }}/mongo:3.4"
+  mysql: "{{ registry_url }}/{{ harbor_project }}/mysql-binlog-utf8:5.7.1"
+  notification: "{{ registry_url }}/{{ harbor_project }}/cc-notification:{{ console_version }}"
+  rabbitmq: "{{ registry_url }}/{{ harbor_project }}/rabbitmq:3-management"
+  redis: "{{ registry_url }}/{{ harbor_project }}/cc-redis:4.0.1"
+  storage: "{{ registry_url }}/{{ harbor_project }}/cc-storage:{{ console_version }}"
+  storage_listener: "{{ registry_url }}/{{ harbor_project }}/cc-storage-listener:{{ console_version }}"
+  template: "{{ registry_url }}/{{ harbor_project }}/cc-template:{{ console_version }}"
+  terminal: "{{ registry_url }}/{{ harbor_project }}/cc-terminal:{{ console_version }}"
+  watch: "{{ registry_url }}/{{ harbor_project }}/cc-watch:{{ console_version }}"
+
+
+
+# Convert list
+convert_namespaces: ["console","system-tools"]
+
+# Convert payload
+convert_console_json_body: '{"adminList":["admin"],"cpuRequest": 25,"cpuLimit": 50,"memoryRequestBytes": 53687091200,"memoryLimitBytes": 107374182400,"localStorageBytes":107374182400,"remoteStorageBytes": 107374182400,"allowHostpath": false,"allowPrivilege": true,"allowCriticalPod": true}'
+convert_system_tools_json_body: '{"adminList":["admin"],"cpuRequest": 25,"cpuLimit": 50,"memoryRequestBytes": 42949672960,"memoryLimitBytes": 85899345920,"localStorageBytes":107374182400,"remoteStorageBytes": 107374182400,"allowHostpath": false,"allowPrivilege": true,"allowCriticalPod": true}'
+
+# Keystone
+keystone_url: http://keystone-service.system-tools:5000/v3
+
+# Convert content
+system_tools_apps: ["gateway","keystone","ldap","harbor"]
+console_apps: ["console"]
+
+console_deployments: [
+  "cc-account",
+  "cc-audit",
+  "cc-backend",
+  "cc-console",
+  "cc-gitbook",
+  "cc-gc",
+  "cc-harbor",
+  "cc-initializer",
+  "cc-kubeorigin",
+  "cc-log",
+  "cc-metric",
+  "cc-mysql",
+  "cc-notification",
+  "cc-storage",
+  "cc-template",
+  "cc-terminal",
+  "cc-watch"
+]
+console_services: [
+  "cc-account",
+  "cc-audit",
+  "cc-backend",
+  "cc-console",
+  "cc-gitbook",
+  "cc-gc",
+  "cc-harbor",
+  "cc-initializer",
+  "cc-kubeorigin",
+  "cc-log",
+  "cc-metric",
+  "cc-mysql",
+  "cc-notification",
+  "cc-storage",
+  "cc-template",
+  "cc-terminal",
+  "cc-watch"
+]
+
+gateway_deployments: ["gateway"]
+gateway_services: ["gateway"]
+
+keystone_deployments: ["keystone","keystone-mysql"]
+keystone_services: ["keystone-service","keystone-mysql"]
+
+ldap_deployments: ["haproxy-ldaps-ha","ldap-register"]
+ldap_services: ["haproxy-ldaps-ha-svc","ldaps-ha-svc","ldap-register-svc"]
+ldap_statefulset: ["ldaps-ha"]
+
+harbor_deployments: ["adminserver","hub","jobservice","mysql","registry","ui"]
+harbor_services: ["adminserver","hub","jobservice","mysql","registry","ui"]
+
+keystone_roles: ["site_admin","sys_admin","dev"]
+keystone_admin_username: admin
+
+status_port_sub_url: "{{ node_port.grafana }}/dashboard/db/service-monitor?refresh=10s&orgId=1"
+scale_console_url: https://{{ ca_vip }}:{{ scale_console_port }}

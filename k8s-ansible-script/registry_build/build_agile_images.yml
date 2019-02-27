@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  vars:
+    build: true
+    push: false
+    edition: agile
+  roles:
+     - role: console_images

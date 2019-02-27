@@ -1,0 +1,32 @@
+---
+- name: create autoScaler image files dir
+  file: path=/tmp/autoScaler/images/ state=directory
+
+- name: copy images
+  copy:
+    src: "../../../files/images/auto-scaler/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: scale.tar, dest: /tmp/autoScaler/images/}
+    - {src: monitor.tar, dest: /tmp/autoScaler/images/}
+
+- name: load docker images
+  command: "{{ item}}"
+  with_items:
+    - docker load -i /tmp/autoScaler/images/scale.tar
+    - docker load -i /tmp/autoScaler/images/monitor.tar
+
+- name: copy push image script
+  template: src=shell/push_images.sh dest=/tmp/autoScaler/images/
+
+- name: push images files
+  command: bash  /tmp/autoScaler/images/push_images.sh
+
+# clean up temp files
+- name: clean up "/tmp/autoScaler/images"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/autoScaler/images"
+

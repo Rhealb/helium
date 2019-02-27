@@ -1,0 +1,85 @@
+---
+- name: make sure /tmp/nshostpathpvprivilege directory exist on target server
+  file:
+    path: "/tmp/nshostpathpvprivilege"
+    state: "directory"
+    mode: 0777
+
+- name: copy script and yaml files to /tmp/nshostpathpvprivilege
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: gencerts.sh, dest: /tmp/nshostpathpvprivilege/gencerts.sh}
+    - {src: nshostpathpvprivilege.service, dest: /etc/systemd/system/nshostpathpvprivilege.service}
+
+- name: copy binary file
+  copy:
+    src: "../files/kube/{{ item.src }}"
+    dest: "{{ bin_dir }}/{{ item.dest }}"
+    mode: 0775
+  with_items:
+    - {src: nshostpathprivilege, dest: nshostpathprivilege}
+
+- name: make sure /etc/kubernetes/tls-certs/nshp-certs directory exist on target server
+  file:
+    path: "/etc/kubernetes/tls-certs/nshp-certs"
+    state: "directory"
+    mode: 0755
+    force: yes
+
+- name: delete ValidatingWebhookConfiguration
+  shell: "kubectl delete ValidatingWebhookConfiguration nshostpathprivilege"
+  delegate_to: "{{ master_list[0] }}"
+  run_once: yes
+  ignore_errors: yes
+
+- name: bash gencerts
+  command: bash /tmp/nshostpathpvprivilege/gencerts.sh false localhost
+  when: inventory_hostname == master_list.0
+  ignore_errors: yes
+
+- name: fetch cert file from master node
+  fetch:
+    src: /etc/kubernetes/tls-certs/nshp-certs/{{ item }}
+    dest: files/nshp-certs/{{ item }}
+    flat: yes
+  with_items:
+    - caCert.pem
+    - caCert.srl
+    - caKey.pem
+    - serverCert.pem
+    - server.csr
+    - serverKey.pem
+  delegate_to: "{{ master_list[0] }}"
+  run_once: yes
+
+- name: copy cert file to node
+  copy:
+    src: nshp-certs/{{ item }}
+    dest: /etc/kubernetes/tls-certs/nshp-certs/{{ item }}
+  with_items:
+    - caCert.pem
+    - caCert.srl
+    - caKey.pem
+    - serverCert.pem
+    - server.csr
+    - serverKey.pem
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: start and enable service
+  service:
+    name: nshostpathpvprivilege
+    state: restarted
+    enabled: yes
+
+ #clean up temp files
+- name: clean up "/tmp/nshostpathpvprivilege"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/nshostpathpvprivilege"

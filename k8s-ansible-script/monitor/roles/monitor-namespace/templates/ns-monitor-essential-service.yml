@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    io.enndata.namespace/alpha-allowhostpath: 'true'
+    io.enndata.namespace/alpha-allowprivilege: 'true'
+  name: {{ monitor_ns_monitor_essential_service }}
+spec:
+  nsadmin:
+  - admin
+  allowHostpath: true
+  allowPrivilege: true
+  allowCriticalPod: true
+  resources:
+    limits:
+      cpu: {{ monitor_essential_service_cpu_limit }}
+      memory: {{ monitor_essential_service_mem_limit }}
+    requests:
+      cpu: {{ monitor_essential_service_cpu_req }}
+      memory: {{ monitor_essential_service_mem_req }}
+      localStorage: {{ monitor_essential_service_local_disk_req }}
+      remoteStorage: {{ monitor_essential_service_remote_disk_req }}

@@ -1,0 +1,65 @@
+# tasks file for certificate
+- name: Gen_K8S_certs | Create k8s cert dir
+  file:
+    path: "files/ssl/kube"
+    state: directory
+  delegate_to: 127.0.0.1
+  run_once: yes
+
+###kubernetes client admin cert
+- name: Gen_K8S_certs | Create k8s client admin cert
+  shell:
+    echo '{"CN":"admin","hosts":[""],"key":{"algo":"rsa","size":2048},"names":[{"O":"system:masters"}]}' | cfssl gencert \
+    -ca=../ca.pem \
+    -ca-key=../ca-key.pem \
+    -config={{ role_path }}/files/ca-config.json \
+    -profile=client -| cfssljson -bare admin
+  args:
+    chdir: "files/ssl/kube"
+  delegate_to: 127.0.0.1
+  run_once: yes
+
+##apiserver
+- name: Gen_K8S_certs | Create cluster cert files
+  block:
+  - template:
+      src: kubernetes-csr.j2
+      dest: "files/ssl/kube/kubernetes-csr.json"
+  - shell:
+      cfssl gencert \
+        -ca=../ca.pem \
+        -ca-key=../ca-key.pem \
+        -config={{ role_path }}/files/ca-config.json \
+        -profile=server \
+        kubernetes-csr.json | cfssljson -bare kubernetes
+    args:
+      chdir: "files/ssl/kube"
+  - shell:
+      echo '{"CN":"ServiceAccount","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert \
+        -ca=../ca.pem \
+        -ca-key=../ca-key.pem \
+        -config={{ role_path }}/files/ca-config.json \
+        -profile=client \
+        -hostname kubernetes.default -| cfssljson -bare service-account
+    args:
+      chdir: "files/ssl/kube"
+  delegate_to: 127.0.0.1
+  run_once: true
+
+##apiserver controller-manager and scheduler
+- name: Gen_K8S_certs | Create apiserver ,controller-manager and scheduler cert files
+  shell:
+    echo '{"CN":"system:{{ item }}","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert \
+      -ca=../ca.pem \
+      -ca-key=../ca-key.pem \
+      -config={{ role_path }}/files/ca-config.json \
+      -profile=client \
+      -hostname {{ inventory_hostname }} -| cfssljson -bare {{ item }}-{{ inventory_hostname }}
+  args:
+    chdir: "files/ssl/kube"
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+  delegate_to: 127.0.0.1
+  when: inventory_hostname in master_list

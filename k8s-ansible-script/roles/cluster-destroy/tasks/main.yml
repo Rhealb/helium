@@ -1,0 +1,135 @@
+- name: stop all service(1)
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - kubelet
+    - kube-scheduler
+    - kube-controller-manager
+    - kube-rescheduler
+    - kube-proxy
+    - kube-apiserver
+  ignore_errors: yes
+
+- name: stop all service(2)
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - docker
+  ignore_errors: yes
+
+- name: stop all service(3)
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - flanneld
+    - etcd
+  ignore_errors: yes
+
+- name: stop all service(4)
+  systemd:
+    name: kubelog-cleanup.timer
+    state: stopped
+    enabled: no
+  ignore_errors: yes
+
+- name: stop all service(5)
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - loopdevice
+  when: special_mounts is defined and disk_type is defined and disk_type == "loop"
+  ignore_errors: yes
+
+- name: unmout disk
+  mount:
+    path: "{{ item.value.path }}"
+    src: "{{ item.key+'1' }}"
+    state: unmounted
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined and disk_type is not defined
+
+- name: unmout disk (when only one disk)
+  mount:
+    path: "{{ item.value.path }}"
+    src: "{{ item.key }}{{ item.value.num }}"
+    state: unmounted
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined and disk_type is defined
+
+- name: delete partition
+  parted:
+    device: "{{ item.key+'1' }}"
+    number: 1
+    state: absent
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined and disk_type is not defined
+  ignore_errors: yes
+
+- name: delete partition (when only one disk)
+  parted:
+    device: "{{ item.key }}{{ item.value.num }}"
+    number: "{{ item.value.num }}"
+    state: absent
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined and disk_type is defined and disk_type == "sda"
+  ignore_errors: yes
+
+- name: delete partition (when use loop device)
+  shell: "sudo losetup -d {{ item.key }}{{ item.value.num }}"
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined and disk_type is defined and disk_type == "loop"
+  ignore_errors: yes
+
+- name: remove mount path (when use loop device)
+  shell: "rm -rf {{ item.value.path }} & rm -rf /xfs"
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined and disk_type is defined and disk_type == "loop"
+  ignore_errors: yes
+
+- name: delete recording
+  lineinfile: 
+    dest=/etc/fstab
+    state=absent
+    regexp='^{{ item.key+'1' }}'
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined and disk_type is not defined
+
+- name: delete recording (when only one disk)
+  lineinfile: 
+    dest=/etc/fstab
+    state=absent
+    regexp='^{{ item.key }}{{ item.value.num }}'
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined and disk_type is defined
+
+- name: delete all directory
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /var/lib/etcd
+    - /etc/etcd
+    - /etc/kubernetes
+    - /var/log/kubernetes
+    - /data
+    - /xfs/disk1
+    - /console
+
+# tasks file for reboot
+- name: reboot the system
+  shell: sleep 2 && /sbin/reboot
+  async: 1
+  poll: 0
+  ignore_errors: yes
+
+- name: wait for system up
+  become: false
+  local_action: wait_for host="{{ inventory_hostname }}"  port=22 timeout=600 delay=10

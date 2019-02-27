@@ -1,0 +1,30 @@
+---
+# tasks file for enn-policy
+- name: create dir
+  file:
+    name: /var/log/kubernetes/enn-policy
+    owner: kube
+    state: directory
+
+- name: upload binray 
+  copy:
+    src: kube/enn-policy
+    dest: "{{ bin_dir }}/enn-policy"
+    owner: kube
+    mode: "a+x"
+
+- name: upload templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "kube"
+  with_items:
+    - { src: "kube/enn-policy", dest: "/etc/kubernetes/enn-policy" }
+    - { src: "kube/enn-policy.service", dest: "/etc/systemd/system/enn-policy.service" }
+
+- name: restart service
+  systemd:
+    name: enn-policy
+    state: restarted
+    enabled: true
+    daemon_reload: true

@@ -1,0 +1,67 @@
+---
+###ceph cluster default vars
+
+##
+#mon_list
+#osd_list
+#rbd_dev_list: [sdb]
+ceph_mds_list: ["{{ mon_list[0] }}","{{ mon_list[2] }}"]
+ceph_public_network: "{% for i in mon_list[0].split('.')[0:-1] %}{{i}}.{% endfor %}0/24"
+ceph_cluster_network: "{{ ceph_public_network }}"
+##ceph image name
+ceph_image: 127.0.0.1:29006/ceph/daemon:12.2.7
+ceph_image_tar_file: ../files/images/k8s/ceph.tar
+
+##ceph nodeport config
+rgw_node_port: 29100
+restapi_node_port: 29101
+
+###mon extra config
+mon_data_path: /var/lib/ceph/mon
+
+###mds extra config
+cephfs_name: cephfs
+cephfs_datapool_pg: 64
+cephfs_metadatapool_pg: 32
+
+
+
+##ceph pods resource config
+#mon
+mon_request_cpu : 0.3
+mon_request_memory: 512Mi
+mon_limit_cpu : 2
+mon_limit_memory: 4Gi
+
+#mgr
+mgr_request_cpu : 0.2
+mgr_request_memory: 256Mi
+mgr_limit_cpu : 2
+mgr_limit_memory: 4Gi
+
+#restapi
+restapi_request_cpu: 0.2
+restapi_request_memory: 256Mi
+restapi_limit_cpu : 0.5
+restapi_limit_memory: 500Mi
+
+#osd
+osd_request_cpu : 1
+osd_request_memory: 2Gi
+osd_limit_cpu : 4
+osd_limit_memory: 8Gi
+
+#mds
+mds_request_cpu : 1
+mds_request_memory: 4Gi
+mds_limit_cpu : 2
+mds_limit_memory: 16Gi
+
+#rgw
+rgw_request_cpu : 0.5
+rgw_request_memory: 512Mi
+rgw_limit_cpu : 2
+rgw_limit_memory: 8Gi
+
+
+

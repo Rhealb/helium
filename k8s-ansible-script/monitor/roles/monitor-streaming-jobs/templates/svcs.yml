@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitor-streaming-app
+      namespace: {{ namespace }}
+      labels:
+        app: monitor-streaming-app
+        name: monitor-streaming-app
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 4040
+          nodePort: 29340
+      type: NodePort
+      selector:
+        name: monitor-streaming-app
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitor-streaming-metric
+      namespace: {{ namespace }}
+      labels:
+        app: monitor-streaming-metric
+        name: monitor-streaming-metric
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 4040
+          nodePort: 29341
+      type: NodePort
+      selector:
+        name: monitor-streaming-metric
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitor-streaming-log-pod
+      namespace: {{ namespace }}
+      labels:
+        app: monitor-streaming-log-pod
+        name: monitor-streaming-log-pod
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 4040
+          nodePort: 29342
+      type: NodePort
+      selector:
+        name: monitor-streaming-log-pod
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitor-streaming-log-system
+      namespace: {{ namespace }}
+      labels:
+        app: monitor-streaming-log-system
+        name: monitor-streaming-log-system
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 4040
+          nodePort: 29343
+      type: NodePort
+      selector:
+        name: monitor-streaming-log-system
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitor-streaming-tracing
+      namespace: {{ namespace }}
+      labels:
+        app: monitor-streaming-tracing
+        name: monitor-streaming-tracing
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 4040
+          nodePort: 29344
+      type: NodePort
+      selector:
+        name: monitor-streaming-tracing

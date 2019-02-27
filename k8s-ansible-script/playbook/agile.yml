@@ -1,0 +1,14 @@
+---
+- include: ../mowang/mowang-cluster.yml
+- include: ../os/install-centos7.4-packages-localrepo.yml
+- include: ../k8s-cluster/k8s-1.9-isolated.yml
+- import_playbook: ../basic-component/basic-component-agile.yml
+- include: ../k8s-plugin/k8s-plugin-agile.yml
+- import_playbook: ../registry_build/push_consoleagile_images.yml
+- import_playbook: ../console/console-1.4.yml
+  vars:
+    auth_enabled: "false"
+    ceph_enabled: "false"
+    nfs_enabled: "false"
+    s3_enabled: "false"
+    is_agile: true

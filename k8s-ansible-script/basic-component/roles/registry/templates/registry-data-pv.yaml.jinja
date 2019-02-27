@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    io.enndata.user/alpha-pvhostpathmountpolicy: keep
+    io.enndata.user/alpha-pvhostpathquotaforonepod: "true"
+  labels:
+    app: docker-registry
+    release: helium
+  name: {{ registry_namespace }}-registry-data-pv
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: {{ registry_data_pv_size }}
+  hostPath:
+    path: /var/lib/registry
+    type: ""
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: {{ registry_namespace }}-registry-data-pvc
+    namespace: {{ registry_namespace }}

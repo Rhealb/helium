@@ -1,0 +1,16 @@
+---
+- name: copy images
+  copy:
+    src: "../../files/images/monitor/{{ item.src }}/"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "{{ workspace }}", dest: "/{{ workspace }}/images/"}
+
+- name: load docker images
+  command: docker load -i /{{ workspace }}/images/images.tar
+
+- name: push image to registry
+  command: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login -uadmin -p{{ harbor_admin_password }} {{ registry_url }}
+    - docker push {{ registry_url }}/monitor/monitor-streaming-jobs:1.3.2-release

@@ -1,0 +1,30 @@
+---
+- name: create podpriority image files dir
+  file: path=/tmp/podpriority/images/ state=directory
+
+- name: copy images
+  copy:
+    src: "../../../files/images/k8splugin/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: podpriority.tar, dest: /tmp/podpriority/images/}
+
+- name: load docker images
+  command: "{{ item}}"
+  with_items:
+    - docker load -i /tmp/podpriority/images/podpriority.tar
+
+- name: copy push image script
+  template: src=push_images.sh dest=/tmp/podpriority/images/
+
+- name: push images files
+  command: bash  /tmp/podpriority/images/push_images.sh
+
+# clean up temp files
+- name: clean up "/tmp/podpriority/images"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/podpriority/images"
+

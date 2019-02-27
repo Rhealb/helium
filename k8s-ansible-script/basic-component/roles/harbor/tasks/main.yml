@@ -1,0 +1,93 @@
+---
+- include: generate_keys.yml
+
+- include: create_image.yml
+  when: storage_type == "ceph"
+
+- include: create_nfs_path.yml
+  when: storage_type == "nfs"
+
+- include: create_ebs.yml
+  when: storage_type == "ebs"
+
+
+- name: Harbor | Create harbor addon dir
+  file:
+    path: /k8s/app/harbor
+    state: directory
+
+- name: Harbor | Set_fact harbor_manifests and clair_manifests
+  set_fact:
+    harbor_manifests:
+    - harbor-storage-pv.yml
+    - harbor-storage-pvc.yml
+    - harbor-registry-cm.yml
+    - harbor-registry-svc.yml
+    - harbor-registry-deploy.yml
+    - harbor-postgres-svc.yml
+    - harbor-postgres-deploy.yml
+    - harbor-redis-svc.yml
+    - harbor-redis-deploy.yml
+    - harbor-environment-cm.yml
+    - harbor-config-cm.yml
+    - harbor-adminserver-svc.yml
+    - harbor-adminserver-deploy.yml
+    - harbor-ui-svc.yml
+    - harbor-ui-deploy.yml
+    - harbor-jobservice-deploy.yml
+    - harbor-jobservice-svc.yml
+    - harbor-proxy-cm.yml
+    - harbor-proxy-svc.yml
+    - harbor-proxy-deploy.yml
+    clair_manifests:
+    - harbor-clair-cm.yml
+    - harbor-clair-svc.yml
+    - harbor-clair-deploy.yml
+
+- name: Harbor | Create harbor manifests
+  template:
+    src: "{{ item }}.j2"
+    dest: "/k8s/app/harbor/{{ item }}"
+  with_items:
+  - "{{ harbor_manifests }}"
+  - "{{ clair_manifests }}"
+
+- name: Harbor | enable Clair daemon
+  set_fact:
+    harbor_manifests: "{{ harbor_manifests + clair_manifests  }}"
+  when: harbor_with_clair
+
+- name: Harbor | Apply harbor manifests
+  command:
+    kubectl apply -f /k8s/app/harbor/{{ item }}
+  with_items:
+  - "{{ harbor_manifests }}"
+
+- name: Harbor | Wait for harbor ready
+  uri:
+    url: http://127.0.0.1:{{ harbor_node_port }}/api/systeminfo
+    return_content: yes
+  register: harbor_result
+  until: harbor_result.status == 200 and 'registry_url' in harbor_result.content
+  retries: 10
+  delay: 30
+  failed_when: harbor_result is failure
+
+- name: Harbor | Create required projects
+  uri:
+    url: http://127.0.0.1:{{ harbor_node_port }}/api/projects
+    method: POST
+    user: admin
+    password: "{{ harbor_admin_password }}"
+    body: {"project_name": "{{ item }}","public": 1}
+    force_basic_auth: yes
+    status_code: 201
+    body_format: json
+  with_items:
+    - console
+    - release
+    #- xizheye
+    - enncloud
+    - monitor
+    - tools
+    - ceph

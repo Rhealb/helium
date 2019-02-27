@@ -1,0 +1,9 @@
+- name: check grafana ready
+  shell: curl -sI http://{{ ca_vip }}:29008/login | head -n 1 | cut -d$' ' -f2
+  register: result
+  until: result.stdout.find("200") != -1
+  retries: 5
+  delay: 30
+
+- name: execute config script
+  shell: /{{ workspace }}/scripts/config_grafana.sh

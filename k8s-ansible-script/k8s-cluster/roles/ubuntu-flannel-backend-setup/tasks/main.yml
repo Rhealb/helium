@@ -1,0 +1,37 @@
+---
+#  tasks file for flannel-setup
+- name: create etcd config
+  shell: |
+    etcdctl set /coreos.com/network/config '{ "Network": "{{ flanneld_subnet }}", "SubnetLen": {{ flanneld_subnetlen }}, "Backend": {"Type": "{{ backend_type }}"} }'
+  environment:
+    ETCDCTL_CA_FILE: /etc/ssl/ca.pem
+    ETCDCTL_CERT_FILE: /etc/ssl/etcd/etcd-admin.pem
+    ETCDCTL_KEY_FILE: /etc/ssl/etcd/etcd-admin-key.pem
+
+- name: bashrc
+  lineinfile:
+    dest:  ~/.bashrc
+    line: "{{ item }}"
+  with_items:
+    - "export ETCDCTL_CA_FILE=/etc/ssl/ca.pem"
+    - "export ETCDCTL_CERT_FILE=/etc/ssl/etcd/etcd-admin.pem"
+    - "export ETCDCTL_KEY_FILE=/etc/ssl/etcd/etcd-admin-key.pem"
+
+- name: upload binary
+  copy:
+    src: kube/flanneld
+    dest: "{{ bin_dir }}/flanneld"
+    mode: "a+rx"
+
+- name: create dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/kubernetes
+
+- name: override kubeconf file
+  template:
+    src: "kube/kube-config"
+    dest: "/etc/kubernetes/kubeconfig"
+    mode: "a+r"

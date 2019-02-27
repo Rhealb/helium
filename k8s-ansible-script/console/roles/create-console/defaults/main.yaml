@@ -1,0 +1,28 @@
+---
+ceph_admin_keyring: AQD5SA5aWJzfHxAAfCPuU/IfcEEgl5K0VZIvAuA==
+ceph_console_keyring: AQD5SA5aWJzfHxAAfCffU/IREEgl5K0VZIvAuA==
+s3_host: 10.19.140.200:29100
+s3_access_key: 07R4FNLFLWCNGEAKDWPW
+s3_secret_key: dHcKX6iZwFIxJ6kLhCT1uKCuzk2Id7NtQMXMSO9C
+ceph_enabled: "true"
+nfs_enabled: "false"
+auth_enabled: "true"
+s3_app_id: ""
+
+mon_list: [192.168.1.100,192.168.1.101,192.168.1.102]
+ca_vip: "{{ master_list[0] }}"
+public_vip: "{{ ca_vip }}"
+is_agile: false
+nfs_host: nfs.dev.enndata.cn
+nfs_path: "/"
+nfs_property: ""
+storage_type: ceph
+cloud_name: none
+sample_rate: 10
+ntp_server: ""
+max_pods: 100
+cpu_reserved: 0
+memory_reserved: 0
+searchdomains: []
+nameservers: []
+kl_interface: ""

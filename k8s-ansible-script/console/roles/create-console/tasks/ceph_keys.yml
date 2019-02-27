@@ -1,0 +1,31 @@
+---
+- name: get ceph admin keyring
+  shell: ceph auth get-key client.admin
+  register: ceph_admin_keyring_out
+
+- name: get ceph console keyring
+  shell: ceph auth get-key client.{{ namespace.console }} | base64
+  register: ceph_console_keyring_out
+
+- name: set ceph keyrings
+  set_fact:
+    ceph_admin_keyring: "{{ ceph_admin_keyring_out.stdout }}"
+    ceph_console_keyring: "{{ ceph_console_keyring_out.stdout }}"
+
+- name : get s3 admin key
+  shell:
+    docker run --rm --entrypoint radosgw-admin \
+    -v /etc/ceph:/etc/ceph  \
+    127.0.0.1:29006/ceph/daemon:{{ ceph_image_tag }} \
+    user info --uid=admin
+  register: shell_result
+
+- name: parse results of create s3 user
+  set_fact:
+    admin_info: "{{ shell_result.stdout | from_json }}"
+
+- name: set s3 keys
+  set_fact:
+    s3_host: "{{ca_vip}}:29100"
+    s3_access_key: "{{ admin_info.get('keys')[0].access_key }}"
+    s3_secret_key: "{{ admin_info.get('keys')[0].secret_key}}"

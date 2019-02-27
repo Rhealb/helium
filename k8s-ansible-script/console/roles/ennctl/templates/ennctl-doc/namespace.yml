@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: awesome-ns
+spec:
+  nsadmin:
+  - awesome-user
+  allowPrivilege: true
+  allowHostpath: true
+  allowCriticalPod: true
+  resources:
+    limits:
+      cpu: 2
+      memory: 200Mi
+    requests:
+      cpu: 1
+      memory: 100Mi
+      localStorage: 2Gi
+      remoteStorage: 2Gi

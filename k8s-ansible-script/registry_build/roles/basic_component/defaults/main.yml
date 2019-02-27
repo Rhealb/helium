@@ -1,0 +1,73 @@
+# harbor
+harbor:
+  url: 10.19.140.200:29006
+  local: 127.0.0.1:29006
+  username: admin
+  password: enncloud
+
+#ceph variable
+ceph_version: 12.2.7
+ceph_project: ceph 
+ceph_dest: files/images/k8s
+
+ 
+
+#harbor image variable
+harbor_dest: files/images/k8s
+harbor_version: enn-1.6.0
+harbor_db: enn-1.6.0
+harbor_redis: enn-1.6.0
+harbor_registry: enn-1.6.0
+harbor_clair: enn-1.6.0
+harbor_nginx: enn-1.6.0
+harbor_project: library
+harbor_dest: files/images/k8s
+
+#ldap image variable
+ldap_dest: "files/images/system-tools"
+enn_ldap_version: 2017.07.r8
+enn_haproxy_ldap_version: 2017.08.r1
+ldap_project: enncloud 
+ldapregister_version: v0.8
+ldapregister_project: console 
+
+
+#scaler image variable
+autoscaler_dest: "files/images/auto-scaler"
+autoscaler_project: "library"
+autoscaler_monitor_version: v2
+autoscaler_manager_version: v2
+
+
+#csi image varaible
+csi_dest: "files/images/k8splugin"
+csi_attacher_image_url: library/csi-attacher:v0.3.0
+driver_registrar_image_url: library/driver-registrar:v0.3.0
+hostpathcsi_image_url: library/hostpathcsi:v0.1.1
+podpriority_image_url: library/podpriority-admission-controller:v0.1.0
+enndata_scheduler_url: library/enndata-scheduler:v0.1.0
+
+#ingress  image 
+ingress_dest: "files/images/system-tools"
+ingress_project: library
+ingress_backend_version: "1.4"
+ingress_controller_version: enn-0.9.0
+
+
+#tools image 
+tools_dest: "files/images/tools"
+net_perf_version: v0.1
+mtr_version: icy 
+k8sft_version: icy
+tools_project: library
+
+#ennctl 
+ennctl_dest: files/bin
+ennctl_version: "helium-1.4.0"
+
+
+
+# library/nfs-client:1.0
+nfs_client_dest: "files/images/system-tools"
+nfs_client_image_url: "library/nfs-client:1.0"
+

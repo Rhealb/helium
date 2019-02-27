@@ -1,0 +1,17 @@
+---
+namespace: monitor-application
+workspace: monitor-system-graph
+
+registry_url: 127.0.0.1:29006
+
+request_cpu: 0.5
+request_memory: 1Gi
+limit_cpu: 1
+limit_memory: 4Gi
+
+request_cpu_low: 0.2
+request_memory_low: 256Mi
+limit_cpu_low: 0.5
+limit_memory_low: 512Mi
+
+svc_mysql: monitor-mysql1.monitor-essential-service:3306

@@ -1,0 +1,29 @@
+---
+- name: Ceph MDS | Create directory to store k8s deployment file
+  file:
+    path: "/k8s/app/ceph/mds"
+    state: directory
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- name: Ceph MDS | Create mds running file
+  template:
+    src: ceph-mds-deploy.yml.j2
+    dest: "/k8s/app/ceph/mds/ceph-mds-{{ item }}-dp.yaml"
+  with_items:
+    - "{{ ceph_mds_list }}"
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- name: Ceph MDS | Create mds daemon
+  shell:
+    kubectl apply -f /k8s/app/ceph/mds
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+#TODO: add ceph mds wait_for ready
+- name: Ceph MDS | Sleep 20s
+  pause:
+    seconds: 20
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true

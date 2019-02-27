@@ -1,0 +1,33 @@
+---
+- name: create ldap image files dir
+  file: path=/ldap/images/ state=directory
+
+- name: copy images
+  copy:
+    src: "../../../files/images/system-tools/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: ldap.tar, dest: /ldap/images/}
+    - {src: haproxy.tar, dest: /ldap/images/}
+    - {src: ldap-r.tar, dest: /ldap/images/}
+
+- name: load docker images
+  command: "{{ item}}"
+  with_items:
+    - docker load -i /ldap/images/ldap.tar
+    - docker load -i /ldap/images/haproxy.tar
+    - docker load -i /ldap/images/ldap-r.tar
+
+
+- name: copy push image script
+  template: src=shell/push_images.sh dest=/ldap
+
+- name: push images files
+  command: bash  /ldap/push_images.sh
+
+- name: push image to registry
+  command: "{{ item }}"
+  with_items:
+    - echo "no sense" | docker login -u{{ docker_user }} -p{{ harbor_admin_password }} {{ registry_url }}
+    - docker push {{ registry_url }}/{{ ldap_image_url }}
+    - docker push {{ registry_url }}/{{ haproxy_image_url }}

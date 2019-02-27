@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  configInterval: "{{ sample_rate }}"
+kind: ConfigMap
+metadata:
+  name: cadvisorconfig
+  namespace: kube-system

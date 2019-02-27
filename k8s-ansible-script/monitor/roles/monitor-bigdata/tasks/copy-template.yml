@@ -1,0 +1,85 @@
+---
+
+# tasks file for copy template files
+
+- name: make sure monitor relatesd directory exists on target server
+  file:
+    path: "{{ item }}"
+    state: "directory"
+    mode: 0644
+  with_items:
+    - /monitor/bigdata
+    - /monitor/bigdata/scripts
+
+- name: install rsync
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - rsync
+  when: install_mode == 'internet'
+
+# deploy bigdata-deploy project to target server
+# TODO: this might be asked for password if not using the root user
+- name: copy bigdata deploy directory to tartget server
+  synchronize:
+    src: "../../../modules/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: bigdata-deploy, dest: /monitor/bigdata/}
+
+- name: replace with global_config.jsonnet and bigctl.sh template
+  template:
+    src: "../../../modules/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - {src: bigdata-deploy/jsonnet/example/global_config.jsonnet, dest: "{{ bigdata_jsonnet_example_dir }}/global_config.jsonnet", mode: "0666"}
+    - {src: bigdata-deploy/jsonnet/example/bigctl.sh, dest: "{{ bigdata_jsonnet_example_dir }}/bigctl.sh", mode: "0755"}
+
+### annother way to copy bigdata-deploy template
+### NOTE: make sure there is no ansible variable replacement style in template files in which you don't want to replace
+#- name: create directory tree of bigdata-deploy
+#  file:
+#    path: /monitor/bigdata/bigdata-deploy/{{ item.path }}
+#    state: directory
+#    mode: '{{ item.mode }}'
+#  with_filetree: templates/bigdata-deploy/
+#  when: item.state == 'directory'
+#
+#- name: template jsonnet files
+#  template:
+#    src: '{{ item.src }}'
+#    dest: /monitor/bigdata/bigdata-deploy/{{ item.path }}
+#    mode: '{{ item.mode }}'
+#  with_filetree: templates/bigdata-deploy/
+#  when: item.state == 'file'
+#
+#- name: recreate symlinks
+#  file:
+#    src: '{{ item.src }}'
+#    dest: /monitor/bigdata/bigdata-deploy/{{ item.path }}
+#    state: link
+#    force: yes
+#    mode: '{{ item.mode }}'
+#  with_filetree: templates/bigdata-deploy/
+#  when: item.state == 'link'
+
+
+- name: copy component check scripts templates
+  template:
+    src: "templates/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - {src: check_component.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: check_elasticsearch.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: check_hbase.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: check_hdfs.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: check_opentsdb.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: check_spark.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: check_zookeeper.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: create_opentsdb_table.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: create_spark_history_dir.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+    - {src: es_put_template.sh, dest: "{{ bigdata_scripts_dir }}/", mode: "0755"}
+

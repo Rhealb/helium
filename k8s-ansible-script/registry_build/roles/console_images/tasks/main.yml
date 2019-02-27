@@ -1,0 +1,181 @@
+- name: cleanup docker directory
+  file:
+    state: absent
+    path: "images/docker"
+  when:
+    - build == true
+
+
+- name: start local registry
+  local_action: shell scripts/start_local_registry.sh
+  when:
+    - build == true
+
+- name: pull console images to local registry
+  local_action: "shell scripts/push_images.sh {{ release_harbor_url }}/{{ item }} {{registry_url}}:{{ local_registry_port }}"
+  with_items:
+    - "{{ console_image.init_container }}"
+    - "{{ console_image.edit_rbd_image }}"
+    - "{{ console_image.mysql }}"
+    - "{{ console_image.redis }}"
+    - "{{ console_image.rabbitmq }}"
+    - "{{ console_image.account }}"
+    - "{{ console_image.ansible }}"
+    - "{{ console_image.audit }}"
+    - "{{ console_image.backend }}"
+    - "{{ console_image.config_server }}"
+    - "{{ console_image.console }}"
+    - "{{ console_image.gateway }}"
+    - "{{ console_image.gc }}"
+    - "{{ console_image.gitbook }}"
+    - "{{ console_image.harbor }}"
+    - "{{ console_image.initializer }}"
+    - "{{ console_image.kubeorigin }}"
+    - "{{ console_image.local_repository}}"
+    - "{{ console_image.log }}"
+    - "{{ console_image.metric }}"
+    - "{{ console_image.notification }}"
+    - "{{ console_image.storage }}"
+    - "{{ console_image.template }}"
+    - "{{ console_image.terminal }}"
+    - "{{ console_image.watch }}"
+    - "{{ console_image.scale_console_image }}"
+    - "{{ console_image.ftp }}"
+    - "{{ console_image.jupyterhub }}"
+    - "{{ console_image.pom }}"
+    - "{{ console_image.keycloak }}"
+
+  when:
+    - build == true
+    - edition == "pro"
+
+- name: pull console agile images to local registry
+  local_action: "shell scripts/push_images.sh {{ release_harbor_url }}/{{ item }} {{registry_url}}:{{ local_registry_port }}"
+  with_items:
+    - "{{ console_image.mysql }}"
+    - "{{ console_image.redis }}"
+    - "{{ console_image.backend }}"
+    - "{{ console_image.gateway }}"
+    - "{{ console_image.initializer }}"
+    - "{{ console_image.kubeorigin }}"
+    - "{{ console_image.terminal }}"
+    - "{{ console_image.rabbitmq}}"
+  when:
+    - build == true
+    - edition == "agile"
+
+
+- name: build console images
+  shell: "sh scripts/build_images.sh files/images/console/console_{{edition}}.zip"
+  when:
+    - build == true
+
+
+##----------------------below tasks is executes on customer site---------------------#
+- name: create console directory
+  file:
+    path: "/console"
+    state: "directory"
+    mode: 0777
+  when:
+    - push == true
+
+- name: copy console agile images
+  copy:
+    src: "../files/images/console/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "console_{{edition}}.zip", dest: /console/console.zip}
+  when:
+    - push == true
+    - edition == "agile"
+
+- name: copy console pro images
+  copy:
+    src: "../files/images/console/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "console_{{edition}}.zip", dest: /console/console.zip}
+  when:
+    - push == true
+    - edition == "pro"
+
+
+- name:  unzip console images
+  shell: "unzip -o /console/console.zip -d /console"
+  when:
+    - push == true
+
+- name: start console local registry
+  shell: "sh /console/scripts/start_local_registry.sh"
+  when:
+    - push == true
+
+
+- name: copy script
+  copy:
+    src: "scripts/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: push_images_to_harbor.sh, dest: /console/scripts/push_images_to_harbor.sh}
+  when:
+    - push == true
+
+- name: login to harbor
+  command:  "echo 'nonsense' | docker login -u admin -p {{ harbor_admin_password }}  {{local_harbor_url}}:{{harbor_port}}"
+  when:
+    - push == true
+
+- name: push console pro images to harbor
+  shell: "sh /console/scripts/push_images_to_harbor.sh {{local_harbor_url}}:{{local_registry_port}}/{{ item }} {{local_harbor_url}}:{{harbor_port}}/{{ item }} "
+  with_items:
+    - "{{ console_image.init_container }}"
+    - "{{ console_image.edit_rbd_image }}"
+    - "{{ console_image.mysql }}"
+    - "{{ console_image.redis }}"
+    - "{{ console_image.rabbitmq }}"
+    - "{{ console_image.account }}"
+    - "{{ console_image.ansible }}"
+    - "{{ console_image.audit }}"
+    - "{{ console_image.backend }}"
+    - "{{ console_image.config_server }}"
+    - "{{ console_image.console }}"
+    - "{{ console_image.gateway }}"
+    - "{{ console_image.gc }}"
+    - "{{ console_image.gitbook }}"
+    - "{{ console_image.harbor }}"
+    - "{{ console_image.initializer }}"
+    - "{{ console_image.kubeorigin }}"
+    - "{{ console_image.local_repository}}"
+    - "{{ console_image.log }}"
+    - "{{ console_image.metric }}"
+    - "{{ console_image.notification }}"
+    - "{{ console_image.storage }}"
+    - "{{ console_image.template }}"
+    - "{{ console_image.terminal }}"
+    - "{{ console_image.watch }}"
+    - "{{ console_image.scale_console_image }}"
+    - "{{ console_image.ftp }}"
+    - "{{ console_image.jupyterhub }}"
+    - "{{ console_image.pom }}"
+    - "{{ console_image.keycloak }}"
+
+  when:
+    - push == true
+    - edition == "pro"
+
+- name: push console agile images to harbor
+  shell: "sh /console/scripts/push_images_to_harbor.sh {{local_harbor_url}}:{{local_registry_port}}/{{ item }} {{local_harbor_url}}:{{harbor_port}}/{{ item }} "
+  with_items:
+    - "{{ console_image.mysql }}"
+    - "{{ console_image.redis }}"
+    - "{{ console_image.backend }}"
+    - "{{ console_image.gateway }}"
+    - "{{ console_image.initializer }}"
+    - "{{ console_image.kubeorigin }}"
+    - "{{ console_image.terminal }}"
+    - "{{ console_image.rabbitmq}}"
+
+  when:
+    - push == true
+    - edition == "agile"

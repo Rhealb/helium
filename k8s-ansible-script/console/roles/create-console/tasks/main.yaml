@@ -1,0 +1,15 @@
+---
+- name: copy cc-devop
+  import_tasks: cc_devop.yml
+
+- name: fetch ceph keys
+  import_tasks: ceph_keys.yml
+  when: ceph_enabled == "true"
+
+- name: create console
+  import_tasks: console.yml
+  when: not is_agile
+
+- name: create console agile
+  import_tasks: console_agile.yml
+  when: is_agile

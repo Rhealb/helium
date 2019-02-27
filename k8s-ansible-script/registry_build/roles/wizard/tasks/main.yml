@@ -1,0 +1,7 @@
+- name: pull wizard image to tar  
+  shell: "{{item}}"
+  with_items:
+    -  "echo 'nonsense' | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}"
+    - "docker pull {{harbor.url}}/{{wizard.wizard_project}}/wizard:{{ wizard.wizard_version }}"
+    - "docker tag {{harbor.url}}/{{wizard.wizard_project}}/wizard:{{ wizard.wizard_version }} wizard:{{ wizard.wizard_version }}"
+    - "docker save -o ../wizard/wizard.tar wizard:{{ wizard.wizard_version }}"

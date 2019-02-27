@@ -1,0 +1,45 @@
+- name: create /monitor
+  file: path=/monitor state=directory
+
+# - name: copy images
+#   copy:
+#     src: "../files/images/monitor/{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#   with_items:
+#     - {src: monitor-mongodb.tar, dest: /monitor}
+#     - {src: monitor-mysql.tar, dest: /monitor}
+
+# - name: load docker images
+#   command: docker load -i /monitor/{{ item }}
+#   with_items:
+#     - monitor-mongodb.tar
+#     - monitor-mysql.tar
+
+# - name: push image to registry
+#   command: "{{ item }}"
+#   with_items:
+#     - docker login -uadmin -p{{ harbor_admin_password }} {{ registry_url }}
+#     - docker push {{ registry_url }}/{{monitor_mongo_image}}
+#     - docker push {{ registry_url }}/{{monitor_mysql_image}}
+
+- name: copy files
+  template:
+    src: "templates/{{item.src}}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: mongo-storage.yml, dest: /monitor}
+    - {src: mongo-rc.yml, dest: /monitor}
+    - {src: mongo-svc.yml, dest: /monitor}
+    # - {src: deployments-mysql.yml, dest: /monitor}
+    # - {src: mysql-storage.yml, dest: /monitor}
+    # - {src: mysql-configmap.yml, dest: /monitor}
+
+- name: create mongo
+  command: ennctl create -a {{ monitor_mongo_app }} -f /monitor/{{ item }}
+  with_items:
+   - mongo-storage.yml
+   - mongo-rc.yml
+   - mongo-svc.yml
+
+# - name: deploy mysql
+#   import_tasks: start_mysql.yml

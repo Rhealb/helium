@@ -1,0 +1,17 @@
+---
+# defaults file for registry
+registry_data_pv_size: 50Gi
+
+registry_namespace: system-tools
+registry_nodeport: 29006
+
+## fileststem or s3
+registry_storage: fileststem
+
+
+registry_limit_cpu: 1
+registry_limit_memory: 2Gi
+registry_requests_cpu: 0.3
+registry_requests_memory: 1Gi
+
+app_deploy_dir: /k8s/app

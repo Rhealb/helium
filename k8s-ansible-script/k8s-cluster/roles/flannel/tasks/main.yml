@@ -1,0 +1,58 @@
+---
+# tasks file for flannel
+
+- name: create dir
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "/etc/systemd/system"
+    - "/etc/sysconfig"
+    - "/etc/ssl/flannel"
+    - "/usr/libexec/flannel/"
+
+- name: upload config files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "flanneld.service", dest: "/etc/systemd/system/flanneld.service" }
+    - { src: "flanneld.j2", dest: "/etc/sysconfig/flanneld" }
+
+- name: upload mk-docker-opts
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "a+rx"
+  with_items:
+    - { src: "mk-docker-opts.sh", dest: "/usr/libexec/flannel/mk-docker-opts.sh" }
+
+
+- name: upload ubuntu config files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "flanneld-ubuntu.service", dest: "/etc/systemd/system/flanneld.service" }
+  when: ubuntu_system is defined
+
+- name: upload binary
+  copy:
+    src: kube/flanneld
+    dest: "{{ bin_dir }}/flanneld"
+    mode: "a+rx"
+
+- name: upload client certificate files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "ssl/etcd/etcd-admin.pem", dest: "/etc/ssl/flannel/client.pem" }
+    - { src: "ssl/etcd/etcd-admin-key.pem", dest: "/etc/ssl/flannel/client-key.pem" }
+
+- name: start flanneld service
+  systemd:
+    name: flanneld
+    enabled: yes
+    state: restarted
+    daemon_reload: yes

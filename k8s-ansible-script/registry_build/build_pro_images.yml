@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  vars:
+    build: true
+    push: false
+    edition: pro
+  roles:
+     - role: console_images
+     - role: bigdata_images
+     - role: monitor_images
+     - role: dojoyn_images

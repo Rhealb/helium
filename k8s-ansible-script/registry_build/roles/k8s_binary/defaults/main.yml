@@ -1,0 +1,4 @@
+# defaults file for k8s_binary
+
+k8s_version: newest
+k8s_download_url: "http://10.19.140.200:29198"

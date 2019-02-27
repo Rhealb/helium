@@ -1,0 +1,25 @@
+---
+- name: make sure /mnt/nfs directory exist on target server
+  file:
+    path: "/mnt/nfs"
+    state: "directory"
+    mode: 0777
+
+# mount -t nfs 398de48d04-qar32.cn-shanghai.nas.aliyuncs.com:/ /mnt/nfs/
+- name: mount nfs to local path /mnt/nfs
+  mount:
+    path: /mnt/nfs
+    src: "{{nfs_host}}:{{nfs_path}}"
+    fstype: nfs
+    state: mounted
+
+- name: make sure /mnt/nfs/k8s/system-tools/ldapdata/ directory exist on target server
+  file:
+    path: "/mnt/nfs/k8s/system-tools/ldapdata/"
+    state: "directory"
+    mode: 0777
+
+- name: umount /mnt/nfs
+  mount:
+    path: /mnt/nfs
+    state: unmounted

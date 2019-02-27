@@ -1,0 +1,85 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: enn-monitor-security-gateway-server
+    labels:
+        name: enn-monitor-security-gateway-server
+    namespace: {{ monitor_ns_monitor_application }}
+spec:
+    replicas: {{ monitor_security_gateway_server_num }}
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 0
+    template:
+        metadata:
+            labels:
+                name: enn-monitor-security-gateway-server
+        spec:
+            containers:
+                -
+                    name: enn-monitor-security-gateway-server
+                    image: {{ registry_url }}/{{ monitor_security_gateway_server_image }}
+                    resources:
+                        requests:
+                            memory: {{ monitor_security_gateway_server_memory_request }}
+                            cpu: {{ monitor_security_gateway_server_cpu_request }}
+                        limits:
+                            memory: {{ monitor_security_gateway_server_memory_limit }}
+                            cpu: {{ monitor_security_gateway_server_cpu_limit }}
+                    ports:
+                        -
+                            protocol: TCP
+                            containerPort: {{ monitor_security_gateway_server_listenport }}
+                    env:
+                        -
+                            name: NAMESPACE
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.namespace
+                        -
+                            name: PODNAME
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.name
+                        -
+                            name: APPNAME
+                            value: enn-monitor-security-gateway-server
+                        -
+                            name: LOGPATTERN
+                            value: '^(?<dateTime>[\d\-]+[\s]+[\d\:\.]+)[\s]*\[(?<threadName>[^\]\s]*)\][\s]*(?<logLevel>[^\s]*)[\s]*(?<position>[^\s]*)[\s\-]*\[(?<traceId>[^\]]*)\][\s\-]*\[(?<parentPod>[^\]]*)\][\s\-]*(?<log>.*)$'
+                        -
+                            name: LOGASSEMBLE
+                            value: '%logLevel%,%position%,%log%,%dateTime%,%traceId%,%parentPod%,%threadName%'
+                    volumeMounts:
+                        -
+                            name: monitor-properties
+                            mountPath: /opt/monitor.properties
+                            subPath: monitor.properties
+                    command:
+                        - "java"
+                        - "-cp"
+                        - "/opt/enn-monitor-security-gateway-server.jar"
+                        - "enn.monitor.security.gateway.server.EnnMonitorSecurityGatewayServer"
+                        - "--workThreadNum"
+                        - "16"
+                        - "--listen_port"
+                        - "{{ monitor_security_gateway_server_listenport }}"
+                        - "--enable_metrics"
+                        - "--kafkaUrl"
+                        - "pre1-kafka1.monitor-essential-service:9092"
+                        - "--token"
+                        - "micklongen-gateway-server"
+                        - "--config_server"
+                        - "enn-monitor-security-config-server"
+                        - "--configPort"
+                        - "10000"
+                        - "--gateway_server"
+                        - "enn-monitor-security-gateway-server"
+                        - "--gatewayPort"
+                        - "{{ monitor_security_gateway_server_listenport }}"
+            volumes:
+                - name: monitor-properties
+                  configMap:
+                    name: monitor-properties-gateway-server

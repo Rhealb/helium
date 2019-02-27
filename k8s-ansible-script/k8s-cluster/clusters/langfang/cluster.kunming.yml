@@ -1,0 +1,64 @@
+---
+all:
+  vars:
+    etcd_init_servers: ["10.38.240.28", "10.38.240.29", "10.38.240.30"]
+    flannel_etcd_list: ["10.38.240.28", "10.38.240.29", "10.38.240.30"]
+    flanneld_subnet: "172.16.0.0/16"
+    ntp_orphan_parents: ["10.38.240.28", "10.38.240.29", "10.38.240.30"]
+    ntp_server: ""
+    admin_password: "IDH02BjXJI8agb1WdPlXf3VaYkRVNQrPaP5OKcbuYe8="
+    admin_username: "iAmAdmin"
+    master_list: ["86.85.106.136", "86.85.106.137", "86.85.106.138"]
+    cluster_ip_range: "10.254.0.0/16"
+    cluster_name: "enn-cluster"
+    domain: "enn.cn"
+    ingress_dns_domain: "enn.cn"
+    interface: "enp2s0f0"
+    vip: "10.38.240.34"
+    ca_vip: "10.38.240.34"
+    hanode_list: ["10.38.240.31", "10.38.240.32"]
+    backend_type: "vxlan"
+    mon_list: []
+    osd_list: []
+    ceph_public_network: "10.38.240.0/24"
+    ceph_cluster_network: "10.38.240.0/24"
+    rgw_dns_name: "enncloud.ceph.s3"
+    ceph_image_tag: "12.2.1"
+    rbd_dev_list: ["sde", "sdf"]
+    harbor_admin_password: admin
+    keystone_admin_password: admin
+    console_version: release-1.1.1
+    storage_type: "ceph"
+    install_mode: "local"
+    hostname_prefix: "cluster"
+    local_repo: "10.38.240.28:8009"
+
+  children:
+    centos:
+      vars:
+        ansible_ssh_user: root
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+      children:
+        master:
+          hosts:
+            10.38.240.28:
+            10.38.240.29:
+            10.38.240.30:
+        nodes:
+          hosts:
+            10.38.240.31:
+            10.38.240.32:
+            10.38.240.33:
+            10.38.74.11:
+            10.38.74.13:
+            10.38.74.16:
+            10.38.74.24:
+            10.38.74.25:
+            10.38.74.26:
+            10.38.74.27:
+            10.38.74.28:
+            10.38.74.29:
+            10.38.74.30:
+            10.38.74.31:
+

@@ -1,0 +1,158 @@
+---
+all:
+  vars:
+
+    #####服务器时间同步##############
+    ## ntp_orphan_parents:  required, recommendate use two of master node as ntp_orphan_parents
+    ntp_orphan_parents: [10.19.140.6, 10.19.140.10]  
+
+    ## ntp_server, optional, if not provided, cluster use ntp_orphan_paraents to sync
+    ## ntp_server: ""
+
+    ###########集群信息############
+    ## master_list three master node IP
+    ## required 
+    master_list: [10.19.140.6, 10.19.140.10, 10.19.140.14]
+    
+    ## etcd_init_servers: etcd cluster IP
+    ##required
+    ##recommmendate reuse master node ips
+    etcd_init_servers: [10.19.140.6, 10.19.140.10, 10.19.140.14]
+
+    ##hanode_list: HA node ip for KeepAlive node
+    ##required
+    ##
+    ##for cloud installation, keep HA as empty
+    ##for on premise installation, use two of master node, like master0, master1
+    hanode_list: [10.19.140.6, 10.19.140.10]
+
+    ##host_path_list: hostpath nodes list
+    ## required
+    host_path_list: [10.19.140.6, 10.19.140.10, 10.19.140.14]
+
+    ## cluster_name:
+    ## required
+    cluster_name: "enc-cluster"
+    
+    ##集群中服务（service）IP
+    ## required
+    cluster_ip_range: "192.168.0.0/16"
+    
+    ##domain: 集群DNS域名
+    ##required 
+    domain: "cluster.local"
+    
+    ## kl_interface
+    ##comment kl_interface or set this to "", ansible will check the default using interface.
+    ##or you can set this manually
+    #kl_interface: external0
+
+    ### host search in /etc/resolv.conf, if exist
+    searchdomains: []
+    
+    ### host nameserver in /etc/resolv.conf, if exist
+    nameservers: []
+    
+    ## max_pods: 一个节点上可以起的最大POD数
+    #max_pods: 100
+
+    ## cpu_reserved 预留的CPU
+    # cpu_reserved: 0
+    
+    ##memory_reserved
+    #memory_reserved: 0
+    
+    ##kubelet_dir: Kubelet的地址
+    #kubelet_dir: "/data/kubelet"
+    
+    ##sample_rate: 监控数据收集频率，单位：秒／次
+    #sample_rate: 30
+
+    ##flannel用的etcd节点
+    #required
+    flannel_etcd_list: [10.19.140.6, 10.19.140.10, 10.19.140.14]
+    
+    ##backend_type： Flannel backend options: DirectRouting: default True, set to False when using alicloud
+    #DirectRouting: True
+
+
+    ##flanneld_subnet： 集群中pod IP
+    flanneld_subnet: "172.16.0.0/12"
+    
+    ## local_repo: local repo地址，一般是安装机器的ip:8009
+    local_repo: "10.19.138.125:8009"
+
+    ##ca_vip: 虚IP地址
+    ca_vip: "10.19.140.210"
+    
+    ##集群密码
+    admin_password: admin
+    
+    ##集群用户名
+    admin_username: admin
+    
+    ##敏捷版的storage_type必须是hostpath
+    storage_type: hostpath
+
+    ##nfs地址，如果没有nfs，可以忽略
+    nfs_enabled: "false"
+    # nfs_host: nfs.dev.enndata.cn
+    # nfs_path: /share-cff1YW5nc2g
+    
+    #ingress：Ingress dns域名
+    ingress_dns_domain: enn.ingress.cn
+    
+    ##########CEPH##################
+    ceph_enabled: "false"
+    
+    
+    ##############HARBOR ################
+    ##local_registry_port：无须改动
+    local_registry_port: 5000
+    ## harbor登陆密码
+    harbor_admin_password: admin
+    
+    ########## CONSOLE##############
+    ## console image的版本，无须改动
+    console_version: release-1.5.0
+    ## 公司名称；主要用于用户注册
+    company_name: 新智认知
+    ## branding
+    title_cn: 新智认知新氦云平台
+    title_en: ENC Cloud Platform +
+
+    ## CONSOLE 默认登陆密码
+    keystone_admin_password: admin
+
+    ## CONSOLE LICENSE，
+    is_trial_version: 2 # 1: 试用版   2：正式版
+    months: 0 #使用月数 （正式版请输入0）
+    days: 0 #使用天数 （正式版请输入0）
+
+
+    
+  children:
+    centos:
+      vars:
+        #机器域名默认前缀
+        hostname_prefix: enn
+        ansible_ssh_user: root
+        #机器root密码
+        ansible_ssh_pass: enncloud
+        ansible_ssh_port: 22
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+        ####对HOSTPATH盘进行分区和挂载，可以通过lsblk命令查看设备号######
+        ####如果有独立的docker数据盘，docker数据盘也需要进行分区和挂载####
+        ####docker分区和挂载请参见以下/dev/sda, 请uncomment后修改docker盘设备号###### 
+        special_mounts:
+          /dev/sdb:
+            path: /xfs/disk1
+            opt: prjquota
+          # /dev/sda:
+          #   path: /data
+          #   opt: defaults
+      hosts:
+        10.19.140.6:
+        10.19.140.10:
+        10.19.140.14:

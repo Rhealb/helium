@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mon-{{ item }}
+  namespace: ceph
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ceph
+      daemon: mon
+      name: mon-{{ item }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ceph
+        daemon: mon
+        name: mon-{{ item }}
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/hostname: {{ item }}
+      automountServiceAccountToken: false
+      priorityClassName: enndata-podpriority-systempod
+      containers:
+      - name: ceph-monit
+        image: {{ ceph_image }}
+        command:
+        - /entrypoint.sh
+        - mon
+        env:
+        - name: MON_NAME
+          value: mon-{{ item }}
+        - name: MON_IP
+          value: {{ item }}
+        - name: CEPH_PUBLIC_NETWORK
+          value: {{ ceph_public_network }}
+        - name: CEPH_CLUSTER_NETWORK
+          value: {{ ceph_cluster_network }}
+        livenessProbe:
+          tcpSocket:
+            port: 6789
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: {{ mon_limit_cpu }}
+            memory: {{ mon_limit_memory }}
+          requests:
+            cpu: {{ mon_request_cpu }}
+            memory: {{ mon_request_memory }}
+        volumeMounts:
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.conf
+          subPath: ceph.conf
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.client.admin.keyring
+          subPath: ceph.client.admin.keyring
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.mon.keyring
+          subPath: ceph.mon.keyring
+        - name: ceph-config
+          mountPath: /var/lib/ceph/bootstrap-osd/ceph.keyring
+          subPath: bootstrap_osd
+        - name: ceph-config
+          mountPath: /var/lib/ceph/bootstrap-mds/ceph.keyring
+          subPath: bootstrap_mds
+        - name: ceph-config
+          mountPath: /var/lib/ceph/bootstrap-rgw/ceph.keyring
+          subPath: bootstrap_rgw
+        - name: ceph-config
+          mountPath: /var/lib/ceph/bootstrap-rbd/ceph.keyring
+          subPath: bootstrap_rbd
+        - name: mon-data
+          mountPath: /var/lib/ceph/mon
+      volumes:
+      - name: ceph-config
+        secret:
+          defaultMode: 420
+          secretName: ceph-conf-keyring
+      - name: mon-data
+        hostPath:
+          path: {{ mon_data_path }}

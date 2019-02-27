@@ -1,0 +1,14 @@
+---
+ceph_admin_keyring: AQD5SA5aWJzfHxAAfCPuU/IREEgl5K0VZIvAuA==
+ceph_console_keyring: AQD5SA5aWJzfHxAAfCPuU/IREEgl5K0VZIvAuA==
+s3_access_key: 07R4FNLFLRCNGEAKDWPW
+s3_secret_key: dHcKX6iZmUIxJ6kLhCT1uKCuzk2Id7NtQMXMSO9C
+ceph_enabled: "true"
+nfs_enabled: "false"
+auth_enabled: "true"
+mon_list: [192.168.1.100,192.168.1.101,192.168.1.102]
+ca_vip: "{{ master_list[0] }}"
+public_vip: "{{ ca_vip }}"
+ceph_image_tag: 12.2.7
+nfs_host: nfs.dev.enndata.cn
+nfs_path: "/"

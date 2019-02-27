@@ -1,0 +1,13 @@
+service checkactive
+{
+  flags = REUSE
+  socket_type = stream
+  wait = no
+  user = root
+  server = /opt/scripts/rmstatus.sh
+  log_on_failure +=USERID
+  disable = no
+  port = 8888
+  bind = 0.0.0.0
+  type = UNLISTED
+}

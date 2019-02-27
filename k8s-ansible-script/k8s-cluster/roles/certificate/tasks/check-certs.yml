@@ -1,0 +1,105 @@
+---
+- name: "Check_certs | check if certs have already been generated on ansible node"
+  find:
+    paths: "{{ cert_dir }}"
+    patterns: "*.pem"
+    get_checksum: true
+  delegate_to: 127.0.0.1
+  register: ca_cert
+  run_once: true
+
+- name: "Check_certs | check if etcd certs have already been generated on ansible node"
+  find:
+    paths: "{{ cert_dir }}/etcd"
+    patterns: "*.pem"
+    get_checksum: true
+  delegate_to: 127.0.0.1
+  register: etcd_cert
+  run_once: true
+
+- name: "Check_certs | check if kubemaster certs have already been generated on ansible node"
+  find:
+    paths: "{{ cert_dir }}/kube"
+    patterns: "*.pem"
+    get_checksum: true
+  delegate_to: 127.0.0.1
+  register: kube_cert
+  run_once: true
+
+
+- name: "Check_certs | Set default value for 'gen_certs', 'etcd_certs', 'kubemaster_certs' and 'kubenode_certs' to false"
+  set_fact:
+    gen_certs: false
+    etcd_certs: false
+    kubemaster_certs: false
+    kubenode_certs: false
+
+- name: "Check_certs | Set 'gen_certs' to true"
+  set_fact:
+    gen_certs: true
+  when: "not item in ca_cert.files|map(attribute='path') | list"
+  run_once: true
+  with_items:
+    - ../files/ssl/ca.pem
+    - ../files/ssl/ca-key.pem
+
+- name: "Check_certs | Set 'etcd_certs' to true"
+  set_fact:
+    etcd_certs: true
+  when: "not item in etcd_cert.files|map(attribute='path') | list"
+  run_once: true
+  with_items: >-
+    ['{{ cert_dir }}/etcd/etcd-client.pem',
+    '{{ cert_dir }}/etcd/etcd-client-key.pem',
+    {% for host in etcd_init_servers %}
+    '{{ cert_dir }}/etcd/etcd-server-{{ host }}.pem',
+    '{{ cert_dir }}/etcd/etcd-server-{{ host }}-key.pem',
+    '{{ cert_dir }}/etcd/etcd-peer-{{ host }}.pem',
+    '{{ cert_dir }}/etcd/etcd-peer-{{ host }}-key.pem'
+    {% if not loop.last %}{{','}}{% endif %}
+    {% endfor %},
+    {% if flannel_etcd_list != etcd_init_servers %}
+    {% for host in flannel_etcd_list %}
+    '{{ cert_dir }}/etcd/flannel-etcd-server-{{ host }}.pem',
+    '{{ cert_dir }}/etcd/flannel-etcd-server-{{ host }}-key.pem',
+    '{{ cert_dir }}/etcd/flannel-etcd-peer-{{ host }}.pem',
+    '{{ cert_dir }}/etcd/flannel-etcd-peer-{{ host }}-key.pem'
+    {% if not loop.last %}{{','}}{% endif %}
+    {% endfor %}
+    {% endif %}]
+
+- name: "Check_certs | Set 'etcd_certs' to true"
+  set_fact:
+    kubemaster_certs: true
+  when: "not item in kube_cert.files|map(attribute='path') | list"
+  run_once: true
+  with_items: >-
+    ['{{ cert_dir }}/kube/admin.pem',
+    '{{ cert_dir }}/kube/admin-key.pem',
+    {% for host in master_list %}
+    '{{ cert_dir }}/kube/kube-apiserver-{{ host }}.pem',
+    '{{ cert_dir }}/kube/kube-apiserver-{{ host }}-key.pem',
+    '{{ cert_dir }}/kube/kube-controller-manager-{{ host }}.pem',
+    '{{ cert_dir }}/kube/kube-controller-manager-{{ host }}-key.pem',
+    '{{ cert_dir }}/kube/kube-scheduler-{{ host }}.pem',
+    '{{ cert_dir }}/kube/kube-scheduler-{{ host }}-key.pem'
+    {% if not loop.last %}{{','}}{% endif %}
+    {% endfor %}]
+
+- name: "Check_certs | Set 'etcd_certs' to true"
+  set_fact:
+    kubemaster_certs: true
+  when: "not item in kube_cert.files|map(attribute='path') | list"
+  run_once: true
+  with_items: >-
+    ['{{ cert_dir }}/kube/admin.pem',
+    '{{ cert_dir }}/kube/admin-key.pem',
+    {% for host in master_list %}
+    '{{ cert_dir }}/kube/kube-apiserver-{{ host }}.pem',
+    '{{ cert_dir }}/kube/kube-apiserver-{{ host }}-key.pem',
+    '{{ cert_dir }}/kube/kube-controller-manager-{{ host }}.pem',
+    '{{ cert_dir }}/kube/kube-controller-manager-{{ host }}-key.pem',
+    '{{ cert_dir }}/kube/kube-scheduler-{{ host }}.pem',
+    '{{ cert_dir }}/kube/kube-scheduler-{{ host }}-key.pem'
+    {% if not loop.last %}{{','}}{% endif %}
+    {% endfor %}]

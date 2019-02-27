@@ -1,0 +1,8 @@
+---
+- name: copy files to remote
+  template:
+    src: "templates/kube/coredns-deploy.yaml"
+    dest: "/tmp/coredns-deploy.yaml"
+
+- name: create k8s app
+  command: kubectl apply -f /tmp/coredns-deploy.yaml

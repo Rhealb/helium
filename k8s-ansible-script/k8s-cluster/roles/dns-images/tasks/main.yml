@@ -1,0 +1,10 @@
+---
+# tasks file for dns-images
+- name: upload images
+  copy:
+    src: "kube/coredns.tar"
+    dest: "/tmp/coredns.tar"
+
+- name: load imges
+  command: docker load -i /tmp/coredns.tar
+

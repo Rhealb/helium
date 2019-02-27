@@ -1,0 +1,33 @@
+- hosts: all
+  gather_facts: False
+  max_fail_percentage: 0
+   
+  roles:
+    - role: ceph/defaults
+      when: ceph_enabled == "true"
+    - role: ceph/client
+      when: ceph_enabled == "true"
+    - role: ceph/pre-task
+      when: ceph_enabled == "true"
+    - role: ceph/mon
+      when: ceph_enabled == "true"
+    - role: ceph/osd
+      when: ceph_enabled == "true"
+    - role: ceph/mds
+      when: ceph_enabled == "true"
+    - role: ceph/rgw
+      when: ceph_enabled == "true"
+    - role: system-tools
+      when: inventory_hostname in master_list[0]
+    - role: harbor-images
+    - role: harbor
+      when: inventory_hostname in master_list[0]
+    - role: ldap
+      when: inventory_hostname in master_list[0]
+      clean_ldap: true
+      deploy_env: "single"
+    - role: pause-image
+      when: inventory_hostname in master_list[0]
+    - role: nfs-provisioner
+      when: inventory_hostname in master_list[0] and storage_type == "nfs"
+

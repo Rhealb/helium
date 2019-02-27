@@ -1,0 +1,31 @@
+---
+- name: Ceph OSD | Create directory to store k8s deployment file
+  file:
+    path: "/k8s/app/ceph/osd"
+    state: directory
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- name: Ceph OSD | Create osd deployment file
+  template:
+    src: ceph-osd-deploy.yml.j2
+    dest: "/k8s/app/ceph/osd/ceph-osd-{{ item.0 }}-{{ item.1 }}.yaml"
+  with_nested:
+  - "{{ osd_list }}"
+  - "{{ rbd_dev_list }}"
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- name: Ceph OSD | Create osd daemon
+  shell:
+    kubectl apply -f /k8s/app/ceph/osd
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+#TODO: add ceph osd wait_for ready
+- name: Ceph OSD | Sleep 30s
+  pause:
+    prompt: "We pause 30s to wait osds up"
+    seconds: 30
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true

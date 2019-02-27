@@ -1,0 +1,125 @@
+---
+- name: copy and push docker images to harbor
+  include: copy_docker_images.yml
+
+- name: creat ceph rbd storage if needed
+  include: create_ceph_storage.yml
+  when: storage_type == "ceph"
+
+- name: creat nfs path if needed
+  include: create_nfs_path.yml
+  when: storage_type == "nfs"
+
+- name: create EBS storage if needed
+  include: create_ebs_storage.yml
+  when: storage_type=="ebs"
+
+# save all haproxy config and initdata file in configmap
+- name: make sure /tmp/k8s/haproxyconfig/ directory exist on target server
+  file:
+    path: "/tmp/k8s/haproxyconfig/"
+    state: "directory"
+    mode: 0777
+
+- name: copy haproxy configuration file
+  template:
+    src: "conf/haproxy-{{deploy_env}}.cfg"
+    dest: "/tmp/k8s/haproxyconfig/haproxy.cfg"
+    mode: 0644
+
+- name: copy rsyslog configuration file
+  template:
+    src: "conf/rsyslog.conf"
+    dest: "/tmp/k8s/haproxyconfig/rsyslog.conf"
+    mode: 0644
+
+- name: delete haproxy-config configmap
+  command: kubectl delete configmap -n {{ ldap_namespace }}  haproxy-config
+  when: clean_ldap == true
+  ignore_errors: yes
+
+- name: create haproxy-config configmap
+  command: kubectl create configmap -n {{ ldap_namespace }}  haproxy-config --from-file=/tmp/k8s/haproxyconfig/
+
+# save all ldap config and initdata file in configmap
+- name: make sure /tmp/k8s/ldapconfig/ directory exist on target server
+  file:
+    path: "/tmp/k8s/ldapconfig/"
+    state: "directory"
+    mode: 0777
+
+- name: copy ldap key and init data files to /tmp/k8s/ldapconfig
+  template:
+    src: "{{ item.src }}"
+    dest: "/tmp/k8s/ldapconfig/{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: conf/ldap.crt, dest: ldap.crt}
+    - {src: conf/ldap.key, dest: ldap.key}
+    - {src: "conf/slapd-{{deploy_env}}.conf", dest: slapd.conf}
+    - {src: data/add.ldif, dest: add.ldif}
+    - {src: data/basedomain.ldif, dest: basedomain.ldif}
+    - {src: data/useraccout.ldif, dest: useraccout.ldif}
+
+- name: delete ldap-config configmap
+  command: kubectl delete configmap -n {{ ldap_namespace }}  ldap-config
+  when: clean_ldap == true
+  ignore_errors: yes
+
+- name: create ldap-config configmap
+  command: kubectl create configmap -n {{ ldap_namespace }}  ldap-config --from-file=/tmp/k8s/ldapconfig/
+
+# copy json file, create app with them.
+- name: make sure /tmp/k8s/jsons/ directory exist on target server
+  file:
+    path: "/tmp/k8s/jsons/"
+    state: "directory"
+    mode: 0777
+
+- name: copy json files to /tmp/k8s/jsons
+  template:
+    src: "json/{{ item.src }}"
+    dest: "/tmp/k8s/jsons/{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: haproxy-ldaps-deployments.json, dest: haproxy-ldaps-deployments.json}
+    - {src: haproxy-ldaps-service.json, dest: haproxy-ldaps-service.json}
+    - {src: "ldap-data-pv-{{ storage_type }}.json", dest: ldap-data-pv.json}
+    - {src: ldap-data-pvc.json, dest: ldap-data-pvc.json}
+    - {src: ldaps-statefulset.json, dest: ldaps-statefulset.json}
+    - {src: ldaps-service.json, dest: ldaps-service.json}
+    - {src: ldap-register.json, dest: ldap-register.json}
+
+- name: delete ldap app in k8s
+  command: kubectl delete -f /tmp/k8s/jsons/{{ item }}
+  with_items:
+    - haproxy-ldaps-deployments.json
+    - haproxy-ldaps-service.json
+    - ldaps-statefulset.json
+    - ldaps-service.json
+    - ldap-data-pvc.json
+    - ldap-data-pv.json
+    - ldap-register.json
+  when: clean_ldap == true
+  ignore_errors: yes
+
+- name: create ldap app in k8s
+  command: kubectl create -f /tmp/k8s/jsons/{{ item }}
+  with_items:
+    - ldap-data-pv.json
+    - ldap-data-pvc.json
+    - ldaps-service.json
+    - ldaps-statefulset.json
+    - haproxy-ldaps-deployments.json
+    - haproxy-ldaps-service.json
+    - ldap-register.json
+
+# clean up temp files
+- name: clean up "/tmp/k8s/jsons/" "/tmp/k8s/ldapconfig/" and "/tmp/k8s/haproxyconfig/"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+    - "/tmp/k8s/jsons/"
+    - "/tmp/k8s/ldapconfig/"
+    - "/tmp/k8s/haproxyconfig/"

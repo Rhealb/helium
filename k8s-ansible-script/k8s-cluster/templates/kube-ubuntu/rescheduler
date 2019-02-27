@@ -1,0 +1,4 @@
+KUBE_RESCHEDULER_ARGS="--prometheus-listenaddr=0.0.0.0:9235 \
+                     --enable-namespace-reschedule-debug=true \
+                     --reschedule-debug-port=8899 \
+                     --leader-elect=true"

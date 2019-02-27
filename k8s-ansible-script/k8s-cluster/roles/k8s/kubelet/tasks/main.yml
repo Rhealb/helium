@@ -1,0 +1,59 @@
+---
+# tasks file for k8s-kubelet
+- name: create log dir
+  file:
+    name: /var/log/kubernetes/kubelet
+    state: directory
+    owner: kube
+
+- name: create data dir
+  file:
+    name: "{{ kubelet_dir }}"
+    state: directory
+    owner: kube
+
+- name: create manifests dir
+  file:
+    name: "{{ kubelet_manifests_dir }}"
+    state: directory
+    owner: kube
+
+- name: upload binary 
+  copy:
+    src: "kube/kubelet"
+    dest: "/usr/bin/kubelet"
+    mode: "a+x"
+
+- name: upload cert files
+  copy:
+    src: "ssl/kube/{{ item.src }}"
+    dest: "/etc/ssl/kube/{{ item.dest }}"
+    owner: "kube"
+  with_items:
+  - {src: "kubelet-{{ inventory_hostname }}.pem", dest: "kubelet.pem" }
+  - {src: "kubelet-{{ inventory_hostname }}-key.pem", dest: "kubelet-key.pem" }
+
+- name: upload templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "kube/kubelet", dest: "/etc/kubernetes/kubelet" }
+    - { src: "kube/kubelet.service", dest: "/etc/systemd/system/kubelet.service" }
+    - { src: "kube/kubelet.kubeconfig", dest: "/etc/kubernetes/kubelet.kubeconfig"}
+
+- name: upload image
+  copy:
+    src: kube/pause.tar
+    dest: /tmp/pause.tar
+
+- name: load image
+  shell: docker load -i /tmp/pause.tar
+
+- name: restart service
+  systemd:
+    name: kubelet
+    state: restarted
+    enabled: true
+    daemon_reload: true
+

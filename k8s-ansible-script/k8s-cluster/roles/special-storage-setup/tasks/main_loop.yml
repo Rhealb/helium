@@ -1,0 +1,12 @@
+# Read device information (always use unit when probing)
+- name: upload script
+  copy:
+    src: loopdevice.sh
+    dest: "{{ bin_dir }}/loopdevice.sh"
+    mode: "a+rx"
+
+- name: loop-device
+  shell: "{{ bin_dir }}/loopdevice.sh {{ item.key }} {{ item.value.path }} {{ item.value.num }} {{ item.value.size }}"
+  async: 0
+  poll: 1000
+  with_dict: "{{ special_mounts }}"

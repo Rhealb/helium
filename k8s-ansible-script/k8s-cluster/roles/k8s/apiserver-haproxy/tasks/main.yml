@@ -1,0 +1,20 @@
+---
+# tasks file for apiserver-haproxy
+- name: upload config file
+  template:
+    src: "kube/apiserver-haproxy.cfg"
+    dest: "/etc/haproxy/haproxy.cfg"
+  when: single_node is not defined
+
+#- name: override kubeconf file
+#  template:
+#    src: "kube/kube-config"
+#    dest: "/etc/kubernetes/kubeconfig"
+#    mode: "a+r"
+
+- name: start service
+  service:
+    name: haproxy
+    state: restarted
+    enabled: true
+  when: single_node is not defined

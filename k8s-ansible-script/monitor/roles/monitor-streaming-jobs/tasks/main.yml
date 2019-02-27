@@ -1,0 +1,10 @@
+- name: copy files
+  import_tasks: copy_files.yml
+
+#- include: prepare_images.yml
+
+# - name: prepare es
+#   import_tasks: prepare_es.yml
+
+- name: start k8s
+  import_tasks: start_k8s.yml

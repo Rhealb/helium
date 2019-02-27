@@ -1,0 +1,23 @@
+---
+- name: Ceph MGR | Create directory to store k8s deployment file
+  file:
+    path: /k8s/app/ceph/mgr
+    state: directory
+
+- name: Ceph MGR | Create ceph mgr  deployment files
+  template:
+    src: ceph-mgr-deploy.yml.j2
+    dest: "/k8s/app/ceph/mgr/ceph-mgr-{{ item }}.yaml"
+  with_items:
+  - "{{ mon_list }}"
+
+- name: Ceph MGR | Create ceph mgr
+  shell:
+    kubectl apply -f /k8s/app/ceph/mgr
+
+- name: Ceph mgr | Make sure mgr available
+  shell: ceph mgr dump | grep -w available
+  register: mgr_result
+  until: mgr_result.stdout.find("true") != -1
+  retries: 50
+  delay: 10

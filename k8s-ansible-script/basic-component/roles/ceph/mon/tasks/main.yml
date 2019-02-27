@@ -1,0 +1,12 @@
+---
+- include_tasks: create_mon.yml
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- include_tasks: create_mgr.yml
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- include_tasks: create_restapi.yml
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true

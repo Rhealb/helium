@@ -1,0 +1,64 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitor-grafana
+      namespace: {{ namespace }}
+      labels:
+        app: grafana
+        name: monitor-grafana
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 3000
+          nodePort: 29008
+      type: NodePort
+      selector:
+        name: monitor-grafana
+
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: monitor-grafana
+      namespace: {{ namespace }}
+      labels:
+        name: monitor-grafana
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            name: monitor-grafana
+        spec:
+          containers:
+            - name: monitor-grafana
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  memory: {{ request_memory_low }}
+                  cpu: {{ request_cpu_low }}
+                limits:
+                  memory: {{ limit_memory_low }}
+                  cpu: {{ limit_cpu_low }}
+              env:
+                - name: NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: "metadata.namespace"
+                - name: "METANAME"
+                  value: "monitor-grafana"
+              image: {{ registry_url }}/monitor/monitor-grafana:1.3-release
+              ports:
+                - containerPort: 3000
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /opt/conf
+
+          volumes:
+            - name: config-volume
+              configMap:
+                name: grafana-init

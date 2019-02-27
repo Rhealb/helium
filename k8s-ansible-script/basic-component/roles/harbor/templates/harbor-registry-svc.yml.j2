@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: harbor-registry
+  namespace: {{ harbor_namespace }}
+  labels:
+    X_APP: harbor
+    app: harbor
+    daemon: registry
+    type: service
+spec:
+  ports:
+  - name: repo
+    port: 5000
+  - name: debug
+    port: 5001
+  selector:
+    app: harbor
+    daemon: registry

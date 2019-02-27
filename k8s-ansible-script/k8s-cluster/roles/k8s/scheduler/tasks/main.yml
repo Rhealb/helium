@@ -1,0 +1,54 @@
+---
+# tasks file for k8s-scheduler
+- name: create dir
+  file:
+    name: /var/log/kubernetes/{{ item }}
+    owner: kube
+    state: directory
+  with_items:
+  - scheduler
+  - rescheduler
+
+- name: upload binary 
+  copy:
+    src: kube/{{ item }}
+    dest: "/usr/bin/{{ item }}"
+    owner: kube
+    mode: "a+x"
+  with_items:
+  - kube-scheduler
+  - kube-rescheduler
+
+- name: upload cert files
+  copy:
+    src: "ssl/kube/{{ item.src }}"
+    dest: "/etc/ssl/kube/{{ item.dest }}"
+    owner: "kube"
+  with_items:
+  - {src: "kube-scheduler-{{ inventory_hostname }}.pem", dest: "kube-scheduler.pem" }
+  - {src: "kube-scheduler-{{ inventory_hostname }}-key.pem", dest: "kube-scheduler-key.pem" }
+
+
+- name: upload templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "kube"
+  with_items:
+    - { src: "kube/scheduler", dest: "/etc/kubernetes/scheduler" }
+    - { src: "kube/scheduler-policy.json", dest: "/etc/kubernetes/scheduler-policy.json" }
+    - { src: "kube/kube-scheduler.service", dest: "/etc/systemd/system/kube-scheduler.service" }
+    - { src: "kube/kube-scheduler.kubeconfig", dest: "/etc/kubernetes/kube-scheduler.kubeconfig"}
+    - { src: "kube/rescheduler", dest: "/etc/kubernetes/rescheduler" }
+    - { src: "kube/kube-rescheduler.service", dest: "/etc/systemd/system/kube-rescheduler.service" }
+
+- name: restart service
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+    daemon_reload: yes
+  with_items:
+  - kube-scheduler
+  - kube-rescheduler
+

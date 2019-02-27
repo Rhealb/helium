@@ -1,0 +1,102 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+    name: elasticsearch-fluent
+    namespace: {{ monitor_ns_monitor_application }}
+    labels:
+        k8s-app: elasticsearch-fluent
+spec:
+    selector:
+        matchLabels:
+            k8s-app: elasticsearch-fluent
+    template:
+        metadata:
+            name: elasticsearch-fluent
+            namespace: {{ monitor_ns_monitor_application }}
+            labels:
+                k8s-app: elasticsearch-fluent
+        spec:
+            containers:
+                -
+                    image: {{ registry_url }}/{{ monitor_fluent_bit_image }}
+                    name: elasticsearch-fluent
+                    resources:
+                        requests:
+                            memory: {{ monitor_fluent_bit_memory_request }}
+                            cpu: {{ monitor_fluent_bit_cpu_request }}
+                        limits:
+                            memory: {{ monitor_fluent_bit_memory_limit }}
+                            cpu: {{ monitor_fluent_bit_cpu_limit }}
+                    securityContext:
+                        privileged: true
+                    env:
+                        -
+                            name: NAMESPACE
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.namespace
+                        -
+                            name: GATEWAYSERVER
+                            value: '{{ monitor_security_gateway_server_servername }}'
+                        -
+                            name: GATEWAYPORT
+                            value: '{{ monitor_security_gateway_server_listenport }}'
+                        -
+                            name: APIURL
+                            value: 'https://kubernetes.default:443'
+                        -
+                            name: CLUSTERNAME
+                            value: '{{ cluster_name }}'
+                        -
+                            name: USERNAME
+                            value: '{{ admin_username }}'
+                        -
+                            name: PASSWD
+                            value: '{{ admin_password }}'
+                        -
+                            name: DOCKERPATH
+                            value: '/data/docker/containers'
+                        -
+                            name: LOGPATTERN
+                            value: '^\[(?<year>\d\d\d\d)\/(?<month>\d\d)\/(?<day>\d\d)\s*(?<time>[\d\:]+)\]\s*\[\s(?<logLevel>\w+)\]\s*(?<log>.*)$'
+                        -
+                            name: LOGASSEMBLE
+                            value: '%logLevel[info:INFO/warn:WARN/error:ERROR]%,%log%,%dateTime%'
+                    volumeMounts:
+                        -
+                            name: var-log
+                            mountPath: /fb-var/log
+                        -
+                            name: var-log-pod
+                            mountPath: /var/log/pods
+                        -
+                            name: pos-storage
+                            mountPath: /data/pos
+                        -
+                            name: data
+                            mountPath: /data/docker
+                            readOnly: true
+                        -
+                            name: config-volume
+                            mountPath: /opt/conf
+            volumes:
+                -
+                    name: var-log
+                    hostPath:
+                        path: /var/log
+                -
+                    name: var-log-pod
+                    hostPath:
+                        path: /var/log/pods
+                -
+                    name: pos-storage
+                    hostPath:
+                        path: /mnt/{{ monitor_ns_monitor_application }}/elasticsearch-fluent
+                -
+                    name: data
+                    hostPath:
+                        path: /data/docker
+                -
+                    name: config-volume
+                    configMap:
+                        name: fluentd-conf

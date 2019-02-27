@@ -1,0 +1,85 @@
+{
+    "apiVersion": "extensions/v1beta1",
+    "kind": "Deployment",
+    "metadata": {
+        "labels": {
+            "run": "haproxy-ldaps-ha",
+            "X_APP": "ldap"
+        },
+        "name": "haproxy-ldaps-ha",
+        "namespace": "{{ ldap_namespace }}"
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "matchLabels": {
+                "run": "haproxy-ldaps-ha"
+            }
+        },
+        "template": {
+            "metadata": {
+                "annotations": {
+                    "scheduler.alpha.kubernetes.io/critical-pod": "true"
+                },
+                "labels": {
+                    "run": "haproxy-ldaps-ha",
+                    "X_APP": "ldap",
+                    "X_NAMESPACE": "system-tools"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "CONF_FILE",
+                                "value": "/configuration/haproxy.cfg"
+                            }
+                        ],
+                        "image": "{{ registry_url }}/{{ haproxy_image_url }}",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "ldpas",
+                        "resources": {
+                            "limits": {
+                                "cpu": "0.5",
+                                "memory": "100Mi"
+                            },
+                            "requests": {
+                                "cpu": "0.2",
+                                "memory": "10Mi"
+                            }
+                        },
+                        "ports": [
+                            {
+                                "containerPort": 389,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 636,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 8101,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/configuration",
+                                "name": "configuration"
+                            }
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "configuration",
+                        "configMap": {
+                            "name": "haproxy-config"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

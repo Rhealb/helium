@@ -1,0 +1,35 @@
+---
+- name: create nfs-provisioner image files dir
+  file: path=/tmp/nfs-provisioner/images/ state=directory
+
+- name: copy images
+  copy:
+    src: "../../../files/images/system-tools/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: nfs-provisioner.tar, dest: /tmp/nfs-provisioner/images/}
+
+- name: load docker images
+  command: "{{ item}}"
+  with_items:
+    - docker load -i /tmp/nfs-provisioner/images/nfs-provisioner.tar
+
+- name: copy push image script
+  template: src=push_images.sh dest=/tmp/nfs-provisioner/images/
+
+# - name: push images files
+#   command: bash  /tmp/nfs-provisioner/images/push_images.sh
+- name: push images files
+  command: "{{ item }}"
+  with_items: 
+    - echo "nonsense" | docker login -uadmin -p{{ harbor_admin_password }} {{ registry_url }} 
+    - docker push {{ registry_url }}/{{ nfs_image_url }}
+
+# clean up temp files
+- name: clean up "/tmp/nfs-provisioner/images"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/nfs-provisioner/images"
+

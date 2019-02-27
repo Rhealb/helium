@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: enn-monitor-log-archive-server
+    labels:
+        name: enn-monitor-log-archive-server
+    namespace: {{ monitor_ns_monitor_application }}
+spec:
+    type: NodePort
+    ports:
+        -
+            name: port
+            port: {{ monitor_log_archive_server_listenport }}
+            nodePort: {{ monitor_log_archive_server_exportport }}
+    selector:
+        name: enn-monitor-log-archive-server

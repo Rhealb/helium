@@ -1,0 +1,24 @@
+KUBE_API_ADDRESS="--insecure-bind-address=127.0.0.1 --advertise-address {{ inventory_hostname }} --bind-address {{ inventory_hostname }} --external-hostname {{ inventory_hostname }}"
+KUBE_API_PORT="--insecure-port 8080 --secure-port=6443"
+KUBE_API_ARGS=" --storage-media-type=application/json \
+                --endpoint-reconciler-type=lease \
+                --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ResourceQuota,SecurityContextDeny,NsHostPathAndPrivilege \
+                --disable-admission-plugins=PersistentVolumeClaimResize \
+                --feature-gates=ExpandInUsePersistentVolumes=true \
+                --client-ca-file=/etc/ssl/ca.pem \
+                --tls-cert-file=/etc/ssl/kube/apiserver-{{ master_list.index(inventory_hostname) + 1 }}.pem \
+                --tls-private-key-file=/etc/ssl/kube/apiserver-{{ master_list.index(inventory_hostname) + 1 }}-key.pem \
+                --basic-auth-file=/etc/kubernetes/basic_auth.csv \
+                --anonymous-auth=false \
+                --log-dir=/var/log/kubernetes/apiserver \
+                --runtime-config=storage.k8s.io/v1alpha1=true,api/all=true \
+                --service-node-port-range={{ node_port_range }} \
+                --kubelet-client-certificate=/etc/ssl/kube/client.pem \
+                --kubelet-client-key=/etc/ssl/kube/client-key.pem \
+                --service-account-key-file=/etc/ssl/kube/serviceaccount.pem \
+				 {% if storage_type == 'ebs'  %}
+                --cloud-provider=aws \
+                {% endif %}
+                "
+#                --apiserver-count {{ master_list|length }} \
+#                --feature-gates=CSIPersistentVolume=true,MountPropagation=true \

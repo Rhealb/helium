@@ -1,0 +1,8 @@
+---
+- name: copy docker ceph image file to hosts
+  copy:
+    src: "{{ ceph_image_tar_file }}"
+    dest: "/tmp/ceph.tar"
+
+- name: load docker ceph image
+  command: "docker load -i /tmp/ceph.tar"

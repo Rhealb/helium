@@ -1,0 +1,29 @@
+---
+- name: mk directory
+  file:
+    path={{ item }}
+    state=directory
+  with_items:
+    - /{{ workspace }}/images
+
+- name: copy files to remote
+  template:
+    src: "{{ item }}"
+    dest: "/{{ workspace }}"
+  with_fileglob:
+    - "../templates/*"
+
+- name: mk directory
+  file:
+    path={{ item }}
+    state=directory
+  with_items:
+    - /{{ workspace }}/scripts
+
+- name: copy scripts to remote
+  template:
+    src: "{{ item }}"
+    dest: "/{{ workspace }}/scripts/"
+    mode: "+x"
+  with_fileglob:
+    - "../scripts/*"

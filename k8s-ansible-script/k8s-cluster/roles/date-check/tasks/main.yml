@@ -1,0 +1,17 @@
+---
+# tasks file for date-check
+- name: set timezone(default Asia/Shanghai)
+  command: timedatectl set-timezone {{ timezone }}
+
+- name: get local time
+  local_action: command date +%s 
+  register: current_localtime
+
+# - name: upload check file
+#   template:
+#     src: date-check.sh
+#     dest: /tmp/date-check.sh
+#     mode: "a+rx"
+
+# - name: check date
+#   shell: /tmp/date-check.sh

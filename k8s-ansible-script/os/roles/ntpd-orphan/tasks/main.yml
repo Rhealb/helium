@@ -1,0 +1,36 @@
+---
+# tasks file for ntpd orphan mode on coreos
+- name: remove the old config in case it is a link
+  file:
+    path: /etc/ntp.conf
+    state: absent
+
+
+- name: upload config file
+  template:
+    src: "ntp.conf"
+    dest: /etc/ntp.conf
+
+- name: upload ntpd systemd file
+  template:
+    src: ntpd.service
+    dest: "/etc/systemd/system/ntpd.service"
+
+
+- name: update daemon conf
+  shell: systemctl daemon-reload    
+
+- name: stop ntp service
+  service:
+    name: ntpd
+    state: stopped
+
+- name: ntpdate
+  shell: ntpdate {{ ntp_server }}
+  when: ntp_server != ""
+
+- name: restart and enable ntp service
+  service:
+    name: ntpd
+    enabled: yes
+    state: restarted

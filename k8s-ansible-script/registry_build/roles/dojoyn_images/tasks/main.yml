@@ -1,0 +1,86 @@
+- name: cleanup docker directory
+  file:
+    state: absent
+    path: "images/docker"
+  when: 
+    - build == true
+    
+
+- name: start local registry
+  local_action: shell scripts/start_local_registry.sh
+  when: 
+    - build == true
+
+- name: pull dojoyn images to local registry
+  local_action: "shell scripts/push_images.sh {{ release_harbor_url }}/{{ item }} {{registry_url}}:{{ local_registry_port }}"
+  with_items: 
+    - "{{ dojoyn_image.hbase }}"
+    - "{{ dojoyn_image.hadoop }}"
+    - "{{ dojoyn_image.zookeeper}}"
+    - "{{ dojoyn_image.kafka }}"
+    - "{{ dojoyn_image.dojoyn }}"
+    - "{{ dojoyn_image.mongo }}"
+  when: 
+    - build == true
+   
+
+- name: build dojoyn images 
+  shell: "sh scripts/build_images.sh files/images/dojoyn/dojoyn.zip"
+  when: 
+    - build == true
+
+
+#----------------------below tasks is executes on customer site---------------------#
+- name: create dojoyn directory
+  file:
+    path: "/dojoyn"
+    state: "directory"
+    mode: 0777
+  when: 
+    - push == true
+
+- name: copy images
+  copy:
+    src: "../files/images/dojoyn/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: dojoyn.zip, dest: /dojoyn/dojoyn.zip}
+  when: 
+    - push == true
+
+
+- name:  unzip dojoyn images 
+  shell: "unzip -o /dojoyn/dojoyn.zip -d /dojoyn"
+  when: 
+    - push == true
+
+- name: start dojoyn local registry
+  shell: "sh /dojoyn/scripts/start_local_registry.sh"
+  when: 
+    - push == true
+
+- name: copy script
+  copy:
+    src: "scripts/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: push_images_to_harbor.sh, dest: /dojoyn/scripts/push_images_to_harbor.sh}
+  when:
+    - push == true
+
+- name: login to harbor 
+  command:  "echo 'nonsense' | docker login -u admin -p {{ harbor_admin_password }}  {{local_harbor_url}}:{{harbor_port}}"
+  when:
+    - push == true
+
+- name: push images to harbor 
+  shell: "sh /dojoyn/scripts/push_images_to_harbor.sh {{local_harbor_url}}:{{local_registry_port}}/{{ item }} {{local_harbor_url}}:{{harbor_port}}/{{ item }} "
+  with_items:
+    - "{{ dojoyn_image.hbase }}"
+    - "{{ dojoyn_image.hadoop }}"
+    - "{{ dojoyn_image.zookeeper}}"
+    - "{{ dojoyn_image.kafka }}"
+    - "{{ dojoyn_image.dojoyn }}"
+    - "{{ dojoyn_image.mongo }}"
+  when: 
+    - push == true

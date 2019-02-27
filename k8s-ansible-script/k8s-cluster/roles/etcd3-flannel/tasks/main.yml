@@ -1,0 +1,52 @@
+---
+# tasks file for etcd3
+- name: create etcd dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+  with_items:
+    - "{{ etcd_data_dir}}"
+    - /etc/ssl/etcd
+    - /etc/etcd
+
+      
+- name: copy files
+  copy:
+    src: "ssl/etcd/{{ item.src }}"
+    dest: "/etc/ssl/etcd/{{ item.dest }}"
+    owner: "{{ ansible_ssh_user }}"
+  when: inventory_hostname in etcd_init_servers
+  with_items:
+    - { src: "flannel-etcd-server-{{ inventory_hostname }}.pem", dest: "etcd-server-{{ inventory_hostname }}.pem" }
+    - { src: "flannel-etcd-server-{{ inventory_hostname }}-key.pem", dest: "etcd-server-{{ inventory_hostname }}-key.pem" }
+    - { src: "flannel-etcd-peer-{{ inventory_hostname }}.pem", dest: "/etc/ssl/etcd/etcd-peer-{{ inventory_hostname }}.pem" }
+    - { src: "flannel-etcd-peer-{{ inventory_hostname }}-key.pem", dest: "/etc/ssl/etcd/etcd-peer-{{ inventory_hostname }}-key.pem" }
+    - { src: "etcd-admin.pem", dest: "etcd-admin.pem" }
+    - { src: "etcd-admin-key.pem", dest: "etcd-admin-key.pem" }
+
+- name: upload service file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "etcd.service", dest: "/etc/systemd/system/etcd.service" }
+    - { src: "flannel-etcd.conf", dest: "/etc/etcd/etcd.conf" }
+
+- name: ETCD | Set etcd client
+  lineinfile:
+    dest: /root/.bashrc
+    line: "{{ item }}"
+  with_items:
+    - "export ETCDCTL_CA_FILE=/etc/ssl/ca.pem"
+    - "export ETCDCTL_CERT_FILE=/etc/ssl/etcd/etcd-admin.pem"
+    - "export ETCDCTL_KEY_FILE=/etc/ssl/etcd/etcd-admin-key.pem"
+
+- name: ETCD | Start etcd service
+  systemd:
+    name: etcd
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+
+

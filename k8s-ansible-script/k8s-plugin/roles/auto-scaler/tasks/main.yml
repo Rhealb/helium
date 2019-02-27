@@ -1,0 +1,59 @@
+---
+- name: copy and push docker images to harbor
+  include: copy_docker_images.yml
+
+ #make sure the directory exist
+- name: make sure /tmp/autoScaler/data directory exist on target server
+  file:
+    path: "/tmp/autoScaler/data"
+    state: "directory"
+    mode: 0777
+
+- name: init sa name for deployment(retry 10 delay 1s)
+  shell: "kubectl -n {{ autoscaler_namespace }} describe sa default| grep Tokens | awk '{print $2}'"
+  register: token_name
+  until: token_name.stdout != ""
+  retries: 10
+  delay: 1
+
+- name: copy all key files to /tmp/autoScaler/data
+  template:
+    src: "{{ item.src }}"
+    dest: "/tmp/autoScaler/data/{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: key/server.crt, dest: server.crt}
+    - {src: key/server.key, dest: server.key}
+    - {src: key/basic_auth.csv, dest: basic_auth.csv}
+    - {src: key/ca.key, dest: ca.key}
+
+- name: copy all init yaml files to /tmp/autoScaler/data
+  template:
+    src: "{{ item.src }}"
+    dest: "/tmp/autoScaler/data/{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: yaml/deploy.yaml, dest: deploy.yaml}
+    - {src: yaml/svc.yaml, dest: svc.yaml}
+
+- name: delete autoScaler app in k8s
+  command: kubectl delete -f /tmp/autoScaler/data/{{ item }}
+  with_items:
+    - deploy.yaml
+    - svc.yaml
+  when: clean_app == true
+  ignore_errors: yes
+
+- name: create autoScaler app in k8s
+  command: kubectl create -f /tmp/autoScaler/data/{{ item }}
+  with_items:
+    - deploy.yaml
+    - svc.yaml
+
+ #clean up temp files
+- name: clean up "/tmp/autoScaler/data"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/autoScaler/data"

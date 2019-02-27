@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harbor-ui
+  namespace: {{ harbor_namespace }}
+  labels:
+    X_APP: harbor
+    app: harbor
+    daemon: ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor
+      daemon: ui
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: "true"
+      labels:
+        app: harbor
+        daemon: ui
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: ui
+        image: {{ harbor_image }}
+        imagePullPolicy: IfNotPresent
+        args:
+        - /harbor/ui
+        env:
+        - name: ADMINSERVER_URL
+          value: http://harbor-adminserver:8080
+        - name: _REDIS_URL
+          value: harbor-redis:6379,100
+        - name: CONFIG_PATH
+          value: /etc/ui/app.conf
+        - name: SYNC_REGISTRY
+          valueFrom:
+            configMapKeyRef:
+              name: harbor-environment
+              key: SYNC_REGISTRY
+        - name: UI_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: harbor-environment
+              key: UI_SECRET
+        - name: JOBSERVICE_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: harbor-environment
+              key: JOBSERVICE_SECRET
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: harbor-environment
+              key: LOG_LEVEL
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+        resources:
+          limits:
+            cpu: "{{ harbor_cpu_limits }}"
+            memory: {{ harbor_memory_limits }}
+          requests:
+            cpu: "{{ harbor_cpu_requests }}"
+            memory: {{ harbor_memory_requests }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/ui
+      volumes:
+      - name: config
+        configMap:
+          name: harbor-config
+          items:
+          - key: secret_key
+            path: key
+          - key: ui_config
+            path: app.conf
+          - key: pkey
+            path: private_key.pem
+

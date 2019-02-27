@@ -1,0 +1,5 @@
+10.19.140.6
+10.19.140.10
+10.19.140.14
+[all:vars]
+ansible_ssh_pass=enncloud

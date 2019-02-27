@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: enndata-scheduler-nsnodeselector
+  namespace: k8splugin
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enndata-scheduler-nsnodeselector
+  namespace: k8splugin
+  labels:
+    app: enndata-scheduler-nsnodeselector
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: enndata-scheduler-nsnodeselector
+  template:
+    metadata:
+      labels:
+        app: enndata-scheduler-nsnodeselector
+    spec:
+      serviceAccountName: enndata-scheduler-nsnodeselector
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+             labelSelector:
+               matchExpressions:
+               - key: app
+                 operator: In
+                 values:
+                 - enndata-scheduler-nsnodeselector
+             namespaces:
+             - k8splugin
+             topologyKey: kubernetes.io/hostname
+            weight: 1
+      volumes:
+      - name: tls-certs
+        secret:
+          secretName: enndata-scheduler-tls-certs
+      containers:      
+      - name: enndata-scheduler-nsnodeselector
+        image: {{ registry_url }}/{{ nsnodeselector_image_url }}
+        volumeMounts:
+          - name: tls-certs
+            mountPath: "/etc/tls-certs"
+            readOnly: true
+        command:
+        - /enndata-scheduler 
+        - --nsselect-server-address=:9091
+        - --runmode=backendonly
+        - --v=3
+        - --logtostderr=true
+        - --nsselect-server-cert-file=/etc/tls-certs/serverCert.pem
+        - --nsselect-server-key-file=/etc/tls-certs/serverKey.pem
+        - --nsselect-server-basic-auth-file=/etc/tls-certs/basicAuth
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 200Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enndata-scheduler-nsnodeselector-svc
+  namespace: k8splugin
+spec:
+  ports:
+    - port: 8843
+      name: nsselectserver
+      targetPort: 9091
+      nodePort: 29111
+  type: NodePort
+  selector:
+    app: enndata-scheduler-nsnodeselector
+     

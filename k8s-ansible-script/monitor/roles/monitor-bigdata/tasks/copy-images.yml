@@ -1,0 +1,83 @@
+---
+
+# copy bigdata components images to target server
+
+- name: make sure directory /monitor/bigdata/images exists on target server
+  file:
+    path: "/monitor/bigdata/images"
+    state: "directory"
+    mode: 0777
+
+- name: Create required projects (tools)
+  uri:
+    url: http://{{ registry_url }}/api/projects
+    method: POST
+    user: admin
+    password: "{{ harbor_admin_password }}"
+    body: {"project_name": "{{ item }}","public": 1}
+    force_basic_auth: yes
+    status_code: 201
+    body_format: json
+  with_items:
+    - tools
+  ignore_errors: yes
+
+- name: copy bigdata images
+  copy:
+    src: "../../../files/images/bigdata/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: '{{ elasticsearch_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ hbase_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ hadoop_hdfs_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ kafka_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ opentsdb_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ spark_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ zookeeper_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ centos7_jdk_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ amah_elasticsearch_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ amah_hbase_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ amah_hadoop_hdfs_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ amah_kafka_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ amah_opentsdb_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ amah_spark_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+    - {src: '{{ amah_zookeeper_image_tar }}', dest: "{{ bigdata_images_dir }}" }
+
+- name: load images
+  command: "{{ item }}"
+  with_items:
+    - docker load -i {{ bigdata_images_dir }}/{{ elasticsearch_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ hbase_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ hadoop_hdfs_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ kafka_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ opentsdb_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ spark_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ zookeeper_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ centos7_jdk_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ amah_elasticsearch_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ amah_hbase_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ amah_hadoop_hdfs_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ amah_kafka_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ amah_opentsdb_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ amah_spark_image_tar }}
+    - docker load -i {{ bigdata_images_dir }}/{{ amah_zookeeper_image_tar }}
+
+- name: push images to registry
+  command: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login -uadmin -p{{ harbor_admin_password }} {{ registry_url }}
+    - docker push {{ elasticsearch_image }}
+    - docker push {{ hbase_image }}
+    - docker push {{ hadoop_hdfs_image }}
+    - docker push {{ kafka_image }}
+    - docker push {{ opentsdb_image }}
+    - docker push {{ spark_image }}
+    - docker push {{ zookeeper_image }}
+    - docker push {{ centos7_jdk_image }}
+    - docker push {{ amah_elasticsearch_image }}
+    - docker push {{ amah_hbase_image }}
+    - docker push {{ amah_hadoop_hdfs_image }}
+    - docker push {{ amah_kafka_image }}
+    - docker push {{ amah_opentsdb_image }}
+    - docker push {{ amah_spark_image }}
+    - docker push {{ amah_zookeeper_image }}

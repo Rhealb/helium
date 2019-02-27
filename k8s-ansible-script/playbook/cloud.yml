@@ -1,0 +1,36 @@
+# install centos7.4 package
+--
+hosts: all
+vars:
+- import_playbook: ../os/install-centos7.4-packages-localrepo.yml
+
+## deploy k8s cluseters
+- import_playbook: ../k8s-cluster/k8s-1.9-ennpolicy.yml
+
+## deploy basic component: ceph, harbor, ldap, ingress
+- import_playbook: ../basic-component/basic-component.yml
+
+## k8s plugin: autoscaler backend, ingress
+- import_playbook: ../k8s-plugin/k8s-plugin.yml
+
+## upload  console images to harbor
+- import_playbook: ../registry_build/push_consolepro_images.yml
+
+## deploy console
+- import_playbook: ../console/console-1.4.yml
+  vars:
+    auth_enabled: "true"
+    s3_enabled: "true"
+    ebs_enabled: "false"
+    efs_enabled: "false"
+    is_agile: false
+    cloud_name: "ali" # Could be one of ali, huawei, aws, tencent and none
+
+# upload bigdata images to harbor
+- import_playbook: ../registry_build/push_bigdata_images.yml
+
+## upload monitor images to harhor
+- import_playbook: ../registry_build/push_monitor_images.yml
+
+## deploy monitor
+- import_playbook: ../monitor/monitor.yml

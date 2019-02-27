@@ -1,0 +1,23 @@
+---
+# tasks file for log cleanup
+#
+- name: upload systemd service file
+  copy:
+    src: kubelog-cleanup.service
+    dest: "/etc/systemd/system/kubelog-cleanup.service"
+
+
+- name: upload systemd timer file
+  copy:
+    src: kubelog-cleanup.timer
+    dest: "/etc/systemd/system/kubelog-cleanup.timer"
+
+- name: reload systemd conf
+  shell: systemctl daemon-reload
+
+
+- name: enable the timer
+  systemd:
+    name: kubelog-cleanup.timer
+    state: started
+    enabled: True

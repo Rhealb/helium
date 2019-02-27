@@ -1,0 +1,21 @@
+---
+# tasks file for add company 
+- name: get cc mysql pod name (retry 10 delay 10s)
+  shell: "kubectl -n {{ namespace.console }} get po | grep cc-mysql | awk '{print $1}'"
+  register: cc_mysql_pod_name
+  until: cc_mysql_pod_name.stdout != ""
+  retries: 10
+  delay: 10
+
+- name: wait for cc mysql ready (retry 10 delay 30s)
+  shell: "kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc  -e 'select count(1) from external_link;'"
+  register: result
+  until: result.stdout.find('count(1)') != -1
+  retries: 10
+  delay: 30
+
+- name: delete exists external links in mysql
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'delete from company where company in ("{{ company_name }}");'
+
+- name: add external links to mysql
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'insert into company values(1, "{{company_name}}");'

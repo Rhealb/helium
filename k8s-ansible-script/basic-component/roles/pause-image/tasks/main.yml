@@ -1,0 +1,15 @@
+---
+# tasks file for pause-image
+- name: copy image file to hosts
+  copy:
+    src: "../k8s-cluster/files/kube/pause.tar"
+    dest: "/tmp/pause.tar"
+
+- name: load image
+  shell: docker load < /tmp/pause.tar
+
+- name: push pause image to harbor
+  shell: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login -uadmin -p{{ harbor_admin_password }} {{ registry_url }}
+    - docker push {{ pause_image }}

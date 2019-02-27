@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: harbor-proxy
+  namespace: {{ harbor_namespace }}
+  labels:
+    X_APP: harbor
+    app: harbor
+    daemon: nginx
+    type: service
+spec:
+  ports:
+  - name: http
+    nodePort: {{ harbor_node_port }}
+    port: 80
+  selector:
+    app: harbor
+    daemon: nginx
+  type: NodePort

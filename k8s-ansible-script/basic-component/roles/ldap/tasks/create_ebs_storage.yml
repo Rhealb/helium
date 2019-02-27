@@ -1,0 +1,11 @@
+---
+### provision AWS EC2 instance	
+- name: Create EBS
+  local_action:
+    module: ec2_vol
+    volume_type: gp2
+    volume_size: 1
+    name: ldap-data
+    zone: cn-north-1b
+    region: cn-north-1
+  register: ec2_vol

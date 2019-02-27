@@ -1,0 +1,2 @@
+# ENN_POLICY_HOSTNAME="--hostname-override {{ inventory_hostname }}"
+ENN_POLICY_ARGS="--log-dir=/var/log/kubernetes/enn-policy --ip-range={{ flanneld_subnet }} --accept-flannel-ip=true --flannel-network={{ flanneld_subnet }}"

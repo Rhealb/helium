@@ -1,0 +1,35 @@
+---
+- name: copy and push docker images to harbor
+  include: copy_docker_images.yml
+
+#make sure the directory exist
+- name: make sure /tmp/enndata-controller-manager directory exist on target server
+  file:
+    path: "/tmp/enndata-controller-manager"
+    state: "directory"
+    mode: 0777
+
+- name: copy yaml files to /tmp/enndata-controller-manager
+  template:
+    src: "{{ item.src }}"
+    dest: "/tmp/enndata-controller-manager/{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: enndata-controller-manager.yaml, dest: enndata-controller-manager.yaml}
+
+- name: clean deployment
+  command: kubectl delete -f /tmp/enndata-controller-manager/enndata-controller-manager.yaml
+
+- name: wait
+  command: sleep 5
+
+- name: create deployment
+  command: kubectl create -f /tmp/enndata-controller-manager/enndata-controller-manager.yaml
+
+ #clean up temp files
+- name: clean up "/tmp/enndata-controller-manager"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/enndata-controller-manager"

@@ -1,0 +1,10 @@
+---
+# handlers file 
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: restart-docker
+  service:
+    name: docker
+    enabled: yes
+    state: restarted

@@ -1,0 +1,61 @@
+---
+# tasks file for centos-packages
+- name: upload local repo
+  template:
+    src: local.repo
+    dest: /etc/yum.repos.d/local.repo
+
+- name: remove unwanted packages
+  yum:
+    name: "{{ item }}"
+    state: removed
+  with_items:
+    - nscd
+  when: alicloud is defined
+
+- name: wait for delete packages
+  shell: sleep 10
+  when: alicloud is defined
+
+- name: install necessary packages
+  yum:
+    name: "{{ item }}"
+    disablerepo: "*"
+    enablerepo: local
+    state: latest
+  with_items:
+    - docker-ce
+    - ntp
+    - ceph-common
+    - nfs-utils
+    - conntrack-tools
+    - bzip2
+    - etcd
+    - curl
+    - nc
+    - rsync
+    - net-tools
+    - jq
+    - libseccomp
+    - unzip
+    - s3cmd
+
+- name: install necessary packages
+  yum:
+    name: "{{ item }}"
+    disablerepo: "*"
+    enablerepo: local
+    state: latest
+  with_items:
+    - keepalived
+    - haproxy
+  when: single_node is not defined
+
+
+- name: remove unwanted packages
+  yum:
+    name: "{{ item }}"
+    state: removed
+  with_items:
+    - chrony
+

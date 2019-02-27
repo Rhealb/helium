@@ -1,0 +1,10 @@
+---
+- import_playbook: ../console/console-1.4.yml
+  vars:
+    auth_enabled: "true"
+    ceph_enabled: "true"
+    nfs_enabled: "false"
+    nfs_property: ""
+    s3_enabled: "true"
+    is_agile: false
+    cloud_name: "none" # Could be one of ali, huawei, aws, tencent and none

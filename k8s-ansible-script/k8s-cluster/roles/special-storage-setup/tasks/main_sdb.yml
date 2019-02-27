@@ -1,0 +1,44 @@
+---
+# tasks file for special-storage-setup
+- name: umount the file system
+  mount:
+    path: "{{ item.value.path }}"
+    state: absent
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+
+- name: clear partition
+  parted:
+    device: "{{ item.key }}"
+    number: 1
+    state: absent
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+
+- name: create partition
+  parted:
+    device: "{{ item.key }}"
+    number: 1
+    state: present
+    label: gpt
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+
+- name: create file system
+  filesystem:
+    fstype: xfs
+    dev: "{{ item.key+'1' }}"
+    force: yes 
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+
+- name: mount the file system
+  mount:
+    fstype: xfs
+    path: "{{ item.value.path }}"
+    src:  "{{ item.key+'1'  }}"
+    opts: "{{ item.value.opt }}"
+    state: mounted
+  with_dict: "{{ special_mounts }}"
+  when: special_mounts is defined
+

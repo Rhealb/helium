@@ -1,0 +1,27 @@
+[Unit]
+Description=Kubernetes Scheduler Plugin
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=apiserver-haproxy.service
+
+[Service]
+ExecStart={{ bin_dir }}/nshostpathprivilege \
+      --v=4  \
+      --stderrthreshold=info \
+	  --address=0.0.0.0:6500 \
+	  --log-dir=/var/log/kubernetes/nshostpathprivilege \
+      --serverurl=https://localhost:6500/ \
+	  --metric-address=0.0.0.0:6501 \
+	  --auto-regist-config=true \
+      --config-name=nshostpathprivilege \
+	  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
+	  --certs-dir=/etc/kubernetes/tls-certs/nshp-certs \
+	  
+	
+Restart=on-failure
+LimitNOFILE=65536
+StandardOutput=null
+# StandardError=null
+
+[Install]
+WantedBy=multi-user.target
+ 

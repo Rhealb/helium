@@ -1,0 +1,10 @@
+---
+# defaults file for k8s-kubelet
+storage_type: ""
+max_pods: "128"
+cpu_reserved: "0"
+memory_reserved: "0"
+kubelet_dir: "/data/kubelet"
+kubelet_manifests_dir: "/data/manifests"
+cgroup_driver: "cgroupfs"
+pause_image: "127.0.0.1:29006/library/pause-amd64:3.1"

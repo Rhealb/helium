@@ -1,0 +1,26 @@
+---
+# tasks file for ali-local-config
+- name: upload script
+  copy:
+    src: alilocalconf.sh
+    dest: "{{ bin_dir }}/alilocalconf.sh"
+    mode: "a+rx"
+
+- name: upload service file
+  template:
+    src: alilocalconf.service
+    dest: /etc/systemd/system/alilocalconf.service
+
+- name: upload conf file
+  template:
+    src: alilocal.conf
+    dest: /etc/alilocal.conf
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: start and enable service
+  service:
+    name: alilocalconf
+    state: restarted
+    enabled: yes

@@ -1,0 +1,18 @@
+---
+# defaults file for ingress
+master_addr: https://kubernetes.default:443
+
+# NodePort
+harbor_node_port: 29006
+
+ingress_backend_image: 127.0.0.1:29006/library/defaultbackend:1.4
+#dns_controller_image: 127.0.0.1:30100/enncloud/dns-controller:0.9.3
+nginx_ingress_image: 127.0.0.1:29006/library/nginx-ingress-controller:enn-0.9.0
+ingress_class: outside
+ingress_export_ip: "{{ ca_vip }}"
+docker_user: admin
+ingress_dns_domain: cluster.local
+
+
+server_name_hash_max_size: 1024
+server_name_hash_bucket_size: 128

@@ -1,0 +1,8 @@
+KUBE_SCHEDULER_ARGS="--log-dir=/var/log/kubernetes/scheduler \
+                     --algorithm-provider=NameSpacePriorityProvider \
+                     --config-policy-serveraddr=0.0.0.0:8843 \
+                     --config-policy-baseauthfile=/etc/kubernetes/basic_auth.csv \
+                     --config-policy-servercertpath=/etc/ssl/kube/apiserver-{{ master_list.index(inventory_hostname) + 1 }}.pem \
+                     --config-policy-serverkeypath=/etc/ssl/kube/apiserver-{{ master_list.index(inventory_hostname) + 1 }}-key.pem \
+                     --leader-elect=true \
+                     "

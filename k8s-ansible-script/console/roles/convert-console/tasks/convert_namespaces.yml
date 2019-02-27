@@ -1,0 +1,80 @@
+---
+
+- name: convert console namespaces
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.gateway_http }}/gw/in/api/v1/namespaces/{{ namespace.console }}/to_console_namespace
+    method: POST
+    body: ' {
+               "adminList": [
+               ],
+               "cpuRequest": 25,
+               "cpuLimit": 50,
+               "memoryRequestBytes": 53687091200,
+               "memoryLimitBytes": 107374182400,
+               "localStorageBytes": 107374182400,
+               "remoteStorageBytes": 107374182400,
+               "allowHostpath": false,
+               "allowPrivilege": true,
+               "allowCriticalPod": true
+             } '
+    timeout: 300
+    validate_certs: no
+    status_code: 400,200,201
+    headers:
+      Content-Type: "application/json"
+      x-gw-user-id: "admin"
+      x-gw-req-id: "console"
+      Authorization: "Bearer {{ access_token }}"
+  register: result
+  until: result.status == 200 or result.status == 201 or result.status == 400
+  retries: 10
+  delay: 30
+
+- name: convert system-tools namespaces
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.gateway_http }}/gw/in/api/v1/namespaces/{{ namespace.system_tools }}/to_console_namespace
+    method: POST
+    body: ' {
+             "adminList": [
+             ],
+             "cpuRequest": 25,
+             "cpuLimit": 50,
+             "memoryRequestBytes": 42949672960,
+             "memoryLimitBytes": 85899345920,
+             "localStorageBytes": 107374182400,
+             "remoteStorageBytes": 107374182400,
+             "allowHostpath": false,
+             "allowPrivilege": true,
+             "allowCriticalPod": true
+           } '
+    timeout: 300
+    validate_certs: no
+    status_code: 400,200,201
+    headers:
+      Content-Type: "application/json"
+      x-gw-user-id: "admin"
+      x-gw-req-id: "console"
+      Authorization: "Bearer {{ access_token }}"
+  register: result
+  until: result.status == 200 or result.status == 201 or result.status == 400
+  retries: 10
+  delay: 30
+
+
+- name: add legacy S3 support
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.gateway_http }}/gw/be/api/v1/namespaces/{{ namespace.console }}/configStore/migrate
+    method: POST
+    body: ''
+    timeout: 300
+    validate_certs: no
+    status_code: 400,200,201
+    headers:
+      Content-Type: "application/json"
+      x-gw-user-id: "admin"
+      x-gw-req-id: "console"
+      Authorization: "Bearer {{ access_token }}"
+  register: result
+  until: result.status == 200 or result.status == 201 or result.status == 400
+  retries: 10
+  delay: 30

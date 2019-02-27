@@ -1,0 +1,3 @@
+---
+- include: ../os/install-centos7.4-packages-localrepo.yml
+- include: ../k8s-cluster/k8s-1.9-isolated-addNodes.yml

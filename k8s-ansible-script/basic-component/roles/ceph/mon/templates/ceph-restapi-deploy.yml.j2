@@ -1,0 +1,76 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    X_APP: ceph
+    app: ceph
+    daemon: restapi
+    type: service
+  name: ceph-rest
+  namespace: ceph
+spec:
+  ports:
+  - name: tcp
+    nodePort: 29101
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: ceph
+    daemon: restapi
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceph-restapi
+  namespace: ceph
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ceph
+      daemon: restapi
+  template:
+    metadata:
+      labels:
+        app: ceph
+        daemon: restapi
+    spec:
+      automountServiceAccountToken: false
+      priorityClassName: enndata-podpriority-systempod
+      nodeSelector:
+        node-role.kubernetes.io/ceph: "true"
+      containers:
+      - name: ceph-mgr
+        image: {{ ceph_image }}
+        imagePullPolicy: IfNotPresent
+        command:
+        - /entrypoint.sh
+        - restapi
+        livenessProbe:
+          initialDelaySeconds: 10
+          httpGet:
+            path: /api/v0.1/version
+            port: 5000
+            scheme: HTTP
+        resources:
+          limits:
+            cpu: {{ restapi_limit_cpu }}
+            memory: {{ restapi_limit_memory }}
+          requests:
+            cpu: {{ restapi_request_cpu }}
+            memory: {{ restapi_request_memory }}
+        volumeMounts:
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.conf
+          subPath: ceph.conf
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.client.admin.keyring
+          subPath: ceph.client.admin.keyring
+      volumes:
+      - name: ceph-config
+        secret:
+          defaultMode: 420
+          secretName: ceph-conf-keyring

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceph-rgw
+  namespace: ceph
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ceph
+      daemon: rgw
+  template:
+    metadata:
+      labels:
+        app: ceph
+        daemon: rgw
+    spec:
+      automountServiceAccountToken: false
+      priorityClassName: enndata-podpriority-systempod
+      nodeSelector:
+        node-role.kubernetes.io/ceph: "true"
+      containers:
+      - name: ceph-rgw
+        image: {{ ceph_image }}
+        command:
+        - /entrypoint.sh
+        - rgw
+
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - /usr/bin/ceph
+                - auth
+                - del
+                - client.rgw.$HOSTNAME
+        env:
+        - name: RGW_CIVETWEB_PORT
+          value: "8080"
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 3
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: "{{ rgw_limit_cpu }}"
+            memory: "{{ rgw_limit_memory }}"
+          requests:
+            cpu: "{{ rgw_request_cpu }}"
+            memory: "{{ rgw_request_memory }}"
+        volumeMounts:
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.conf
+          subPath: ceph.conf
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.client.admin.keyring
+          subPath: ceph.client.admin.keyring
+        - name: ceph-config
+          mountPath: /var/lib/ceph/bootstrap-rgw/ceph.keyring
+          subPath: bootstrap_rgw
+      volumes:
+      - name: ceph-config
+        secret:
+          defaultMode: 420
+          secretName: ceph-conf-keyring

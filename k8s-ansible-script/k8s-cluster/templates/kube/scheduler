@@ -1,0 +1,17 @@
+###
+# kubernetes scheduler config
+
+# default config should be adequate
+
+# Add your own!
+
+KUBE_LOG_LEVEL="--v=2"
+
+KUBE_LOG_TOSTDERR="--logtostderr=false --log-dir=/var/log/kubernetes/scheduler"
+
+KUBE_CONFIG="--kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig"
+
+KUBE_SCHEDULER_ARGS="\
+--leader-elect=true \
+--policy-config-file=/etc/kubernetes/scheduler-policy.json \
+"

@@ -1,0 +1,26 @@
+---
+# tasks file for sys-local-config
+- name: upload script
+  copy:
+    src: syslocalconf.sh
+    dest: "{{ bin_dir }}/syslocalconf.sh"
+    mode: "a+rx"
+
+- name: upload service file
+  template:
+    src: syslocalconf.service
+    dest: /etc/systemd/system/syslocalconf.service
+
+- name: upload conf file
+  template:
+    src: syslocal.conf
+    dest: /etc/syslocal.conf
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: start and enable service
+  service:
+    name: syslocalconf
+    state: restarted
+    enabled: yes

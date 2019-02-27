@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harbor-redis
+  namespace: {{ harbor_namespace }}
+  labels:
+    X_APP: harbor
+    app: harbor
+    daemon: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor
+      daemon: redis
+  template:
+    metadata:
+      labels:
+        app: harbor
+        daemon: redis
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: harbor-redis
+        image: {{ harbor_redis_image }}
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: "{{ harbor_cpu_limits }}"
+            memory: {{ harbor_memory_limits }}
+          requests:
+            cpu: "{{ harbor_cpu_requests }}"
+            memory: {{ harbor_memory_requests }}
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: harbor-redis

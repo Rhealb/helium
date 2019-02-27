@@ -1,0 +1,8 @@
+---
+- name: ceph storage set up
+  import_tasks: ceph_setup.yml
+  when: ceph_enabled == "true"
+
+- name: nfs storage set up
+  import_tasks: nfs_setup.yml
+  when: nfs_enabled == "true"

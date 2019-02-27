@@ -1,0 +1,6 @@
+---
+bigdata_images_build_dir: ../modules/bigdata-deploy
+save_image_tar_dir: ../files/images/bigdata
+registry_url: 10.19.140.200:29006
+release_version: helium-1.3.0-snapshot
+harbor_repo_admin_password: enncloud

@@ -1,0 +1,97 @@
+{
+    "apiVersion": "extensions/v1beta1",
+    "kind": "Deployment",
+    "metadata": {
+        "labels": {
+            "app": "nginx-ingress-controller",
+            "class": "{{ ingress_class }}"
+        },
+        "name": "nginx-ingress-{{ ingress_class }}",
+        "namespace": "kube-system"
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "matchLabels": {
+                "app": "nginx-ingress-controller",
+                "class": "{{ ingress_class }}"
+            }
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "nginx-ingress-controller",
+                    "class": "{{ ingress_class }}"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "nginx-ingress-controller",
+                        "image": "{{ nginx_ingress_image }}",
+                        "args": [
+                            "/nginx-ingress-controller",
+                            "--default-backend-service=$(POD_NAMESPACE)/default-http-backend",
+                            "--configmap=$(POD_NAMESPACE)/nginx-ingress-controller-{{ ingress_class }}-conf",
+                            "--kubeconfig=/etc/kubernetes/kubeconfig",
+                            "--election-id=ingress-controller-{{ ingress_class }}",
+                            "--ingress-class={{ ingress_class }}"
+                        ],
+                        "env": [
+                            {
+                                "name": "POD_NAME",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "POD_NAMESPACE",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.namespace"
+                                    }
+                                }
+                            }
+                        ],
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 443,
+                                "name": "https",
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 18080,
+                                "name": "status",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/etc/kubernetes/",
+                                "name": "kubeconfig"
+                            }
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+			    "defaultMode": 420,
+                            "name": "kubeconfig"
+                        },
+                        "name": "kubeconfig"
+                    }
+                ]
+            }
+        }
+    }
+}

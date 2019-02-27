@@ -1,0 +1,53 @@
+- name: Gen_etcd_certs | Create etcd cert dir
+  file:
+    path: "files/ssl/etcd"
+    state: directory
+  delegate_to: 127.0.0.1
+  run_once: yes
+
+###etcd client cert
+- name: Gen_etcd_certs | Create etcd client admin cert
+  shell:
+    echo '{"CN":"admin","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert \
+    -ca=../ca.pem \
+    -ca-key=../ca-key.pem \
+    -config={{ role_path }}/files/ca-config.json \
+    -profile=client -| cfssljson -bare etcd-admin
+  args:
+    chdir: "files/ssl/etcd"
+  delegate_to: 127.0.0.1
+  run_once: yes
+
+###etcd server cert
+- name: Gen_etcd_certs | Create etcd server and peer cert
+  shell:
+    echo '{"CN":"etcd-{{ etcd_init_servers.index(inventory_hostname) + 1 }}","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert \
+    -ca=../ca.pem \
+    -ca-key=../ca-key.pem \
+    -config={{ role_path }}/files/ca-config.json \
+    -profile={{ item }} \
+    -hostname {{ inventory_hostname }} -| cfssljson -bare etcd-{{ item }}-{{ inventory_hostname }}
+  args:
+    chdir: "files/ssl/etcd"
+  with_items:
+    - server
+    - peer
+  delegate_to: 127.0.0.1
+  when: inventory_hostname in etcd_init_servers
+
+###flannel etcd server cert
+- name: Gen_etcd_certs | Create flannel etcd server and peer cert
+  shell:
+    echo '{"CN":"etcd-{{ flannel_etcd_list.index(inventory_hostname) + 1 }}","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert \
+    -ca=../ca.pem \
+    -ca-key=../ca-key.pem \
+    -config={{ role_path }}/files/ca-config.json \
+    -profile={{ item }} \
+    -hostname {{ inventory_hostname }} -| cfssljson -bare flannel-etcd-{{ item }}-{{ inventory_hostname }}
+  args:
+    chdir: "files/ssl/etcd"
+  with_items:
+    - server
+    - peer
+  delegate_to: 127.0.0.1
+  when: (inventory_hostname in flannel_etcd_list) and (flannel_etcd_list != etcd_init_servers)

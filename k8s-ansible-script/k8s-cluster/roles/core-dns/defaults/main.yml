@@ -1,0 +1,4 @@
+---
+# defaults file for core-dns
+
+coredns_image: 127.0.0.1:29006/library/coredns:enn-1.2.6

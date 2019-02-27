@@ -1,0 +1,8 @@
+---
+# defaults key
+AccessKeyId: ""
+AccessKeySecret: ""
+
+# image url
+registry_url: "127.0.0.1:29006"
+alicloud_image_url: "library/alicloud-controller-manager:v1.9"

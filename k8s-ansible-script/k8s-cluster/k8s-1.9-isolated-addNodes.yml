@@ -1,0 +1,27 @@
+---
+- hosts: add-node
+  remote_user: root
+  # serial: 1
+  max_fail_percentage: 0
+  gather_facts: False 
+  become: true
+  become_method: sudo
+  roles:
+    - { role: date-check, become: false }
+    - { role: fetch-cert, become: false }
+    - rootca
+    - { role: bashrc, become: false }
+    - { role: special-storage-setup, when: inventory_hostname in host_path_list }
+    - flannel
+    - docker-ce
+    - log-cleanup
+    - k8s/kubeconfig
+    - k8s/apiserver-haproxy
+    - k8s/kubectl
+    - k8s/proxy
+    - k8s/kubelet
+    - dns-images
+    - harbor-images
+    - k8s/enn-policy
+    - health-check
+    

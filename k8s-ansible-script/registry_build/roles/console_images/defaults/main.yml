@@ -1,0 +1,43 @@
+#harbor url to pull images from 
+release_harbor_url: 10.19.140.200:29006
+local_harbor_url: 127.0.0.1
+harbor_port: 29006
+registry_url: 127.0.0.1
+harbor_console_project: console
+harbor_release_project: release 
+
+
+console_image:
+  init_container: "{{harbor_console_project}}/init-container:1.0"
+  edit_rbd_image: "{{ harbor_console_project }}/cc-rbd-file-delegate:1.0"
+  mongo: "{{ harbor_release_project }}/mongo:3.4"
+  mysql: "{{ harbor_release_project }}/mysql-binlog-utf8:5.7.1"
+  edit_rbd: "{{ harbor_release_project }}/cc-rbd-file-delegate:1.0"
+  redis: "{{ harbor_release_project }}/cc-redis:4.0.1"
+  rabbitmq: "{{ harbor_release_project }}/rabbitmq:3-management"
+  account: "{{ harbor_release_project }}/cc-account:{{ console_version }}"
+  audit: "{{ harbor_release_project }}/cc-audit:{{ console_version }}"
+  backend: "{{ harbor_release_project }}/cc-backend:{{ console_version }}"
+  config_server: "{{ harbor_release_project }}/cc-config-server:1.0.0"
+  console: "{{ harbor_release_project }}/cc-console:{{ console_version }}"
+  gateway: "{{ harbor_release_project }}/cc-gateway:{{ console_version }}"
+  gc: "{{ harbor_release_project }}/cc-gc:{{ console_version }}"
+  gitbook: "{{ harbor_release_project }}/cc-gitbook:{{ console_version }}"
+  harbor: "{{ harbor_release_project }}/cc-harbor:{{ console_version }}"
+  initializer: "{{ harbor_release_project }}/cc-initializer:{{ console_version }}"
+  kubeorigin: "{{ harbor_release_project }}/cc-kubeorigin:{{ console_version }}"
+  log: "{{ harbor_release_project }}/cc-log:{{ console_version }}"
+  metric: "{{ harbor_release_project }}/cc-metric:{{ console_version }}"
+  notification: "{{ harbor_release_project }}/cc-notification:{{ console_version }}"
+  storage: "{{ harbor_release_project }}/cc-storage:{{ console_version }}"
+  storage_listener: "{{ harbor_release_project }}/cc-storage-listener:{{ console_version }}"
+  template: "{{ harbor_release_project }}/cc-template:{{ console_version }}"
+  terminal: "{{ harbor_release_project }}/cc-terminal:{{ console_version }}"
+  watch: "{{ harbor_release_project }}/cc-watch:{{ console_version }}"
+  scale_console_image: "{{ harbor_release_project }}/scale-console:{{ console_version }}"
+  ftp: "{{ harbor_console_project }}/ftp:0.2"
+  jupyterhub: "{{ harbor_console_project }}/jupyterhub:0.2"
+  keycloak: "{{harbor_release_project}}/keycloak:4.1.0.console"
+  pom: "{{harbor_release_project}}/lmdashboard:{{console_version}}"
+  ansible: "{{ harbor_release_project }}/cc-ansible:{{ console_version }}"
+  local_repository: "{{ harbor_release_project }}/cc-local-repository:{{ console_version }}"

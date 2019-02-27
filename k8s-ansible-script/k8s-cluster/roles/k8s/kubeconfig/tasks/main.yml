@@ -1,0 +1,35 @@
+---
+# tasks file for kubeconfig
+- name: create kube user
+  user:
+    name: kube
+
+- name: create dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "kube"
+  with_items:
+    - /var/log/kubernetes
+    - /etc/ssl/kube
+    - /etc/kubernetes
+
+- name: upload files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "kube"
+  with_items:
+    - { src: "ssl/ca.pem", dest: "/etc/ssl/kube/ca.pem" }
+    - { src: "ssl/kube/admin.pem", dest: "/etc/ssl/kube/admin.pem" }
+    - { src: "ssl/kube/admin-key.pem", dest: "/etc/ssl/kube/admin-key.pem" }
+
+
+- name: upload templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "kube"
+  with_items:
+    - { src: "kube/config", dest: "/etc/kubernetes/config" }
+

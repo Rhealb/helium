@@ -1,0 +1,10 @@
+---
+# defaults file for tools
+
+
+# NodePort
+harbor_node_port: 29006
+
+net_perf_image: 127.0.0.1:29006/library/net-perf:v0.1
+k8sft_image: 127.0.0.1:29006/library/k8sft:icy
+mtr_image: 127.0.0.1:29006/library/mtr:icy

@@ -1,0 +1,19 @@
+# Flanneld configuration options  
+
+# etcd url location.  Point this to the server where etcd runs
+# FLANNEL_ETCD_ENDPOINTS="http://127.0.0.1:2379"
+FLANNEL_ETCD_ENDPOINTS="\
+{% for server in flannel_etcd_list %}
+{{etcd_protocol}}://{{server}}:2379,\
+{% endfor %}
+"
+
+# etcd config key.  This is the configuration key that flannel queries
+# For address range assignment
+FLANNEL_ETCD_PREFIX="/coreos.com/network"
+
+# Any additional options that you want to pass
+FLANNEL_OPTIONS="--ip-masq=true {% if etcd_protocol != 'http' %} --etcd-cafile=/etc/ssl/ca.pem --etcd-certfile=/etc/ssl/flannel/client.pem --etcd-keyfile=/etc/ssl/flannel/client-key.pem{% endif %}"
+# FLANNEL_OPTIONS="--ip-masq=true"
+ 
+

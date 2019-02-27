@@ -1,0 +1,21 @@
+---
+- name: Ceph RESTAPI | Create directory to store ceph restapi deployment file
+  file:
+    path: /k8s/app/ceph/restapi
+    state: directory
+
+- name: Ceph RESTAPI | Create ceph restapi deployment files
+  template:
+    src: ceph-restapi-deploy.yml.j2
+    dest: "/k8s/app/ceph/restapi/ceph-restapi-deploy.yml"
+
+
+- name: Ceph RESTAPI | Create ceph restapi
+  shell:
+    kubectl apply -f /k8s/app/ceph/restapi
+
+- name: Ceph RESTAPI | Waiting fot ceph restapi ready
+  wait_for:
+    host: 127.0.0.1
+    port: "{{ restapi_node_port }}"
+    delay: 5

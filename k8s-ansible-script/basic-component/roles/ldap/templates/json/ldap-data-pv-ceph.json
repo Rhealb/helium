@@ -1,0 +1,32 @@
+{
+    "apiVersion": "v1",
+    "kind": "PersistentVolume",
+    "metadata": {
+        "name": "{{ ldap_namespace }}-ldapdata-pv",
+        "labels": {
+            "namespaceName": "{{ ldap_namespace }}",
+            "storageName": "ldapdata"
+        }
+    },
+    "spec": {
+        "capacity": {
+            "storage": "1Gi"
+        },
+        "accessModes": [
+            "ReadWriteOnce"
+        ],
+        "persistentVolumeReclaimPolicy": "Retain",
+        "rbd": {
+            "monitors": [
+                {% for host in mon_list %}"{{ host }}:6789"{% if not loop.last %},{% endif %}{% endfor %}
+            ],
+            "pool": "k8s.{{ ldap_namespace }}",
+            "image": "ldapdata",
+            "user": "{{ ldap_namespace }}",
+            "secretRef": {
+                "name": "{{ ldap_namespace }}"
+            },
+            "fsType": "xfs"
+        }
+    }
+}

@@ -1,0 +1,10 @@
+---
+- name: create {{ workspace }} components
+  command: "{{ item }}"
+  with_items:
+    - ennctl create app {{ trace_app }} -n {{ namespace }}
+    - ennctl create -a {{ trace_app }} -f /{{ workspace }}/configmap-backend-api.yml
+    - ennctl create -a {{ trace_app }} -f /{{ workspace }}/configmap-frontend-api.yml
+    - ennctl create -a {{ trace_app }} -f /{{ workspace }}/deployment-backend-api.yml
+    - ennctl create -a {{ trace_app }} -f /{{ workspace }}/deployment-frontend-api.yml
+    - ennctl create -a {{ trace_app }} -f /{{ workspace }}/monitor-trace-console.yml

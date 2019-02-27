@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: trace-data-api
+      namespace: {{ namespace }}
+      labels:
+        app: monitor-tracing
+        name: trace-data-api
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 8888
+      selector:
+        name: trace-data-api
+
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: trace-data-api
+      namespace: {{ namespace }}
+      labels:
+        name: trace-data-api
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            name: trace-data-api
+        spec:
+          containers:
+            - name: trace-data-api
+              imagePullPolicy: IfNotPresent
+              image: {{ registry_url }}/monitor/enn-monitor-trace-data-api:{{ image_version }}
+              resources:
+                requests:
+                  memory: {{ data_api_mem_req }}
+                  cpu: {{ data_api_cpu_req }}
+                limits:
+                  memory: {{ data_api_mem_limit }}
+                  cpu: {{ data_api_cpu_limit }}
+              ports:
+                - containerPort: 8888
+                  protocol: TCP
+              volumeMounts:
+                - name: monitor-properties
+                  mountPath: /opt/monitor.properties
+                  subPath: monitor.properties
+              env:
+                - name: NAMESPACE
+                  valueFrom:
+                      fieldRef:
+                          fieldPath: metadata.namespace
+                - name: PODNAME
+                  valueFrom:
+                      fieldRef:
+                          fieldPath: metadata.name
+                - name: APPNAME
+                  value: trace-data-api
+              command:
+                  - "java"
+                  - "-Xms1024m"
+                  - "-Xmx1800m"
+                  - "-cp"
+                  - "/opt/enn-monitor-trace-data-api.jar"
+                  - "enn.monitor.trace.dataapi.DataApiServer"
+                  - "--enable_metrics"
+                  - "--elasticSearch_host"
+                  - "pre1-esclient-ex.monitor-essential-service"
+                  - "--elasticSearch_port"
+                  - "9200"
+                  - "--token"
+                  - "micklongen-gateway-server"
+                  - "--gateway_server"
+                  - "enn-monitor-security-gateway-server.monitor-application"
+                  - "--gatewayPort"
+                  - "10000"
+          volumes:
+            - name: monitor-properties
+              configMap:
+                name: monitor-properties-backend-api

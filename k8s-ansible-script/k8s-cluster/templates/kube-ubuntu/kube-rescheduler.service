@@ -1,0 +1,18 @@
+[Unit]
+Description=Kubernetes reScheduler Plugin
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=apiserver-haproxy.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/rescheduler
+User=kube
+ExecStart=/usr/bin/kube-rescheduler \
+      $KUBE_RESCHEDULER_ARGS
+Restart=on-failure
+LimitNOFILE=65536
+StandardOutput=null
+# StandardError=null
+
+[Install]
+WantedBy=multi-user.target

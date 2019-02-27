@@ -1,0 +1,21 @@
+registry_url: 127.0.0.1:29006
+
+monitor_log_archive_server_images: monitor/enn-monitor-log-archive-server:0.2.0.RELEASE
+monitor_log_archive_server_cpu_request: 0.5
+monitor_log_archive_server_cpu_limit: 1
+monitor_log_archive_server_memory_request: 1000Mi
+monitor_log_archive_server_memory_limit: 1000Mi
+monitor_log_archive_server_token: micklongen-log-server
+
+monitor_log_archive_server_listenport: 10000
+monitor_log_archive_server_exportport: 29305
+
+monitor_log_app: log
+
+monitor_ns_monitor_application: monitor-application
+
+monitor_mongo_svr: mongo
+monitor_mongo_port: 27017
+
+monitor_security_gateway_server_listenport: 10000
+monitor_security_gateway_server_servername: enn-monitor-security-gateway-server.monitor-application

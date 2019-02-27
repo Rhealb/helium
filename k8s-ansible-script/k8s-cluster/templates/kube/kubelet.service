@@ -1,0 +1,30 @@
+[Unit]
+Description=Kubernetes Kubelet Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=docker.service apiserver-haproxy.service syslocalconf.service
+Requires=docker.service 
+
+[Service]
+WorkingDirectory={{ kubelet_dir }}
+ExecStartPre=/usr/sbin/modprobe rbd
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/bin
+EnvironmentFile=-/etc/kubernetes/kubelet
+{% if alicloud is defined %}
+EnvironmentFile=/etc/alilocal.conf
+{% endif %}
+ExecStart=/usr/bin/kubelet \
+	    $KUBE_LOG_TOSTDERR \
+	    $KUBE_LOG_LEVEL \
+	    $KUBELET_ADDRESS \
+	    $KUBELET_PORT \
+	    $KUBE_ALLOW_PRIV \
+	    $KUBELET_AUTH \
+	    $KUBELET_ARGS
+TimeoutStartSec=1h
+Restart=always
+KillMode=process
+StandardOutput=null
+# StandardError=null
+
+[Install]
+WantedBy=multi-user.target

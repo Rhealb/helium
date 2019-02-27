@@ -1,0 +1,37 @@
+---
+# tasks file for health-check
+- name: upload memcached image
+  copy:
+    src: health-check/memcached.tar
+    dest: /tmp/memcached.tar
+
+- name: load docker image for memcached
+  shell: docker load -i /tmp/memcached.tar
+
+- name: upload test client image
+  copy:
+    src: health-check/healthcheck.tar
+    dest: /tmp/healthcheck.tar
+  when: inventory_hostname == master_list[0]
+
+- name: load test client image
+  shell: docker load -i /tmp/healthcheck.tar
+  when: inventory_hostname == master_list[0]
+
+
+- name: create namespace for health check
+  shell: kubectl create ns health-check && sleep 5
+  when: inventory_hostname == master_list[0]
+  ignore_errors: true
+
+- name: start the test
+  shell: docker run --rm -t -v /etc/ssl:/etc/ssl:ro --network=host -v ~/.kube:/root/.kube:ro  k8s-healthcheck:v1-alpine python /opt/network_connection.py
+  register: report
+  when: inventory_hostname == master_list[0]
+
+- name: print test report
+  debug:
+    msg: "cluster health-check PASS: {{ report.stdout.split('\n')[-1] }}"
+  when: inventory_hostname == master_list[0]
+
+

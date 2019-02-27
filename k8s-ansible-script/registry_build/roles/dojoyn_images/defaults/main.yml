@@ -1,0 +1,16 @@
+#harbor url to pull images from 
+release_harbor_url: 10.19.140.200:29006
+local_harbor_url: 127.0.0.1
+harbor_port: 29006
+registry_url: 127.0.0.1
+harbor_tools_project: tools 
+harbor_library_project: library
+
+
+dojoyn_image:
+  hbase: "{{ harbor_tools_project }}/dep-centos7-hbase-1.2.6:0.1-lbsheng"
+  hadoop: "{{ harbor_tools_project }}/dep-centos7-hadoop-2.7.4:0.1-lbsheng"
+  zookeeper: "{{ harbor_tools_project }}/dep-centos7-zookeeper3.5.3:beta-lbsheng"
+  kafka: "{{ harbor_tools_project }}/dep-centos7-kafka-2.11-0.10.1.1:0.1-lbsheng"
+  dojoyn: "{{ harbor_library_project }}/dojoyn2.0:0.2"
+  mongo: "{{ harbor_library_project }}/mongo:docker.io"

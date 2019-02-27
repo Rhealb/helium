@@ -1,0 +1,11 @@
+---
+# tasks file for rootca
+- name: create ssl dir
+  file:
+    path: /etc/ssl
+    state: directory
+
+- name: upload root ca public key
+  copy:
+    src:  ssl/ca.pem
+    dest: /etc/ssl/ca.pem

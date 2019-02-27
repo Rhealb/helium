@@ -1,0 +1,62 @@
+---
+# tasks file for gitlab
+- name: copy files to host(with kubectl and ceph monitor)
+  copy:
+    src: gitlab/
+    dest: /tmp/gitlab/
+    mode: 0755
+
+- copy:
+    src: ../files/ca_file/ca/{{ item }}
+    dest: /tmp/gitlab/{{ item }}
+  with_items:
+    - ca.key
+    - ca.crt
+    - ca.srl
+
+- name: mkdir ssl
+  file:
+    path: /tmp/gitlab/ssl
+    state: directory
+
+- name: generate gitlab crt key
+  shell: ./make-keys.sh {{ gitlab_domain }}
+  args:
+    chdir: /tmp/gitlab/
+
+- name: create cm for gitlab configuration
+  ignore_errors: yes
+  command: kubectl create cm cm-gitlab --from-file=ssl/ -n {{ ns_gitlab }}
+  args:
+    chdir: /tmp/gitlab/
+
+- name: get ns secret key
+  shell: kubectl -n {{ ns_gitlab }} get secret {{ ns_gitlab }} -o yaml |grep key | awk {'print $2'}
+  register: key
+
+- name: echo key to secret file
+  shell: echo {{ key.stdout }} | base64 -d > /tmp/gitlab/secret
+
+- name: create ceph rbd for gitlab data
+  ignore_errors: yes
+  command: rbd create k8s.{{ ns_gitlab }}/{{ gitlab_data_image }} --size {{ gitlab_rbd_size }} --image-feature layering -m {{ mon_list[0] }} --id {{ ns_gitlab }} --secret secret
+  args:
+    chdir: /tmp/gitlab/
+
+- name: copy gitlab json
+  template:
+    src: "{{ item }}"
+    dest: "/tmp/gitlab/{{ item }}"
+  with_items:
+    - gitlab-dp.json
+    - gitlab-svc.json
+    - secret.yml
+
+- name: create gitlab and service
+  ignore_errors: yes
+  command: kubectl create -f /tmp/gitlab/{{ item }}
+  with_items:
+   - secret.yml
+   - gitlab-dp.json
+   - gitlab-svc.json
+

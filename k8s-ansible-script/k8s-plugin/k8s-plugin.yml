@@ -1,0 +1,20 @@
+---
+- hosts: all
+  vars:
+    install_mode: local
+    is_agile: false
+  roles:
+    - role: ingress
+      when: inventory_hostname in master_list[0]
+    - role: auto-scaler
+      when: inventory_hostname in master_list[0]
+    - role: tools
+      when: inventory_hostname in master_list[0]
+    - role: podpriority
+      when: inventory_hostname in master_list[0]
+    - role: csi-hostpathpv
+      when: inventory_hostname in master_list[0]
+    - role: nshostpathpvprivilege
+      when: inventory_hostname in master_list
+    - role: nsnodeselector
+      when: inventory_hostname in master_list[0]

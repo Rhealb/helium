@@ -1,0 +1,7 @@
+---
+# defaults file for security-policies
+ndots: 5
+# host search in /etc/resolv.conf
+searchdomains: []
+# host nameserver in /etc/resolv.conf
+nameservers: []

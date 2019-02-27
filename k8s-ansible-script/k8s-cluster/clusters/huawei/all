@@ -1,0 +1,71 @@
+# list to change
+
+master_list: [192.168.20.24, 192.168.20.63, 192.168.20.79]
+etcd_init_servers: [192.168.20.24, 192.168.20.63, 192.168.20.79]
+flannel_etcd_list: [192.168.20.24, 192.168.20.63, 192.168.20.79]
+hanode_list: []
+host_path_list: [192.168.20.24, 192.168.20.63, 192.168.20.79, 192.168.20.87, 192.168.20.197, 192.168.20.190, 192.168.20.153, 192.168.20.202, 192.168.20.208, 192.168.20.250, 192.168.20.111, 192.168.20.103,192.168.20.125]
+# special Mount
+
+special_mounts:
+  /dev/vdc:
+    path: /xfs/disk1
+    opt: prjquota
+  /dev/vdb:
+    path: /data
+    opt: prjquota
+
+# master and node
+
+cluster_name: hw-cluster
+cluster_ip_range: 10.254.0.0/16
+cluster_dns: 10.254.0.100
+flanneld_subnet: 172.16.0.0/16
+domain: cluster.local
+local_repo: 192.168.20.24:8009
+bin_dir: /usr/bin
+hostname_prefix: enn
+ntp_server: ""
+sample_rate: 30
+cluster_total_cores: 72
+cluster_total_mem: 192
+
+# ca
+
+ca_vip: 192.168.20.24
+admin_password: admin
+admin_username: admin
+
+# haproxy + keepalived
+
+interface: external0
+
+# flannel
+
+backend_type: vxlan
+
+# storage
+
+storage_type: nfs
+nfs_host: sfs-nas1.cn-north-1.myhuaweicloud.com
+nfs_path: /share-f1e8a3ea
+
+# ingress
+
+ingress_dns_domain: enn.ingress.cn
+
+# ceph
+
+# harbor
+
+harbor_admin_password: admin
+
+# keystone
+
+keystone_admin_password: admin
+
+# console
+
+console_version: release-1.2.0
+title_cn: 容器云
+title_en: Data Platform +

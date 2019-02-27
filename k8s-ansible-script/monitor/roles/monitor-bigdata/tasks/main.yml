@@ -1,0 +1,137 @@
+---
+
+# tasks file for bigdata components for monitor
+
+- name: make sure directory /monitor/bigdata exists on target server
+  file:
+    path: "/monitor/bigdata"
+    state: "directory"
+    mode: 0644
+
+- name: copy jsonnet binary
+  include: copy-jsonnet.yml
+
+#- name: copy images
+#  include: copy-images.yml
+
+- name: copy template files
+  include: copy-template.yml
+
+- name: install nc, curl, epel-release
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - nc
+    - curl
+    - epel-release
+  when: install_mode == 'internet'
+
+- name: install jq
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - jq
+  when: install_mode == 'internet'
+
+- name: create zookeeper
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_jsonnet_example_dir }}/bigctl.sh create {{deploy_mode}} {{ bigdata_jsonnet_example_dir }}/zookeeper_example.jsonnet"
+
+# make sure zookeeper is available
+- name: check whether zookeeper is available
+  shell: "{{ bigdata_scripts_dir }}/check_component.sh {{ bigdata_scripts_dir }}/check_zookeeper.sh"
+  register: zookeeper_ok
+
+- name: fail when zk check failed
+  fail:
+    msg="zookeeper start failed, task fails"
+  when: zookeeper_ok.stdout == 'fail'
+
+- name: create hdfs
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_jsonnet_example_dir }}/bigctl.sh create {{deploy_mode}} {{bigdata_jsonnet_example_dir }}/hadoop_example.jsonnet"
+
+# make sure hdfs is available
+- name: check whether hdfs is available
+  shell: "{{ bigdata_scripts_dir }}/check_component.sh {{ bigdata_scripts_dir }}/check_hdfs.sh"
+  register: hdfs_ok
+
+- name: fail when hdfs check failed
+  fail:
+    msg="hdfs start failed, task fails"
+  when: hdfs_ok.stdout == 'fail'
+
+# create kafka and hbase
+- name: create kafka, hbase
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_jsonnet_example_dir }}/bigctl.sh create {{deploy_mode}} {{bigdata_jsonnet_example_dir }}/kafka_example.jsonnet"
+    - "{{ bigdata_jsonnet_example_dir }}/bigctl.sh create {{deploy_mode}} {{bigdata_jsonnet_example_dir }}/hbase_example.jsonnet"
+
+# make sure hbase is available
+- name: check whether hbase is available
+  shell: "{{ bigdata_scripts_dir }}/check_component.sh {{ bigdata_scripts_dir }}/check_hbase.sh"
+  register: hbase_ok
+
+- name: fail when hbase check failed
+  fail:
+    msg="hbase start failed, task fails"
+  when: hbase_ok.stdout == 'fail'
+
+# create spark history log dir in hdfs
+- name: create spark hisotry dir
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_scripts_dir }}/create_spark_history_dir.sh {{ monitor_bigdata_namespace }}"
+
+# create tables in hbase for opentsdb
+- name: create opentsdb tables in hbase
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_scripts_dir }}/create_opentsdb_table.sh {{ monitor_bigdata_namespace }}"
+
+# create spark, opentsdb, es
+- name: create spark, opentsdb and elastic search
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_jsonnet_example_dir }}/bigctl.sh create {{deploy_mode}} {{bigdata_jsonnet_example_dir }}/spark_example.jsonnet"
+    - "{{ bigdata_jsonnet_example_dir }}/bigctl.sh create {{deploy_mode}} {{bigdata_jsonnet_example_dir }}/opentsdb_example.jsonnet"
+    - "{{ bigdata_jsonnet_example_dir }}/bigctl.sh create {{deploy_mode}} {{bigdata_jsonnet_example_dir }}/elasticsearch_example.jsonnet"
+
+# make sure spark is available
+- name: check whether spark is available
+  shell: "{{ bigdata_scripts_dir }}/check_component.sh {{ bigdata_scripts_dir }}/check_spark.sh"
+  register: spark_ok
+
+- name: fail when spark check failed
+  fail:
+    msg="spark start failed, task fails"
+  when: spark_ok.stdout == 'fail'
+
+# make sure opentsdb is available
+- name: check whether opentsdb is available
+  shell: "{{ bigdata_scripts_dir }}/check_component.sh {{ bigdata_scripts_dir }}/check_opentsdb.sh"
+  register: opentsdb_ok
+
+- name: fail when opentsdb check failed
+  fail:
+    msg="opentsdb start failed, task fails"
+  when: opentsdb_ok.stdout == 'fail'
+
+# make sure elastic search is available
+- name: check whether elastic search is available
+  shell: "{{ bigdata_scripts_dir }}/check_component.sh {{ bigdata_scripts_dir }}/check_elasticsearch.sh"
+  register: elasticsearch_ok
+
+- name: fail when elasticsearch check failed
+  fail:
+    msg="elasticsearch start failed, task fails"
+  when: elasticsearch_ok.stdout == 'fail'
+
+# initialize elastic search template
+- name: initialize elastic
+  shell: "{{ bigdata_scripts_dir }}/es_put_template.sh"

@@ -1,0 +1,12 @@
+---
+- name: Ceph Pre-task | Clean old mon data
+  file:
+    path: /var/lib/ceph/mon
+    state: absent
+  when: inventory_hostname in mon_list
+
+- name: Ceph Pre-task | Zap osd disks
+  shell: docker run -i --rm --privileged -v /dev:/dev -e OSD_DEVICE=/dev/{{ item }} {{ ceph_image }} ZAP_DEVICE
+  with_items:
+  - "{{ rbd_dev_list }}"
+  when: inventory_hostname in osd_list

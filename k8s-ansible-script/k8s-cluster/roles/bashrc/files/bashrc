@@ -1,0 +1,18 @@
+# .bashrc
+
+# User specific aliases and functions
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Put your fun stuff here.
+export ETCDCTL_CA_FILE=/etc/ssl/ca.pem
+export ETCDCTL_CERT_FILE=/etc/ssl/etcd/client.pem 
+export ETCDCTL_KEY_FILE=/etc/ssl/etcd/client-key.pem
+

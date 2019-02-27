@@ -1,0 +1,117 @@
+---
+# tasks file for dojoyn
+
+- name: copy jsonnet binary
+  copy:
+    src: "../../../../files/bin/jsonnet"
+    dest: "/usr/local/bin"
+    mode: 0755
+
+- name: generate namespace yml
+  template:
+    src: ns.yml
+    dest: /tmp/ns.yml
+
+- name: create namespace
+  command: "{{ item }}"
+  with_items:
+    - ennctl create -f /tmp/ns.yml
+    - sleep 10
+
+# - name: copy the images to remote cluster
+#   copy:
+#     src:  files/images/dojoyn-and-dep-image.tar.gz
+#     dest: /tmp/dojoyn-and-dep-image.tar.gz
+
+# - name: load all docker images
+#   command:  "{{ item }}"
+#   async: 3600
+#   poll: 10
+#   with_items:
+#     - gzip -d -f /tmp/dojoyn-and-dep-image.tar.gz
+#     - docker load -i /tmp/dojoyn-and-dep-image.tar
+
+# - name: push image to registry
+#   command: "{{ item }}"
+#   with_items:
+#     - docker push {{ registry_url }}/tools/dep-centos7-hbase-1.2.6:0.1-lbsheng 
+#     - docker push {{ registry_url }}/tools/dep-centos7-hadoop-2.7.4:0.1-lbsheng 
+#     - docker push {{ registry_url }}/tools/dep-centos7-zookeeper3.5.3:beta-lbsheng
+#     - docker push {{ registry_url }}/tools/dep-centos7-kafka-2.11-0.10.1.1:0.1-lbsheng 
+#     - docker push {{ registry_url }}/library/dojoyn2.0:0.2 
+#     - docker push {{ registry_url }}/library/mongo:docker.io
+
+
+- name: copy bigdata-deploy and check directories to cluster
+  copy:
+    src: "{{ item }}/"
+    dest: "/tmp/{{ item }}/"
+  with_items:
+    - bigdata-deploy
+    - check
+
+
+- name: create zookeeper
+  run_once: True
+  command: bash ./bigctl.sh create -c "{{ item }}"_example.jsonnet
+  args:
+    chdir: "{{ script_path }}"
+  with_items:
+    - zookeeper
+
+- name: waiting for zk ready
+  command: bash ./check_zookeeper_status.sh
+  args:
+    chdir: "{{ check_path }}"
+  register: result
+  until: result.stdout.find("0") != -1
+  retries: 10
+  delay: 30
+
+- name: create kafka hadoop
+  command: bash ./bigctl.sh create -c "{{ item }}"_example.jsonnet
+  args:
+    chdir: "{{ script_path }}"
+  with_items:
+    - kafka
+    - hadoop
+
+- name: check hdfs status
+  command: bash ./check_hdfs_status.sh
+  args:
+    chdir: "{{ check_path }}"
+  register: result
+  until: result.stdout.find("OK") != -1
+  retries: 10
+  delay: 10
+
+- name: create hbase
+  command: bash ./bigctl.sh create -c "{{ item }}"_example.jsonnet
+  args:
+    chdir: "{{ script_path }}"
+  with_items:
+    - hbase
+
+- name: get namenode name
+  shell: ennctl -n dojoyn get pod | grep datanode | awk 'END{print $1}'
+  register: pod_name
+
+
+- name: create directory in hadoop
+  command: ennctl -n dojoyn exec -it {{ pod_name.stdout }} -- hadoop fs mkdir -p /var/log/spark
+
+- name: create mongodb
+  command: bash ./bigctl.sh create -c "{{ item }}"_example.jsonnet
+  args:
+    chdir: "{{ script_path }}"
+  with_items:
+    - mongodb
+
+- name: create dojoyn
+  command: bash ./bigctl.sh create -c "{{ item }}"_example.jsonnet
+  args:
+    chdir: "{{ script_path }}"
+  with_items:
+    - lookupservice
+    - joiner
+    - statemanager

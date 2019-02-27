@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harbor-environment
+  namespace: {{ harbor_namespace }}
+data:
+  PORT: "8080"
+  LOG_LEVEL: info
+  EXT_ENDPOINT: {{ harbor_ext_endpoint }}
+  AUTH_MODE: {{ harbor_auth_mode }}
+  SELF_REGISTRATION: "{{ harbor_self_registration }}"
+  LDAP_URL: {{ harbor_ldap_url }}
+  LDAP_SEARCH_DN: {{ harbor_ldap_searchdn }}
+  LDAP_SEARCH_PWD: {{ harbor_ldap_searchdn_passwd }}
+  LDAP_BASE_DN: {{ harbor_ldap_basedn }}
+  LDAP_FILTER: "{{ harbor_ldap_filter }}"
+  LDAP_UID: {{ harbor_ldap_uid }}
+  LDAP_SCOPE: "{{ harbor_ldap_scope }}"
+  LDAP_TIMEOUT: "{{ harbor_ldap_timeout }}"
+  LDAP_GROUP_BASEDN: "ou=group,dc=mydomain,dc=com"
+  LDAP_GROUP_FILTER: "objectclass=group"
+  LDAP_GROUP_GID: "cn"
+  LDAP_GROUP_SCOPE: "2"
+  DATABASE_TYPE: postgresql
+  POSTGRESQL_HOST: harbor-postgres
+  POSTGRESQL_PORT: "5432"
+  POSTGRESQL_USERNAME: postgres
+  POSTGRESQL_PASSWORD: {{ harbor_db_password }}
+  POSTGRESQL_DATABASE: registry
+  REGISTRY_URL: http://harbor-registry:5000
+  TOKEN_SERVICE_URL: http://harbor-ui:8080/service/token
+  EMAIL_HOST: {{ harbor_email_server }}
+  EMAIL_PORT: "{{ harbor_email_server_port }}"
+  EMAIL_USR: {{ harbor_email_username }}
+  EMAIL_PWD: {{ harbor_email_password }}
+  EMAIL_SSL: "{{ harbor_email_ssl }}"
+  EMAIL_FROM: {{ harbor_email_from }}
+  EMAIL_IDENTITY: "{{ harbor_email_identity }}"
+  EMAIL_INSECURE: "false"
+  HARBOR_ADMIN_PASSWORD: {{ harbor_admin_password }}
+  PROJECT_CREATION_RESTRICTION: {{ harbor_project_creation_restriction }}
+  VERIFY_REMOTE_CERT: "{{ harbor_verify_remote_cert }}"
+  MAX_JOB_WORKERS: "{{ harbor_max_job_workers }}"
+  UI_SECRET: {{ ui_secret }}
+  JOBSERVICE_SECRET: {{ jobservice_secret }}
+  TOKEN_EXPIRATION: "30"
+  CFG_EXPIRATION: "5"
+  GODEBUG: netdns=cgo
+  ADMIRAL_URL: NA
+  WITH_NOTARY: "False"
+  WITH_CLAIR: "{{ harbor_with_clair }}"
+  CLAIR_DB_PASSWORD: {{ harbor_db_password }}
+  CLAIR_DB_HOST: harbor-postgres
+  CLAIR_DB_PORT: "5432"
+  CLAIR_DB_USERNAME: postgres
+  CLAIR_DB: postgres
+  RESET: "false"
+  UAA_ENDPOINT: {{ harbor_uaa_endpoint }}
+  UAA_CLIENTID: {{ harbor_uaa_clientid }}
+  UAA_CLIENTSECRET: {{ harbor_uaa_clientsecret }}
+  UAA_VERIFY_CERT: "{{ harbor_uaa_verify_cert }}"
+  UAA_CA_ROOT: {{ harbor_uaa_ca_cert }}
+  UI_URL: http://harbor-ui:8080
+  JOBSERVICE_URL: http://harbor-jobservice:8080
+  CLAIR_URL: http://harbor-clair:6060
+  NOTARY_URL: http://harbor-notary-server:4443
+  REGISTRY_STORAGE_PROVIDER_NAME: {{ registry_storage_provider_name }}
+  READ_ONLY: "false"
+  SYNC_REGISTRY: "true"
+  SKIP_RELOAD_ENV_PATTERN: "$^"
+  RELOAD_KEY: ""
+  CHART_REPOSITORY_URL: http://harbor-chartmuseum:9999
+  LDAP_GROUP_ADMIN_DN: ""
+  REGISTRY_CONTROLLER_URL: http://harbor-registryctl:8080
+  WITH_CHARTMUSEUM: "False"

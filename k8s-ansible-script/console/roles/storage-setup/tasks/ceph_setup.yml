@@ -1,0 +1,78 @@
+---
+- name: clean existing rbd image for mysql
+  ignore_errors: yes
+  command: rbd rm k8s.{{ namespace.console }}/{{ mysql.rbd_image }}
+
+- name: create console pool
+  ignore_errors: yes
+  command: ceph osd pool create k8s.{{ namespace.console }} 8 8
+
+- name: enable rbd on console pool
+  command: ceph osd pool application enable k8s.{{ namespace.console }} rbd
+
+- name: create console ceph user
+  command: ceph auth get-or-create-key client.{{ namespace.console }} mon 'allow *' osd 'allow * pool=k8s.{{ namespace.console }}, allow rw pool=cephfs_data'   mds 'allow r path=/, allow rw path=/k8s/{{ namespace.console }}'
+
+- name: create rbd image for mysql
+  ignore_errors: yes
+  command: rbd create k8s.{{ namespace.console }}/{{ mysql.rbd_image }} --size {{ mysql.pool_size }} --image-feature layering
+
+- name: get ceph admin keyring
+  shell: ceph auth get-key client.admin
+  register: ceph_admin_keyring_out
+
+- name: get ceph console keyring
+  shell: ceph auth get-key client.{{ namespace.console }} | base64
+  register: ceph_console_keyring_out
+
+- name: set ceph keyrings
+  set_fact:
+    ceph_admin_keyring: "{{ ceph_admin_keyring_out.stdout }}"
+    ceph_console_keyring: "{{ ceph_console_keyring_out.stdout }}"
+
+- name : get s3 admin key
+  shell:
+    docker run --rm --entrypoint radosgw-admin \
+    -v /etc/ceph:/etc/ceph  \
+    127.0.0.1:29006/ceph/daemon:{{ ceph_image_tag }} \
+    user info --uid=admin
+  register: shell_result
+
+- name: parse results of create s3 user
+  set_fact:
+    admin_info: "{{ shell_result.stdout | from_json }}"
+
+- name: set s3 keys
+  set_fact:
+    s3_host: "{{ca_vip}}:29100"
+    s3_access_key: "{{ admin_info.get('keys')[0].access_key }}"
+    s3_secret_key: "{{ admin_info.get('keys')[0].secret_key}}"
+
+- name: create mount point for cephfs
+  file:
+    path: "/mnt/ceph"
+    state: "directory"
+    mode: 0777
+
+- name: mount cephfs to mountpoint
+  shell: mount -t ceph {{ mon_list[0] }}:6789:/ /mnt/ceph -o name=admin,secret={{ ceph_admin_keyring }}
+
+- name: create required paths in cephfs
+  file:
+    path: "/mnt/ceph/k8s/{{ namespace.console }}/{{ item }}"
+    state: "directory"
+    mode: 0777
+  with_items:
+  - config-server
+  - conf
+
+- name: copy log and favicon
+  copy:
+    src: "resources/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "logo.png", dest: "/mnt/ceph/k8s/{{ namespace.console }}/conf/logo.png"}
+    - {src: "favicon.ico", dest: "/mnt/ceph/k8s/{{ namespace.console }}/conf/favicon.ico"}
+
+- name: umount cephfs from mountpoint
+  shell: umount /mnt/ceph

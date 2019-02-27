@@ -1,0 +1,35 @@
+---
+# tasks file for convert-console
+- name: set role assignment sql files
+  set_fact:
+    role_assignment_sql_files:
+      - {src: role_assignment_init_data.sql , dst: role_assignment_init_data.sql }
+
+- name: create role assignment sql files dir
+  file: path=/console/ state=directory
+
+- name: generate role assignment sql files
+  template:
+    src: "{{ item.src }}"
+    dest: "/console/{{ item.dst }}"
+  with_items:
+    - "{{ role_assignment_sql_files }}"
+
+- name: get console mysql pod name (retry 10 delay 10s)
+  shell: "kubectl -n console get po | grep cc-mysql | awk '{print $1}'"
+
+  register: console_mysql_pod_name
+  until: console_mysql_pod_name.stdout != ""
+  retries: 10
+  delay: 10
+
+- name: wait for console mysql ready (retry 10 delay 30s)
+  shell: "kubectl -n console exec -it {{ console_mysql_pod_name.stdout }} -- mysql -u root -proot -e 'select NOW();'"
+  register: result
+  until: result.stdout.find('NOW()') != -1
+  retries: 10
+  delay: 30
+
+- name: init role assignment mysql
+  shell: "kubectl -n console exec -it {{ console_mysql_pod_name.stdout }} -- mysql -u root -proot cc < /console/role_assignment_init_data.sql"
+

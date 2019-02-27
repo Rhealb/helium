@@ -1,0 +1,58 @@
+###
+## kubernetes system config
+##
+## The following values are used to configure the kube-apiserver
+##
+#
+
+KUBE_LOG_TOSTDERR="--logtostderr=false --log-dir=/var/log/kubernetes/apiserver"
+
+KUBE_LOG_LEVEL="--v=2"
+
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+
+KUBE_API_ADDRESS="--insecure-bind-address=127.0.0.1 --advertise-address {{ inventory_hostname }} --bind-address {{ inventory_hostname }} --external-hostname {{ inventory_hostname }}"
+
+KUBE_API_PORT="--insecure-port 8080 --secure-port=6443"
+
+KUBE_ETCD_SERVERS="--etcd-servers={{ etcd_init_servers|map('regex_replace', '(.*)', 'https://\\1:2379')|join(',') }}"
+KUBE_ETCD_CERT="\
+--etcd-cafile=/etc/ssl/ca.pem \
+--etcd-certfile=/etc/ssl/etcd/etcd-admin.pem \
+--etcd-keyfile=/etc/ssl/etcd/etcd-admin-key.pem \
+"
+
+KUBE_TLS="\
+--tls-cert-file=/etc/ssl/kube/kubernetes.pem \
+--tls-private-key-file=/etc/ssl/kube/kubernetes-key.pem \
+--client-ca-file=/etc/ssl/ca.pem \
+--service-account-key-file=/etc/ssl/kube/service-account.pem \
+--kubelet-client-certificate=/etc/ssl/kube/kube-apiserver-{{ inventory_hostname }}.pem \
+--kubelet-client-key=/etc/ssl/kube/kube-apiserver-{{ inventory_hostname }}-key.pem \
+"
+
+KUBE_ADMISSION_CONTROL="\
+--enable-admission-plugins=NamespaceLifecycle,LimitRanger,ResourceQuota,NsHostPathAndPrivilege,PodPreset \
+--disable-admission-plugins=PersistentVolumeClaimResize \
+"
+
+KUBE_AUTH="\
+--basic-auth-file=/etc/kubernetes/basic_auth.csv \
+--anonymous-auth=false \
+"
+
+KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range {{ cluster_ip_range }}"
+
+
+KUBE_API_ARGS="\
+--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname \
+--feature-gates=ExpandInUsePersistentVolumes=true \
+--runtime-config=storage.k8s.io/v1alpha1=true,api/all=true \
+--service-node-port-range={{ node_port_range }} \
+{% if storage_type == 'ebs'  %}
+--cloud-provider=aws \
+{% endif %}
+{% if alicloud is defined %}
+--cloud-provider=external \
+{% endif %}
+"

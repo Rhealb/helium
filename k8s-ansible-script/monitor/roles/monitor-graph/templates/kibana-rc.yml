@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: kibana-logging
+    namespace: {{ monitor_ns_monitor_application }}
+    labels:
+        name: kibana-logging
+spec:
+    replicas: 3
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 0
+    template:
+        metadata:
+            labels:
+                name: kibana-logging
+        spec:
+            containers:
+                -
+                    name: kibana-logging
+                    image: {{ registry_url }}/{{ monitor_kibana_image }}
+                    resources:
+                        requests:
+                            memory: {{ monitor_kibana_memory_request }}
+                            cpu: {{ monitor_kibana_cpu_request }}
+                        limits:
+                            memory: {{ monitor_kibana_memory_limit }}
+                            cpu: {{ monitor_kibana_cpu_limit }}
+                    ports:
+                        -
+                            protocol: TCP
+                            containerPort: {{monitor_kibana_export_port}}
+                    volumeMounts:
+                        -
+                            name: config-volume
+                            mountPath: /opt/conf
+            volumes:
+                -
+                    name: config-volume
+                    configMap:
+                        name: kibana-conf

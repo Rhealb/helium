@@ -1,0 +1,17 @@
+---
+# tasks file for convert-console
+
+- name: convert storages
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.gateway_http }}/gw/in/api/v1/namespaces/{{ item }}/storage
+    method: POST
+    timeout: 300
+    validate_certs: no
+    headers:
+      Content-Type: "application/json"
+      x-gw-user-id: admin
+      x-gw-req-id: console
+      Authorization: "Bearer {{ access_token }}"
+  with_items:
+    - "{{ namespace.console }}"
+    - "{{ namespace.system_tools }}"

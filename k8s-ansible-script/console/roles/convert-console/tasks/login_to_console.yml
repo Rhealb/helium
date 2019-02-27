@@ -1,0 +1,19 @@
+---
+- name: login to console (retry 10 delay 30s)
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.keycloak }}/auth/realms/console-sso/protocol/openid-connect/token
+    method: POST
+    body_format: raw
+    body: client_id=console&grant_type=password&username={{ confidential.keystone.username }}&password={{ confidential.keystone.password }}
+    timeout: 300
+    validate_certs: no
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: console_login_response
+  until: console_login_response.status == 200
+  retries: 30
+  delay: 30
+
+- name: set access token
+  set_fact:
+    access_token: "{{ console_login_response.json.access_token }}"

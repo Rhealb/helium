@@ -1,0 +1,43 @@
+---
+# tasks file for k8s-controller-manager
+- name: create dir
+  file:
+    name: /var/log/kubernetes/controller-manager
+    owner: kube
+    state: directory
+
+- name: upload binary 
+  copy:
+    src: "kube/kube-controller-manager"
+    dest: "/usr/bin/kube-controller-manager"
+    owner: kube
+    mode: "a+x"
+
+- name: upload cert files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "kube"
+  with_items:
+    - {src: "ssl/kube/kube-controller-manager-{{ inventory_hostname }}.pem", dest: "/etc/ssl/kube/kube-controller-manager.pem" }
+    - {src: "ssl/kube/kube-controller-manager-{{ inventory_hostname }}-key.pem", dest: "/etc/ssl/kube/kube-controller-manager-key.pem" }
+    - {src: "ssl/kube/service-account-key.pem", dest: "/etc/ssl/kube/service-account-key.pem" }
+    - {src: "ssl/ca-key.pem", dest: "/etc/ssl/ca-key.pem" }
+
+- name: upload templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "kube"
+  with_items:
+    - { src: "kube/controller-manager", dest: "/etc/kubernetes/controller-manager" }
+    - { src: "kube/kube-controller-manager.kubeconfig", dest: "/etc/kubernetes/kube-controller-manager.kubeconfig"}
+    - { src: "kube/kube-controller-manager.service", dest: "/etc/systemd/system/kube-controller-manager.service" }
+    - { src: "kube/cloud-config", dest: "/etc/kubernetes/cloud-config" }
+
+- name: restart service
+  systemd:
+    name: kube-controller-manager
+    state: restarted
+    enabled: true
+    daemon_reload: yes

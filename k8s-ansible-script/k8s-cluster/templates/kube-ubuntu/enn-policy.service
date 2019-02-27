@@ -1,0 +1,30 @@
+[Unit]
+Description=Kubernetes Network Policy Server
+Documentation=https://10.19.248.12:30888/xujieasd/enn-policy
+Requires=docker.service
+After=network.target kube-proxy.service syslocalconf.service apiserver-haproxy.service haproxy.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/enn-policy
+EnvironmentFile=/etc/syslocal.conf
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/bin
+ExecStart={{ bin_dir }}/enn-policy \
+      $ENN_POLICY_HOSTNAME \
+      $KUBE_LOGTOSTDERR \
+      $KUBE_LOG_LEVEL \
+      $KUBE_MASTER \
+      $ENN_POLICY_ARGS \
+      --hostname-override ${EXTERNAL_IP}
+
+
+Restart=on-failure
+LimitNOFILE=65536
+StandardOutput=null
+# StandardError=null
+TimeoutStartSec=infinity
+RestartSec=10
+
+
+[Install]
+WantedBy=multi-user.target

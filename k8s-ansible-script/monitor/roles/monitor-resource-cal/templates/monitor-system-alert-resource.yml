@@ -1,0 +1,26 @@
+# default resources
+request_cpu: 0.5
+request_memory: 1Gi
+limit_cpu: 1
+limit_memory: 4Gi
+
+request_cpu_low: 0.2
+request_memory_low: 256Mi
+limit_cpu_low: 0.5
+limit_memory_low: 512Mi
+
+# prometheus_engine
+prometheus_engine_cpu_req: $prometheus_engine_cpu_req
+prometheus_engine_cpu_limit: $prometheus_engine_cpu_limit
+prometheus_engine_mem_req: $prometheus_engine_mem_req
+prometheus_engine_mem_limit: $prometheus_engine_mem_limit
+prometheus_engine_remote_disk_req: $prometheus_engine_remote_disk_req
+prometheus_engine_local_disk_req: $prometheus_engine_local_disk_req
+
+# prometheus_push_gateway
+prometheus_push_gateway_cpu_req: $prometheus_push_gateway_cpu_req
+prometheus_push_gateway_cpu_limit: $prometheus_push_gateway_cpu_limit
+prometheus_push_gateway_mem_req: $prometheus_push_gateway_mem_req
+prometheus_push_gateway_mem_limit: $prometheus_push_gateway_mem_limit
+prometheus_push_gateway_remote_disk_req: $prometheus_push_gateway_remote_disk_req
+prometheus_push_gateway_local_disk_req: $prometheus_push_gateway_local_disk_req

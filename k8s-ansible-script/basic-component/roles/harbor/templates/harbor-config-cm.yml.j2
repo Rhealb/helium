@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harbor-config
+  namespace: {{ harbor_namespace }}
+data:
+  secret_key: {{ secret_key }}
+  jobservice_config: |-
+    protocol: "http"
+    port: 8080
+    worker_pool:
+      workers: {{ harbor_max_job_workers }}
+      backend: "redis"
+      redis_pool:
+        redis_url: redis://harbor-redis:6379/2
+        namespace: "harbor_job_service_namespace"
+    logger:
+      path: "/tmp"
+      level: "INFO"
+      archive_period: 14
+    admin_server: "http://harbor-adminserver:8080/"
+
+  ui_config: |-
+    appname = Harbor
+    runmode = stable
+    enablegzip = true
+    [stable]
+    httpport = 8080
+
+  pkey: |-
+    -----BEGIN RSA PRIVATE KEY-----
+    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
+    -----END RSA PRIVATE KEY-----

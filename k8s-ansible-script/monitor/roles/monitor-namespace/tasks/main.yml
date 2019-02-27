@@ -1,0 +1,51 @@
+- name: include vars
+  include_vars:
+    dir: vars
+
+- name: create /monitor
+  file: path=/monitor state=directory
+
+- name: copy files
+  template:
+    src: "templates/{{item.src}}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: ns-monitor-essential-service.yml, dest: /monitor}
+    - {src: ns-monitor-application.yml, dest: /monitor}
+
+- name: create ns
+  command: "{{ item }}"
+  with_items:
+   - ennctl create -f /monitor/ns-monitor-essential-service.yml
+   - sleep 1
+   - ennctl create -f /monitor/ns-monitor-application.yml
+   - sleep 10
+
+- name: create mongo app
+  command: ennctl create app {{ monitor_mongo_app }} -n {{ monitor_ns_monitor_essential_service }}
+  register: result
+  until: result.rc == 0
+  retries: 10
+  delay: 5
+
+- name: create kibana app
+  command: ennctl create app {{ monitor_kibana_app }} -n {{ monitor_ns_monitor_application }}
+  register: result
+  until: result.rc == 0
+  retries: 10
+  delay: 5
+
+- name: create security app
+  command: ennctl create app {{ monitor_security_test_app }} -n {{ monitor_ns_monitor_application }}
+  register: result
+  until: result.rc == 0
+  retries: 10
+  delay: 5
+
+- name: create log
+  command: ennctl create app {{ monitor_log_app }} -n {{ monitor_ns_monitor_application }}
+  register: result
+  until: result.rc == 0
+  retries: 10
+  delay: 5
+

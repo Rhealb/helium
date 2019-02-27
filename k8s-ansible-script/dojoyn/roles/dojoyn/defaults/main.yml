@@ -1,0 +1,10 @@
+---
+# defaults file for bitmap
+script_path: /tmp/bigdata-deploy/jsonnet/example
+check_path: /tmp/check
+limit_cpu: 48
+limit_mem: 128000Mi
+request_cpu: 48
+request_mem: 128000Mi
+local_storage: 2000Gi
+remote_storage: 0Gi

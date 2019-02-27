@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitor-properties-backend-api
+  namespace: {{ namespace }}
+data:
+  monitor.properties: |-
+    trace.switch=on
+    trace.bizLine=Monitor
+    trace.service=Trace-data-API
+
+    gateway.grpcHost=enn-monitor-security-gateway-server.monitor-application
+    gateway.grpcPort=10000
+    gateway.token=EDAE3C40B04DACEDCA797921C91DEB81
+
+    metric.switch=on
+    metric.frequency=15

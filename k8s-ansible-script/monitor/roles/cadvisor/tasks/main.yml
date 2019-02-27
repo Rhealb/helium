@@ -1,0 +1,5 @@
+- name: copy specifications
+  include: copy_specification.yml
+
+- name: start k8s components
+  include: start_k8s.yml

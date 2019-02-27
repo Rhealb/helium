@@ -1,0 +1,8 @@
+---
+- include_tasks: gen-root-ca.yml
+
+- include_tasks: gen-etcd-certs.yml
+
+- include_tasks: gen-k8smaster-certs.yml
+
+- include_tasks: gen-k8snode-certs.yml

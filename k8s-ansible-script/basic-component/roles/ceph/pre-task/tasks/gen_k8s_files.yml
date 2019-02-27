@@ -1,0 +1,68 @@
+---
+- name: Create directory to store ceph config files
+  file:
+    path: /k8s/app/ceph/config
+    state: directory
+
+- name: Create all ceph keyrings
+  shell:
+    python -c "import os,struct,time,base64;key=os.urandom(16);print(base64.b64encode(struct.pack('<hiih',1,int(time.time()),0,len(key),) + key).decode('ascii'))"
+  register: ceph_keyring
+  with_items:
+    - admin_keyring
+    - mon_keyring
+    - bootstrap_osd_keyring
+    - bootstrap_mds_keyring
+    - bootstrap_rgw_keyring
+    - bootstrap_rbd_keyring
+
+- name: set_fact keyring
+  set_fact:
+    admin_keyring: "{{ ceph_keyring.results[0].stdout  }}"
+    mon_keyring: "{{ ceph_keyring.results[1].stdout  }}"
+    bootstrap_osd_keyring: "{{ ceph_keyring.results[2].stdout  }}"
+    bootstrap_mds_keyring: "{{ ceph_keyring.results[3].stdout  }}"
+    bootstrap_rgw_keyring: "{{ ceph_keyring.results[4].stdout  }}"
+    bootstrap_rbd_keyring: "{{ ceph_keyring.results[5].stdout  }}"
+
+
+- name: generate cluster uuid
+  shell:
+    python -c "import uuid; print(str(uuid.uuid4()))"
+  register: fsid
+
+- name: gen all ceph keyring and ceph config
+  template:
+    src: "{{ item }}.j2"
+    dest: "/k8s/app/ceph/config/{{ item }}"
+  with_items:
+    - ceph.conf
+    - ceph.mon.keyring
+    - ceph.client.admin.keyring
+    - bootstrap_rgw
+    - bootstrap_osd
+    - bootstrap_mds
+    - bootstrap_rbd
+    - update_secret.sh
+
+- name: create secret
+  command: "{{ item }}"
+  with_items:
+  - kubectl create ns ceph
+  - kubectl annotate ns ceph io.enndata.namespace/alpha-allowhostpath=true io.enndata.namespace/alpha-allowprivilege=true --overwrite
+  - kubectl -n ceph create secret generic ceph-conf-keyring --from-file=/k8s/app/ceph/config
+  ignore_errors: True
+
+- name: add label for all ceph nodes
+  shell: kubectl label node {{ item }} node-role.kubernetes.io/ceph=true --overwrite
+  with_items:
+  - "{{ mon_list | union(osd_list) | union(ceph_mds_list) }}"
+
+- name: create /etc/ceph dir if not exsit
+  file: path=/etc/ceph state=directory
+
+- name: cp config file to /etc/ceph
+  command: cp ceph.conf ceph.client.admin.keyring /etc/ceph/.
+  args:
+    chdir: "/k8s/app/ceph/config"
+

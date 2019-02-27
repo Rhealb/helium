@@ -1,0 +1,35 @@
+---
+- name: upload script
+  template:
+    src: loopdevice.sh
+    dest: "{{ bin_dir }}/loopdevice.sh"
+    mode: "a+rx"
+
+- name: write losetup into shell
+  lineinfile:
+    path: "{{ bin_dir }}/loopdevice.sh"
+    regexp: '^losetup'
+    line: 'losetup {{ item.key }}{{ item.value.num }} /virtualfs'
+  with_dict: "{{ special_mounts }}"
+
+- name: write mount path into shell
+  lineinfile:
+    path: "{{ bin_dir }}/loopdevice.sh"
+    regexp: '^mount'
+    line: 'mount -o prjquota {{ item.key }}{{ item.value.num }} {{ item.value.path }}'
+  with_dict: "{{ special_mounts }}"
+
+- name: upload service file
+  template:
+    src: loopdevice.service
+    dest: /etc/systemd/system/loopdevice.service
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: start and enable service
+  service:
+    name: loopdevice
+    state: restarted
+    enabled: yes
+  ignore_errors: yes

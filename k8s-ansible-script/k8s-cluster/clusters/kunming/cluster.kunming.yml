@@ -1,0 +1,83 @@
+---
+all:
+  vars:
+    etcd_init_servers: ["86.85.106.136", "86.85.106.137", "86.85.106.138"]
+    flannel_etcd_list: ["86.85.106.136", "86.85.106.137", "86.85.106.138"]
+    flanneld_subnet: "172.16.0.0/16"
+    ntp_orphan_parents: ["86.85.106.136", "86.85.106.137", "86.85.106.138"]
+    ntp_server: ""
+    admin_password: "IampAssword"
+    admin_username: "iAmAdmin"
+    master_list: ["86.85.106.136", "86.85.106.137", "86.85.106.138"]
+    cluster_ip_range: "10.254.0.0/16"
+    cluster_name: "kunming"
+    domain: "cluster.local"
+    ingress_dns_domain: "cluster.local"
+    interface: "enp4s0f0"
+    vip: "86.85.106.143"
+    ca_vip: "86.85.106.143"
+    hanode_list: ["86.85.106.140", "86.85.106.141"]
+    backend_type: "vxlan-over-hostgw"
+    mon_list: ["86.85.106.132", "86.85.106.133", "86.85.106.134"]
+    osd_list: ["86.85.106.132", "86.85.106.133", "86.85.106.134", "86.85.106.135", "86.85.106.131", "86.85.106.130", "86.85.106.129"]
+    ceph_public_network: "86.85.106.0/24"
+    ceph_cluster_network: "86.85.106.0/24"
+    rgw_dns_name: "enncloud.ceph.s3"
+    ceph_image_tag: "12.2.1"
+    rbd_dev_list: ["sde", "sdf"]
+    harbor_admin_password: admin
+    keystone_admin_password: admin
+    console_version: release-1.1.1
+    storage_type: "ceph"
+    install_mode: "local"
+    hostname_prefix: "cluster"
+    local_repo: "86.85.106.100:8002"
+
+  children:
+    centos:
+      vars:
+        ansible_ssh_user: root
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+      children:
+        master:
+          vars:
+            special_mounts:
+              /dev/sdb:
+                path: /data
+                opt: defaults
+          hosts:
+            86.85.106.136:
+            86.85.106.137:
+            86.85.106.138:
+        nodes:
+          vars:
+            special_mounts:
+              /dev/sdb:
+                path: /data
+                opt: defaults
+              /dev/sdc:
+                path: /xfs/disk1
+                opt: prjquota
+              /dev/sdd:
+                path: /xfs/disk2
+                opt: prjquota
+          hosts:
+            86.85.106.129:
+            86.85.106.130:
+            86.85.106.131:
+            86.85.106.132:
+            86.85.106.133:
+            86.85.106.134:
+            86.85.106.135:
+        vnodes:
+          vars:
+            special_mounts:
+              /dev/sdb:
+                path: /data
+                opt: defaults
+          hosts:
+            86.85.106.139:
+            86.85.106.140:
+              #            86.85.106.141:
+

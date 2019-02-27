@@ -1,0 +1,41 @@
+---
+# tasks file for convert-console
+- name: add license
+  include: add_license.yml
+
+- name: initialize role assignment
+  include: init_role_assignment.yml
+  when: auth_enabled == "true"
+
+- name: add company
+  include: init_company.yml
+  when: auth_enabled == "true"
+
+- name: login and get token
+  import_tasks: login_to_console.yml
+  when: auth_enabled == "true"
+
+- name: convert namespaces
+  import_tasks: convert_namespaces.yml
+
+- name: create apps
+  import_tasks: create_app.yml
+
+- name: convert console app
+  import_tasks: move_console_deployment_service.yml
+
+- name: convert gateway app
+  import_tasks: move_gateway_deployment_service.yml
+
+- name: convert ldap app
+  import_tasks: move_ldap_deployment_service.yml
+  when: auth_enabled == "true"
+
+- name: convert harbor app
+  import_tasks: move_harbor_deployment_service.yml
+
+- name: convert storages
+  import_tasks: convert_storage.yml
+
+- name: add external links
+  import_tasks: add_external_links.yml

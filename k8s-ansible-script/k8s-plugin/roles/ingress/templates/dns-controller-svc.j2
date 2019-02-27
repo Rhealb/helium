@@ -1,0 +1,30 @@
+{
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": {
+        "labels": {
+            "app": "dns-controller",
+            "type": "service",
+            "class": "{{ ingress_class }}"
+        },
+        "name": "dns-controller-{{ ingress_class }}",
+        "namespace": "kube-system"
+    },
+    "spec": {
+        "externalIPs": [
+            "{{ca_vip}}"
+        ],
+        "ports": [
+            {
+                "name": "dns",
+                "port": 53,
+                "protocol": "UDP",
+                "targetPort": 53
+            }
+        ],
+        "selector": {
+            "app": "dns-controller",
+            "class": "{{ ingress_class }}"
+        }
+    }
+}

@@ -1,0 +1,1 @@
+KUBE_PROXY_ARGS="--proxy-mode iptables  --log-dir=/var/log/kubernetes/proxy"

@@ -1,0 +1,6 @@
+---
+
+# docker login to repo
+
+- name: docker login to repo
+  command: "docker login -uadmin -p{{ harbor_repo_admin_password }} {{ registry_url }}"

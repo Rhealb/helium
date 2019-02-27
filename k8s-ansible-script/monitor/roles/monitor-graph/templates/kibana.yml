@@ -1,0 +1,3 @@
+server.port: {{monitor_kibana_export_port}}
+server.host: "0.0.0.0"
+elasticsearch.url: "http://{{monitor_es_host}}:{{monitor_es_port}}"

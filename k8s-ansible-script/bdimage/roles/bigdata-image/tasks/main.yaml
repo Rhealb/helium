@@ -1,0 +1,15 @@
+---
+
+# tasks file for bigdata build and push or pull images
+
+- name: docker login repo
+  connection: local
+  include: docker_login.yaml
+
+- name: build and push bigdata images
+  connection: local
+  include: build_and_push_image.yaml
+
+#- name: pull bigdata images from repo
+#  connection: local
+#  include: pull_image.yaml

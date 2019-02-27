@@ -1,0 +1,14 @@
+---
+# defaults file for monitor-namespace
+# monitor_ns_monitor_system_log: monitor-system-log
+# monitor_ns_monitor_system_graph: monitor-system-graph
+# monitor_ns_monitor_streaming_jobs: monitor-streaming-jobs
+# monitor_ns_monitor_system_alert: monitor-system-alert
+# monitor_ns_monitor_system_security: monitor-system-security
+monitor_ns_monitor_application: monitor-application
+monitor_ns_monitor_essential_service: monitor-essential-service
+
+monitor_kibana_app: kibana
+monitor_security_test_app: security
+monitor_mongo_app: mongo
+monitor_log_app: log

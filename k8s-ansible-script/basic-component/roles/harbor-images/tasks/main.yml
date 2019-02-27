@@ -1,0 +1,15 @@
+---
+# tasks file for harbor-images
+
+- name: create /k8s/images dir
+  file:
+    path: /k8s/images
+    state: directory
+
+- name: copy harbor image file to hosts
+  copy:
+    src: "../files/images/k8s/harbor.tar"
+    dest: "/k8s/images/harbor.tar"
+
+- name: load harbor image
+  command: "docker load -i /k8s/images/harbor.tar"

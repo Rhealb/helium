@@ -1,0 +1,39 @@
+---
+- name: copy and push docker images to harbor
+  include: copy_docker_images.yml
+
+- name: make sure /tmp/podpriority directory exist on target server
+  file:
+    path: "/tmp/podpriority"
+    state: "directory"
+    mode: 0777
+
+- name: copy script and yaml files to /tmp/podpriority
+  template:
+    src: "{{ item.src }}"
+    dest: "/tmp/podpriority/{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: gencerts.sh, dest: gencerts.sh}
+    - {src: podpriority-admission-controller-deployment.yaml, dest: podpriority-admission-controller-deployment.yaml}
+
+- name: clean deployment
+  command: "{{ item }}"
+  with_items:
+    - kubectl delete -f /tmp/podpriority/podpriority-admission-controller-deployment.yaml
+    - kubectl delete MutatingWebhookConfiguration  podpriority 
+  ignore_errors: yes
+
+- name: bash gencerts
+  command: bash /tmp/podpriority/gencerts.sh
+
+- name: create deployment
+  command: kubectl create -f /tmp/podpriority/podpriority-admission-controller-deployment.yaml
+
+ #clean up temp files
+- name: clean up "/tmp/podpriority"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/podpriority"

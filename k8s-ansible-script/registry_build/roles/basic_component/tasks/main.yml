@@ -1,0 +1,246 @@
+- name: create k8s image dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "../{{ ceph_dest}}"
+
+
+
+- name: pull ceph image to tar  
+  shell: "{{item}}"
+  with_items:
+    -  "echo 'nonsense' | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}"
+    - "docker pull {{harbor.url}}/{{ceph_project}}/daemon:{{ ceph_version }}"
+    - "docker tag {{harbor.url}}/{{ceph_project}}/daemon:{{ ceph_version }} {{harbor.local}}/{{ceph_project}}/daemon:{{ ceph_version }}"
+    - "docker save -o ../{{ceph_dest}}/ceph.tar {{harbor.local}}/{{ceph_project}}/daemon:{{ ceph_version }}"
+
+
+- name: create k8s image dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "../{{ harbor_dest}}"
+
+
+
+- name: pull harbor image to tar 
+  shell: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}
+    # harbor image
+    - "docker pull {{ harbor.url }}/{{ harbor_project }}/harbor:{{ harbor_version }}"
+    - "docker tag {{ harbor.url }}/{{harbor_project}}/harbor:{{ harbor_version }} {{harbor.local}}/{{harbor_project}}/harbor:{{ harbor_version }}"
+    # harbor mysql
+    - "docker pull {{ harbor.url }}/{{ harbor_project }}/harbor-db:{{ harbor_db }}"
+    - "docker tag {{ harbor.url }}/{{harbor_project}}/harbor-db:{{ harbor_db }} {{harbor.local}}/{{harbor_project}}/harbor-db:{{ harbor_db }}"
+    # registery version 
+    - "docker pull {{ harbor.url }}/{{ harbor_project }}/harbor-registry:{{ harbor_registry }}"
+    - "docker tag {{ harbor.url }}/{{harbor_project}}/harbor-registry:{{ harbor_registry }} {{harbor.local}}/{{harbor_project}}/harbor-registry:{{ harbor_registry }}"
+    
+    - "docker pull {{ harbor.url }}/{{ harbor_project }}/harbor-redis:{{ harbor_redis }}"
+    - "docker tag {{ harbor.url }}/{{harbor_project}}/harbor-redis:{{ harbor_redis }} {{harbor.local}}/{{harbor_project}}/harbor-redis:{{ harbor_redis }}"
+    
+    - "docker pull {{ harbor.url }}/{{ harbor_project }}/harbor-clair:{{ harbor_clair }}"
+    - "docker tag {{ harbor.url }}/{{harbor_project}}/harbor-clair:{{ harbor_clair }} {{harbor.local}}/{{harbor_project}}/harbor-clair:{{ harbor_clair }}"
+    
+
+    # nigix version
+    - "docker pull {{ harbor.url }}/{{ harbor_project }}/harbor-nginx:{{ harbor_nginx }}"
+    - "docker tag {{ harbor.url }}/{{ harbor_project }}/harbor-nginx:{{ harbor_nginx }} {{harbor.local}}/{{harbor_project}}/harbor-nginx:{{ harbor_nginx }}"
+    
+
+    - "docker save -o ../{{harbor_dest}}/harbor.tar  {{harbor.local}}/{{harbor_project}}/harbor-nginx:{{ harbor_nginx }} {{harbor.local}}/{{harbor_project}}/harbor-clair:{{ harbor_clair }} {{harbor.local}}/{{harbor_project}}/harbor-redis:{{ harbor_redis }} {{harbor.local}}/{{harbor_project}}/harbor:{{ harbor_version }} {{harbor.local}}/{{harbor_project}}/harbor-db:{{ harbor_db }} {{harbor.local}}/{{harbor_project}}/harbor-registry:{{ harbor_registry }} "
+
+
+- name: create system-tools dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "../{{ ldap_dest }}"
+
+
+- name: pull ldap image to tar 
+  shell: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}
+    # enn_ldap
+    - "docker pull {{ harbor.url }}/{{ ldap_project }}/enn-ldap:{{ enn_ldap_version }}"
+    - "docker tag {{ harbor.url }}/{{ldap_project}}/enn-ldap:{{ enn_ldap_version }} {{harbor.local}}/{{ ldap_project }}/enn-ldap:{{ enn_ldap_version }}"
+    - "docker save -o ../{{ldap_dest}}/ldap.tar {{harbor.local}}/{{ ldap_project }}/enn-ldap:{{ enn_ldap_version }}"
+   
+   # enn_haproxy_ldap
+    - "docker pull {{ harbor.url }}/{{ ldap_project }}/enn-haproxy-ldap:{{ enn_haproxy_ldap_version }}"
+    - "docker tag {{ harbor.url }}/{{ ldap_project }}/enn-haproxy-ldap:{{ enn_haproxy_ldap_version }} {{harbor.local}}/{{ldap_project}}/enn-haproxy-ldap:{{ enn_haproxy_ldap_version }}"
+    - "docker save -o ../{{ldap_dest}}/haproxy.tar {{harbor.local}}/{{ ldap_project }}/enn-haproxy-ldap:{{ enn_haproxy_ldap_version }}"
+    
+    # ldapregister_project  
+    - "docker pull {{ harbor.url }}/{{ ldapregister_project }}/ldapregister:{{ ldapregister_version }}"
+    - "docker tag {{ harbor.url }}/{{ldapregister_project}}/ldapregister:{{ ldapregister_version }} {{harbor.local}}/{{ldapregister_project}}/ldapregister:{{ ldapregister_version }}"
+    - "docker save -o ../{{ldap_dest}}/ldap-r.tar {{harbor.local}}/{{ldapregister_project}}/ldapregister:{{ ldapregister_version }}"
+    
+
+
+
+- name: create auto-scaler dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "../{{ autoscaler_dest }}"
+
+
+
+- name: pull auto-scaler image to tar 
+  shell: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}
+    # autoscaler_monitor
+    - "docker pull {{ harbor.url }}/{{ autoscaler_project }}/appautoscale-monitor:{{ autoscaler_monitor_version }}"
+    - "docker tag {{ harbor.url }}/{{ autoscaler_project }}/appautoscale-monitor:{{ autoscaler_monitor_version }} {{harbor.local}}/{{ autoscaler_project }}/appautoscale-monitor:{{ autoscaler_monitor_version }}"
+    - "docker save -o ../{{autoscaler_dest}}/scale.tar {{harbor.local}}/{{ autoscaler_project }}/appautoscale-monitor:{{ autoscaler_monitor_version }}"
+   
+   # autoscaler_manager
+    - "docker pull {{ harbor.url }}/{{ autoscaler_project }}/appautoscale-scalemanager:{{ autoscaler_manager_version }}"
+    - "docker tag {{ harbor.url }}/{{ autoscaler_project }}/appautoscale-scalemanager:{{ autoscaler_manager_version }} {{harbor.local}}/{{ autoscaler_project }}/appautoscale-scalemanager:{{ autoscaler_manager_version }}"
+    - "docker save -o ../{{autoscaler_dest }}/monitor.tar {{harbor.local}}/{{ autoscaler_project }}/appautoscale-scalemanager:{{ autoscaler_manager_version }}"
+  
+
+
+- name: create k8s plugin  dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "../{{ csi_dest }}"
+
+
+
+- name: pull k8s-plugin image to tar 
+  shell: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}
+    # csi attatcher 
+    - "docker pull {{ harbor.url }}/{{ csi_attacher_image_url }}"
+    - "docker tag {{ harbor.url }}/{{ csi_attacher_image_url }}  {{harbor.local}}/{{ csi_attacher_image_url }}"
+    - "docker save -o ../{{csi_dest}}/csi-attacher.tar {{harbor.local}}/{{ csi_attacher_image_url }}"
+   
+    # csi attatcher 
+    - "docker pull {{ harbor.url }}/{{ driver_registrar_image_url }}"
+    - "docker tag {{ harbor.url }}/{{ driver_registrar_image_url }}  {{harbor.local}}/{{ driver_registrar_image_url }}"
+    - "docker save -o ../{{csi_dest}}/driver-registrar.tar {{harbor.local}}/{{ driver_registrar_image_url }}"
+   
+   # csi hostpath csi images  
+    - "docker pull {{ harbor.url }}/{{ hostpathcsi_image_url }}"
+    - "docker tag {{ harbor.url }}/{{ hostpathcsi_image_url }}  {{harbor.local}}/{{ hostpathcsi_image_url }}"
+    - "docker save -o ../{{csi_dest}}/hostpathcsi.tar {{harbor.local}}/{{ hostpathcsi_image_url }}"
+   
+     #pod priority images 
+    - "docker pull {{ harbor.url }}/{{ podpriority_image_url }}"
+    - "docker tag {{ harbor.url }}/{{ podpriority_image_url }}  {{harbor.local}}/{{ podpriority_image_url }}"
+    - "docker save -o ../{{csi_dest}}/podpriority.tar {{harbor.local}}/{{ podpriority_image_url }}"
+   
+
+   #enndata_scheduler_url: library/enndata-scheduler:v0.1.0
+    - "docker pull {{ harbor.url }}/{{ enndata_scheduler_url }}"
+    - "docker tag {{ harbor.url }}/{{ enndata_scheduler_url }}  {{harbor.local}}/{{ enndata_scheduler_url }}"
+    - "docker save -o ../{{csi_dest}}/nsnodeselector.tar {{harbor.local}}/{{ enndata_scheduler_url }}"
+   
+
+- name: create system-tools dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "../{{ ingress_dest }}"
+
+
+- name: pull ingress image to tar 
+  shell: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}
+    # backend 
+    - "docker pull {{ harbor.url }}/{{ ingress_project }}/defaultbackend:{{ ingress_backend_version }}"
+    - "docker tag {{ harbor.url }}/{{ ingress_project }}/defaultbackend:{{ ingress_backend_version }} {{harbor.local}}/{{ ingress_project }}/defaultbackend:{{ ingress_backend_version }}"
+   
+   # autoscaler_manager
+    - "docker pull {{ harbor.url }}/{{ ingress_project }}/nginx-ingress-controller:{{ ingress_controller_version }}"
+    - "docker tag {{ harbor.url }}/{{ ingress_project }}/nginx-ingress-controller:{{ ingress_controller_version }} {{harbor.local}}/{{ ingress_project }}/nginx-ingress-controller:{{ ingress_controller_version }}"
+    - "docker save -o ../{{ingress_dest }}/ingress.tar {{harbor.local}}/{{ ingress_project }}/defaultbackend:{{ ingress_backend_version }} {{harbor.local}}/{{ ingress_project }}/nginx-ingress-controller:{{ ingress_controller_version }}"
+  
+
+
+- name: create tools dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "../{{ tools_dest }}"
+
+
+- name: pull tools image to tar 
+  shell: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}
+    # net perf  
+    - "docker pull {{ harbor.url }}/{{ tools_project }}/net-perf:{{ net_perf_version }}"
+    - "docker tag {{ harbor.url }}/{{ tools_project }}/net-perf:{{ net_perf_version }} {{harbor.local}}/{{ tools_project }}/net-perf:{{ net_perf_version }}"
+   
+   # mtr 
+    - "docker pull {{ harbor.url }}/{{ tools_project }}/mtr:{{ mtr_version }}"
+    - "docker tag {{ harbor.url }}/{{ tools_project }}/mtr:{{ mtr_version }} {{harbor.local}}/{{ tools_project }}/mtr:{{ mtr_version }}"
+    
+   # k8s fitness  
+    - "docker pull {{ harbor.url }}/{{ tools_project }}/k8sft:{{ k8sft_version }}"
+    - "docker tag {{ harbor.url }}/{{ tools_project }}/k8sft:{{ k8sft_version }} {{harbor.local}}/{{ tools_project }}/k8sft:{{ k8sft_version }}"
+    
+    - "docker save -o ../{{ tools_dest }}/tools.tar  {{harbor.local}}/{{ tools_project }}/net-perf:{{ net_perf_version }} {{harbor.local}}/{{ tools_project }}/mtr:{{ mtr_version }} {{harbor.local}}/{{ tools_project }}/k8sft:{{ k8sft_version }}"
+
+
+# library/nfs-client:1.0
+- name: pull nfs provision tar 
+  shell: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login {{harbor.url}} -u{{harbor.username}} -p {{harbor.password}}
+    # nfs client   
+    - "docker pull {{ harbor.url }}/{{ nfs_client_image_url }}"
+    - "docker tag {{ harbor.url }}/{{ nfs_client_image_url }} {{harbor.local}}/{{ nfs_client_image_url }}"
+    - "docker save -o ../{{ nfs_client_dest }}/nfs-provisioner.tar  {{harbor.local}}/{{ nfs_client_image_url }}"
+
+
+- name: clean up bin dirs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "../{{ ennctl_dest }}"
+
+
+- name: create bin dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "../{{ ennctl_dest }}"
+
+- name: download ennctl 
+  get_url:
+    url: "{{ item }}"
+    dest:  "../{{ ennctl_dest }}"
+  with_items:
+    - "http://download.ennctl.dev.enndata.cn/release/ennctl/{{ ennctl_version }}/linux/ennctl"
+
+
+- name: download ennctl darwin
+  get_url:
+    url: "{{ item }}"
+    dest:  "../{{ ennctl_dest }}/ennctl_darwin"
+  with_items:
+    - "http://download.ennctl.dev.enndata.cn/release/ennctl/{{ ennctl_version }}/darwin/ennctl"
+
+- name: download jsonnet 
+  shell: s3cmd get s3://production-release/dropbox/bin/jsonnet ../{{ennctl_dest}}/
+
+

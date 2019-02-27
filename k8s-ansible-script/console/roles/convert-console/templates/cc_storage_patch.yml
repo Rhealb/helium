@@ -1,0 +1,10 @@
+spec:
+  template:
+    spec:
+      containers:
+      - name: cc-storage
+        env:
+        - name: MYSQL_HOST
+          value: {{ cc_storage_mysql_host.stdout }}
+        - name: RABBITMQ_HOST
+          value: {{ cc_storage_rabbitmq_host.stdout }}

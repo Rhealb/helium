@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    X_APP: harbor
+    app: harbor
+    daemon: registry
+  name: harbor-registry
+  namespace: {{ harbor_namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor
+      daemon: registry
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: "true"
+      labels:
+        app: harbor
+        daemon: registry
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: registry
+        image: {{ harbor_registry_image }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        - containerPort: 5001
+        livenessProbe:
+          tcpSocket:
+            port: 5000
+        readinessProbe:
+          tcpSocket:
+            port: 5000
+        resources:
+          limits:
+            cpu: "{{ harbor_cpu_limits }}"
+            memory: {{ harbor_memory_limits }}
+          requests:
+            cpu: "{{ harbor_cpu_requests }}"
+            memory: {{ harbor_memory_requests }}
+        volumeMounts:
+        - name: storage
+          mountPath: /var/lib/registry
+        - name: config
+          mountPath: /etc/docker/registry
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: harbor-registry
+      - name: config
+        configMap:
+          name: harbor-registry-config
+          items:
+          - key: config
+            path: config.yml
+          - key: cert
+            path: root.crt

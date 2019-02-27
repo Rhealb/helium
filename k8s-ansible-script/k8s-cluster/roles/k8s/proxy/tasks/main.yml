@@ -1,0 +1,50 @@
+---
+# tasks file for k8s-proxy
+
+- name: Ensure nodePort range is reserved
+  sysctl:
+    name: net.ipv4.ip_local_reserved_ports
+    value: "{{ node_port_range }}"
+    sysctl_set: yes
+    sysctl_file: /etc/sysctl.d/95-k8s-sysctl.conf
+    state: present
+    reload: yes
+  when: node_port_range is defined
+
+- name: create dir
+  file:
+    name: /var/log/kubernetes/proxy
+    state: directory
+    owner: kube
+
+- name: upload binary 
+  copy:
+    src: kube/kube-proxy
+    dest: "/usr/bin/kube-proxy"
+    mode: "a+x"
+
+- name: upload cert files
+  copy:
+    src: "ssl/kube/{{ item.src }}"
+    dest: "/etc/ssl/kube/{{ item.dest }}"
+    owner: "kube"
+  with_items:
+  - {src: "kube-proxy-{{ inventory_hostname }}.pem", dest: "kube-proxy.pem" }
+  - {src: "kube-proxy-{{ inventory_hostname }}-key.pem", dest: "kube-proxy-key.pem" }
+
+- name: upload templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "kube/kube-proxy", dest: "/etc/kubernetes/proxy" }
+    - { src: "kube/kube-proxy.service", dest: "/etc/systemd/system/kube-proxy.service" }
+    - { src: "kube/kube-proxy.kubeconfig", dest: "/etc/kubernetes/kube-proxy.kubeconfig"}
+
+- name: restart service
+  systemd:
+    name: kube-proxy
+    state: restarted
+    enabled: true
+    daemon_reload: true
+

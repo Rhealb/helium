@@ -1,0 +1,81 @@
+---
+# defaults file for harbor
+#The image of harbor components
+harbor_image: 127.0.0.1:29006/library/harbor:enn-1.6.0
+harbor_db_image: 127.0.0.1:29006/library/harbor-db:enn-1.6.0
+harbor_registry_image: 127.0.0.1:29006/library/harbor-registry:enn-1.6.0
+harbor_proxy_image: 127.0.0.1:29006/library/harbor-nginx:enn-1.6.0
+harbor_clair_image: 127.0.0.1:29006/library/harbor-clair:enn-1.6.0
+harbor_redis_image: 127.0.0.1:29006/library/harbor-redis:enn-1.6.0
+
+harbor_db_image_size: 20G
+harbor_redis_image_size: 10G
+harbor_registry_image_size: 100G
+
+# resource of eche deployment
+harbor_cpu_requests: 0.2
+harbor_cpu_limits: 2
+harbor_memory_requests: 200Mi
+harbor_memory_limits: 4Gi
+storage_type: ceph
+
+harbor_namespace: system-tools
+
+# NodePort
+harbor_node_port: 30100
+
+####harobr base config
+#The IP address or hostname to access admin UI and registry service.
+harbor_ext_endpoint: http://{% if public_vip is defined %}{{ public_vip }}{% else %}{{ ca_vip }}{% endif %}:{{ harbor_node_port }}
+
+harbor_admin_password: admin
+harbor_db_password: enncloud
+##ldap_auth or db_auth or uaa_auth
+harbor_auth_mode:  ldap_auth
+##everyone or adminonly
+harbor_project_creation_restriction: everyone
+harbor_self_registration: off
+harbor_verify_remote_cert: off
+harbor_max_job_workers: 3
+
+
+
+####Email account settings for sending out password resetting emails.
+#Email server uses the given username and password to authenticate on TLS connections to host and act as identity.
+#Identity left blank to act as username.
+harbor_email_identity : ""
+harbor_email_server: smtp.mydomain.com
+harbor_email_server_port: 25
+harbor_email_username: sample_admin@mydomain.com
+harbor_email_password: abc
+harbor_email_from: admin <sample_admin@mydomain.com>
+harbor_email_ssl: false
+harbor_email_insecure: false
+
+####harobr ldap config(when auth mode is ldap_auth)
+harbor_ldap_url: "ldap://ldaps-ha-svc.system-tools:389"
+harbor_ldap_searchdn: cn=admin,ou=users,dc=enncloud,dc=com
+harbor_ldap_searchdn_passwd: "{{ keystone_admin_password }}"
+harbor_ldap_basedn: ou=users,dc=enncloud,dc=com
+harbor_ldap_filter: ""
+harbor_ldap_uid: cn
+harbor_ldap_scope: 3
+harbor_ldap_timeout: 5
+
+####uaa config(when auth mode is uaa_auth)
+harbor_uaa_endpoint: uaa.mydomain.org
+harbor_uaa_clientid: id
+harbor_uaa_clientsecret: secret
+harbor_uaa_verify_cert: false
+harbor_uaa_ca_cert: /path/to/ca.pem
+
+####registry_storage_provider can be: filesystem, s3, gcs, azure, etc.
+#now only support filesystem
+registry_storage_provider_name: filesystem
+
+
+####clair config
+###clair is a Vulnerability Static Analysis tool for Containers
+##False or True
+harbor_with_clair: False
+harbor_clair_db_password: password

@@ -1,0 +1,70 @@
+---
+all:
+  vars:
+  # master and node
+    master_list: [172.16.1.202, 172.16.1.201, 172.16.1.200]
+    etcd_init_servers: [172.16.1.202, 172.16.1.201, 172.16.1.200]
+    host_path_list: [172.16.1.202, 172.16.1.201, 172.16.1.200]
+    hanode_list: []
+    cluster_name: "ali-cluster"
+    cluster_ip_range: "10.254.0.0/16"
+    pause_image: "registry.alauda.cn/googlecontainer/pause-amd64:3.0"
+    domain: "cluster.local"
+    max_pods: 100
+    cpu_reserved: 0
+    memory_reserved: 0
+    kubelet_dir: "/data/kubelet"
+    sample_rate: 30
+    cluster_total_cores: 72
+    cluster_total_mem: 192
+  # flannel
+    flannel_etcd_list: [172.16.1.202, 172.16.1.201, 172.16.1.200]
+    backend_type: "vxlan"
+    flanneld_subnet: "192.168.0.0/16"
+  # cluster
+    local_repo: "172.16.1.166:8009"
+    ca_vip: "172.16.1.202"
+    admin_password: admin
+    admin_username: admin
+    alicloud: true
+    AccessKeyId: "LTAIffvltEg9eoKY"
+    AccessKeySecret: "vjCIPszBTQaRILzP7NmF4nSnSMaYbv"
+  #
+    special_mounts:
+      /dev/vdb:
+        path: /data
+        opt: defaults
+      /dev/vdc:
+        path: /xfs/disk1
+        opt: prjquota
+  #
+  # storage
+    storage_type: ceph
+    nfs_host: dsadas
+    nfs_path: dddd
+  # ingress
+    ingress_dns_domain: enn.ingress.cn
+  #
+  # harbor
+    harbor_admin_password: admin
+  # keystone
+    keystone_admin_password: admin
+  # console
+    console_version: release-1.3.0
+    title_cn: 容器云
+    title_en: Data Platform +
+  #bigdata image vesion
+    release_version: helium-1.3.0
+  children:
+    centos:
+      vars:
+        ansible_ssh_user: root
+        ansible_ssh_pass: Sj123456
+        ansible_ssh_port: 22
+        bin_dir: "/usr/bin"
+        cgroup_driver: "systemd"
+        kernel_version: "kernel"
+      hosts:
+        172.16.1.202:
+        172.16.1.201:
+        172.16.1.200:

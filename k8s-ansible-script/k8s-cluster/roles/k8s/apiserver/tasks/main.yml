@@ -1,0 +1,51 @@
+---
+# tasks file for k8s-apiserver
+- name: create kube user
+  user:
+    name: kube
+
+- name: create dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "kube"
+  with_items:
+    - /etc/ssl/kube
+    - /etc/kubernetes
+    - /var/log/kubernetes/apiserver
+
+- name: upload cert files
+  copy:
+    src: "ssl/kube/{{ item }}"
+    dest: "/etc/ssl/kube/{{ item }}"
+    owner: "kube"
+  with_items:
+    - kube-apiserver-{{ inventory_hostname }}.pem
+    - kube-apiserver-{{ inventory_hostname }}-key.pem
+    - kubernetes.pem
+    - kubernetes-key.pem
+    - service-account.pem
+
+- name: upload binary
+  copy:
+    src: "kube/kube-apiserver"
+    dest: "/usr/bin/kube-apiserver"
+    mode: "a+x"
+    owner: "kube"
+
+- name: upload templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "kube"
+  with_items:
+    - { src: "kube/apiserver", dest: "/etc/kubernetes/apiserver" }
+    - { src: "kube/kube-apiserver.service", dest: "/etc/systemd/system/kube-apiserver.service" }
+    - { src: "kube/basic_auth.csv", dest: "/etc/kubernetes/basic_auth.csv" }
+
+- name: restart service
+  systemd:
+    name: "kube-apiserver"
+    state: restarted
+    enabled: true
+    daemon_reload: yes

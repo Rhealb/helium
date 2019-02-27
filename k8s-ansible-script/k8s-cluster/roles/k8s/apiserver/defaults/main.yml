@@ -1,0 +1,3 @@
+---
+# defaults file for k8s-apiserver
+node_port_range: "29000-32767"

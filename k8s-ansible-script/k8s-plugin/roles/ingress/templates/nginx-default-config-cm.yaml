@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-ingress-controller-{{ ingress_class }}-conf
+  namespace: kube-system
+data:
+  enable-vts-status: "true"
+  server-name-hash-max-size: "{{ server_name_hash_max_size }}"
+  server-name-hash-bucket-size: "{{ server_name_hash_bucket_size }}"

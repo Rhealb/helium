@@ -1,0 +1,51 @@
+---
+- name: create alicloud-controller-manager image files dir
+  file: path=/alicloud/images/ state=directory
+
+- name: upload images
+  copy:
+    src: "kube/alicloud-controller.tar"
+    dest: "/alicloud/images/alicloud-controller.tar"
+
+- name: load imges
+  command: docker load -i /alicloud/images/alicloud-controller.tar
+
+- name: delete cloud-config configmap
+  command: kubectl delete cm cloud-config -n kube-system
+  ignore_errors: yes
+  when: inventory_hostname == master_list.0
+
+- name: delete deployment cloud-controller-manager
+  command: kubectl delete deployment cloud-controller-manager -n kube-system
+  ignore_errors: yes
+  when: inventory_hostname == master_list.0
+
+- name: delete serviceaccount cloud-controller-manager
+  command: kubectl delete sa cloud-controller-manager -n kube-system
+  ignore_errors: yes
+  when: inventory_hostname == master_list.0
+
+- name: wait in case configmap and deployment is just deleted
+  command: sleep 3
+
+- name: upload alicloud controller manager config file
+  template:
+    src: "cloud-controller-manager.yml"
+    dest: "/alicloud/cloud-controller-manager.yml"
+
+#- name: registry nodename
+#  shell: echo `curl -s http://100.100.100.200/latest/meta-data/region-id`.`curl -s http://100.100.100.200/latest/meta-data/instance-id`
+#  register: nodename
+#  when: inventory_hostname in master_list
+
+#- name: label node for daemonset
+#  command:  kubectl label  node {{ nodename.stdout }} node-role.kubernetes.io/master=""
+#  when: inventory_hostname in master_list
+
+- name: create cloud-config configmap 
+  command: kubectl -n kube-system create configmap cloud-config --from-literal=special.keyid="{{ AccessKeyId }}" --from-literal=special.keysecret="{{ AccessKeySecret }}"
+  when: inventory_hostname == master_list.0
+
+- name: create deployment
+  command: kubectl create -f /alicloud/cloud-controller-manager.yml
+  when: inventory_hostname == master_list.0

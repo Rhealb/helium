@@ -1,0 +1,13 @@
+- name: copy files
+  import_tasks: copy_files.yml
+
+#- include: copy_images.yml
+
+- name: check mysql
+  import_tasks: check_mysql.yml
+
+- name: start frontend
+  import_tasks: start_frontend.yml
+
+- name: config grafana
+  import_tasks: config_grafana.yml

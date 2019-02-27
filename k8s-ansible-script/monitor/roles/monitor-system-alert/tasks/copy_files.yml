@@ -1,0 +1,46 @@
+---
+
+- name: copy files to remote
+  template:
+    src: "{{ item }}"
+    dest: "/{{ alert_workspace }}"
+  with_items:
+    - "../templates/msc-console.yml"
+
+
+- name: copy s3cfg
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - {src: ../files/s3cfg, dest: /root/.s3cfg, mode: "0755"}
+
+
+- name: install rsync
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - rsync
+  when: install_mode == 'internet'
+
+
+- name: copy monitor deploy directory to tartget server
+  synchronize:
+    src: "../../../modules/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: monitor-deploy, dest: /monitor-system-alert/}
+
+
+- name: replace with global_config.jsonnet and bigctl.sh template
+  template:
+    src: "../../../modules/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - {src: monitor-deploy/jsonnet/example/global_config.jsonnet, dest: "{{ monitor_jsonnet_example_dir }}/global_config.jsonnet", mode: "0666"}
+    - {src: monitor-deploy/jsonnet/example/bigctl.sh, dest: "{{ monitor_jsonnet_example_dir }}/bigctl.sh", mode: "0755"}
+    - {src: monitor-deploy/cephutils/mysqlutils/scripts/init.sql, dest: "{{ monitor_initsql_dir }}/init.sql", mode: "0755"}
+    - {src: monitor-deploy/cephutils/engineutils/engine/conf/config.yml, dest: "{{ monitor_engineconfig_dir }}/config.yml", mode: "0755"}

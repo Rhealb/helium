@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/usr/bin/nvidia-smi
+/usr/bin/nvidia-modprobe -c 0 -u

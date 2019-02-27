@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitor-mysql
+      namespace: {{ monitor_ns_monitor_essential_service }}
+      labels:
+        app: mysql
+        name: monitor-mysql
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 3306
+      selector:
+        name: monitor-mysql
+
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: monitor-mysql
+      namespace: {{ monitor_ns_monitor_essential_service }}
+      labels:
+        name: monitor-mysql
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            name: monitor-mysql
+        spec:
+          containers:
+            - name: monitor-mysql
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  memory: {{ monitor_mysql_memory_request }}
+                  cpu: {{ monitor_mysql_cpu_request }}
+                limits:
+                  memory: {{ monitor_mysql_memory_limit }}
+                  cpu: {{ monitor_mysql_cpu_limit }}
+              env:
+                - name: NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: "metadata.namespace"
+                - name: "METANAME"
+                  value: "monitor-mysql"
+                - name: "MYSQL_ROOT_PASSWORD"
+                  value: "enncloud"
+                - name: "MYSQL_ROOT_HOST"
+                  value: "%"
+              image: {{ registry_url }}/enncloud/mysql:5.7.18
+              ports:
+                - containerPort: 3306
+              volumeMounts:
+                - name: {{ monitor_ns_monitor_essential_service }}-mysql-storage
+                  mountPath: /var/lib/mysql
+                  readOnly: false
+                - name: init-volume
+                  mountPath: /docker-entrypoint-initdb.d
+              command:
+                - "docker-entrypoint.sh"
+              args:
+                - "mysqld"
+
+          volumes:
+            - name: init-volume
+              configMap:
+                name: mysql-init
+          storage:
+            - name: {{ monitor_ns_monitor_essential_service }}-mysql-storage

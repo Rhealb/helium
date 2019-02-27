@@ -1,0 +1,24 @@
+---
+- name: clean console standard
+  async: 3600
+  poll: 10
+  make:
+    chdir: /console/cc-devop
+    target: clean
+  become: yes
+
+- name: install console standard
+  async: 3600
+  poll: 10
+  make:
+    chdir: /console/cc-devop
+    target: install
+  become: yes
+
+- name: check console standard
+  async: 3600
+  poll: 10
+  make:
+    chdir: /console/cc-devop
+    target: install-check
+  become: yes

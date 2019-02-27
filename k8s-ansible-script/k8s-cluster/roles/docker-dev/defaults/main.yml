@@ -1,0 +1,6 @@
+---
+# defaults file for docker-coreos
+cgroup_driver: "cgroupfs"
+docker_dir: "/data/docker"
+docker_storage_driver: "overlay2" 
+dockerd_version: "dockerd-18.01.0-ce-helium"

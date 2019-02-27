@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: osd-{{ item.0 }}-{{ item.1 }}
+  namespace: ceph
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ceph
+      daemon: osd
+      disk: osd-{{ item.0 }}-{{ item.1 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ceph
+        daemon: osd
+        disk: osd-{{ item.0 }}-{{ item.1 }}
+    spec:
+      automountServiceAccountToken: false
+      priorityClassName: enndata-podpriority-systempod
+      hostNetwork: true
+      hostPID: true
+      nodeSelector:
+        kubernetes.io/hostname: {{ item.0 }}
+      containers:
+      - name: ceph-osd-{{ item.1 }}
+        image: {{ ceph_image }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        command:
+        - /entrypoint.sh
+        - osd
+        env:
+        - name: OSD_DEVICE
+          value: /dev/{{ item.1 }}
+        - name: OSD_TYPE
+          value: disk
+        resources:
+          limits:
+            cpu: "{{ osd_limit_cpu }}"
+            memory: "{{ osd_limit_memory }}"
+          requests:
+            cpu: "{{ osd_request_cpu }}"
+            memory: "{{ osd_request_memory }}"
+        volumeMounts:
+        - name: ceph-config 
+          mountPath: /etc/ceph/ceph.conf
+          subPath: ceph.conf
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.client.admin.keyring
+          subPath: ceph.client.admin.keyring
+        - name: ceph-config
+          mountPath: /var/lib/ceph/bootstrap-osd/ceph.keyring
+          subPath: bootstrap_osd
+        - name: dev
+          mountPath: /dev/
+      volumes:
+      - name: ceph-config
+        secret:
+          defaultMode: 420
+          secretName: ceph-conf-keyring
+      - name: dev
+        hostPath:
+          path: /dev/

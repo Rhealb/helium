@@ -1,0 +1,82 @@
+---
+all:
+  vars:
+  # ntp
+    ntp_orphan_parents: [172.26.92.217,172.26.92.218]
+    ntp_server: ""
+  # master and node
+    master_list: [172.26.92.217,172.26.92.218,172.26.92.219]
+    etcd_init_servers: [172.26.92.217,172.26.92.218,172.26.92.219]
+    hanode_list: [] #keep this empty
+    host_path_list: [172.26.92.217,172.26.92.218,172.26.92.219]
+    cluster_name: "enc-ali-cluster"
+    cluster_ip_range: "192.168.0.0/16"
+    domain: "cluster.local"
+    max_pods: 100
+    cpu_reserved: 0
+    memory_reserved: 0
+#    kubelet_dir: "/data/kubelet"
+    sample_rate: 30
+  # cluster_total_cores: 72
+  # cluster_total_mem: 192
+  # flannel
+    flannel_etcd_list: [172.26.92.217,172.26.92.218,172.26.92.219]
+#    backend_type: "vxlan"
+    flanneld_subnet: "10.0.0.0/8"
+  # cluster
+    local_repo: "172.26.92.214:8009"
+    ca_vip: "172.26.92.216" #
+    public_vip: "47.92.183.59" # lb
+    admin_password: admin
+    admin_username: admin
+    interface: eth0
+  # storage
+    storage_type: nfs
+    nfs_host: 939054ad1d-mxi65.cn-zhangjiakou.nas.aliyuncs.com
+    nfs_path: /
+  # ingress
+    ingress_dns_domain: enn.ingress.cn
+  # ceph
+    mon_list: [10.19.140.6, 10.19.140.10, 10.19.140.14]
+    osd_list: [10.19.140.6, 10.19.140.10, 10.19.140.14]
+    ceph_public_network: 10.19.140.0/24
+    ceph_cluster_network: 10.19.140.0/24
+    rgw_dns_name: enncloud.ceph.s3
+  #  ceph_image_tag: 12.2.4
+    rbd_dev_list: [sdc]
+  # harbor
+    local_registry_port: 5000
+    harbor_admin_password: admin
+  # keystone
+    keystone_admin_password: admin
+  # console
+    console_version: release-1.5.0-rc1
+    company_name: 新智认知
+    title_cn: 容器云
+    title_en: Data Platform +
+    # will be override by script for ceph s3 case
+    s3_host: oss-cn-zhangjiakou-internal.aliyuncs.com
+    s3_access_key: LTAInhGwKd1fl5tY
+    s3_secret_key: pLdU2KT5hlsZExsDKGUUQlEKrsiec4
+  #bigdata image vesion
+    release_version: helium-1.4.0
+  children:
+    centos:
+      vars:
+        hostname_prefix: enn
+        ansible_ssh_user: root
+        ansible_ssh_pass: zhtsC1002
+        ansible_ssh_port: 22
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+        special_mounts:
+           /dev/vdc:
+              path: /xfs/disk1
+              opt: prjquota
+           /dev/vdb:
+              path: /data
+              opt: defaults  
+      hosts:
+        172.26.92.217:
+        172.26.92.218:
+        172.26.92.219:

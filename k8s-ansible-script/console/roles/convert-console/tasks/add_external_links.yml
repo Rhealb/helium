@@ -1,0 +1,44 @@
+---
+# tasks file for convert-console
+- name: get cc mysql pod name (retry 10 delay 10s)
+  shell: "kubectl -n {{ namespace.console }} get po | grep cc-mysql | awk '{print $1}'"
+  register: cc_mysql_pod_name
+  until: cc_mysql_pod_name.stdout != ""
+  retries: 10
+  delay: 10
+
+- name: wait for cc mysql ready (retry 10 delay 30s)
+  shell: "kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc  -e 'select count(1) from external_link;'"
+  register: result
+  until: result.stdout.find('count(1)') != -1
+  retries: 10
+  delay: 30
+
+- name: delete exists external links in mysql
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'delete from external_link where name in ("镜像仓库","服务状态中心","一体化监控平台","服务自动扩容");'
+
+- name: add external links to mysql
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'insert into external_link values(NULL,1,"镜像仓库","","http://{{ public_vip }}:{{ node_port.harbor }}/"),(NULL,1,"服务状态中心","","http://{{ public_vip }}:{{ status_port_sub_url }}"),(NULL,1,"服务自动扩容","","http://{{ public_vip }}:{{ node_port.scaler }}/#/login");'
+
+- name: truncate site config
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'truncate site_config;'
+
+- name: init site config for none
+  when: cloud_name == "none"
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'insert into site_config(version,aws,ali,ceph,es,huawei,nfs,opentsdb,prometheus,tencent) values("current",0,0,1,1,0,0,1,1,0);'
+
+- name: init site config for aws
+  when: cloud_name == "aws"
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'insert into site_config(version,aws,ali,ceph,es,huawei,nfs,opentsdb,prometheus,tencent) values("current",1,0,0,1,0,1,1,1,0);'
+
+- name: init site config for ali
+  when: cloud_name == "ali"
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'insert into site_config(version,aws,ali,ceph,es,huawei,nfs,opentsdb,prometheus,tencent) values("current",0,1,0,1,0,1,1,1,0);'
+
+- name: init site config for huawei
+  when: cloud_name == "huawei"
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'insert into site_config(version,aws,ali,ceph,es,huawei,nfs,opentsdb,prometheus,tencent) values("current",0,0,0,1,1,1,1,1,0);'
+
+- name: init site config for tencent
+  when: cloud_name == "tencent"
+  shell: kubectl -n {{ namespace.console }} exec -it {{ cc_mysql_pod_name.stdout }} -- mysql -u {{ confidential.mysql.username }} -p{{ confidential.mysql.password }} cc -e 'insert into site_config(version,aws,ali,ceph,es,huawei,nfs,opentsdb,prometheus,tencent) values("current",0,0,0,1,0,1,1,1,1);'

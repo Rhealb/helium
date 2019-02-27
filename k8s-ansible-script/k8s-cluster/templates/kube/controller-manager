@@ -1,0 +1,33 @@
+###
+# The following values are used to configure the kubernetes controller-manager
+
+# defaults from config should be adequate
+
+KUBE_LOG_LEVEL="--v=2"
+
+KUBE_LOG_TOSTDERR="--logtostderr=false --log-dir=/var/log/kubernetes/controller-manager"
+
+KUBE_CONFIG="--kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig"
+
+KUBE_CLUSTER_INFO="--cluster-name={{ cluster_name }}"
+
+KUBE_TLS="\
+--cluster-signing-cert-file=/etc/ssl/ca.pem \
+--cluster-signing-key-file=/etc/ssl/ca-key.pem  \
+--service-account-private-key-file=/etc/ssl/kube/service-account-key.pem \
+--root-ca-file=/etc/ssl/ca.pem \
+"
+
+KUBE_CONTROLLER_MANAGER_ARGS="\
+--use-service-account-credentials=true \
+--profiling=false \
+--leader-elect=true \
+--feature-gates=ExpandInUsePersistentVolumes=true \
+{% if storage_type == 'ebs'  %}
+--cloud-provider=aws \
+--cloud-config=/etc/kubernetes/cloud-config \
+{% endif %}
+{% if alicloud is defined %}
+--cloud-provider=external \
+{% endif %}
+"

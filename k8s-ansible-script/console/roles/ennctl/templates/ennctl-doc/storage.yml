@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Storage
+metadata:
+  name: awesome-storge
+  namespace: awesome-ns
+spec:
+  type: HostPath #HostPath, rbd, CephFS or NFS
+  accessModes: ReadWriteMany
+  persisted: true
+  unshared: true
+  resources:
+    requests:
+      storage: 2Gi

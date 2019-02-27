@@ -1,0 +1,21 @@
+###
+# kubernetes kube-proxy config
+
+# default config should be adequate
+
+# Add your own!
+
+KUBE_LOG_LEVEL="--v=2"
+
+KUBE_LOG_TOSTDERR="--logtostderr=false --log-dir=/var/log/kubernetes/proxy"
+
+KUBE_CONFIG="--kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig"
+
+KUBE_PROXY_ARGS="\
+{% if alicloud is defined %}
+--cloud-provider=external \
+{% endif %}
+--bind-address={{ inventory_hostname }} \
+--hostname-override={{ inventory_hostname }} \
+--cluster-cidr={{ flanneld_subnet }}  \
+--proxy-mode=iptables"

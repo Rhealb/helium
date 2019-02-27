@@ -1,0 +1,7 @@
+[local]
+name=CentOS-7.4 - local packages for 7.4
+baseurl=http://{{ local_repo }}/
+enabled=1
+gpgcheck=0
+type=rpm-md
+

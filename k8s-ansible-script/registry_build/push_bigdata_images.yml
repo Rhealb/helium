@@ -1,0 +1,8 @@
+---
+- hosts: all
+  vars:
+    build: false 
+    push: true
+  roles:
+    - role: bigdata_images 
+      when: inventory_hostname in master_list[0]

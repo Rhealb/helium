@@ -1,0 +1,19 @@
+---
+# vars file for autoscalemanager
+
+nfs_image_url: library/nfs-client:1.0
+
+# namespace in k8s
+namespace: system-tools
+
+# need to clean; you can bypass this by setting value in inventory file or command line
+clean_app: true
+
+##The initial password of Harbor admin, only works for the first time when Harbor starts.
+#It has no effect after the first launch of Harbor.
+#Change the admin password from UI after launching Harbor.
+harbor_admin_password: admin
+registry_url: 127.0.0.1:29006
+
+#nfs_host: 10.19.138.132
+#nfs_path: /home/nfsroot

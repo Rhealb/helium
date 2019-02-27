@@ -1,0 +1,60 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: awesome-statefulset
+  namespace: awesome-ns
+  annotations:
+    key1: awesome-annotations
+  app: awesome-app
+  labels:
+      role: awesome-label
+spec:
+  replicas: 2
+  serviceName: awesome-headless-svc
+  template:
+    metadata:
+      annotations:
+        key1: awesome-annotations
+      labels:
+        role: awesome-label
+    spec:
+      containers:
+      - name: awesome-container
+        image: 127.0.0.1:30100/console/cc-redis:4.0.1
+        imagePullPolicy: Always
+        privileged: true
+        ports:
+        - name: awesome-port-name
+          containerPort: 80
+          protocol: TCP
+        env:
+        - name: DUMM_ENV_NUMBER
+          value: 123456
+        - name: DUMM_ENV_STR
+          value: druid
+        volumeMounts:
+        - name: awesome-vct # Claim by volumeClaimTemplates(storage class)
+          mountPath: /usr/share/nginx/html
+          readOnly: false
+        - name: awesome-storage-0 # The storage we create
+          mountPath: /conf
+          readOnly: false
+        resources:
+          requests:
+            memory: 400Mi
+            cpu: 0.4
+          limits:
+            memory: 400Mi
+            cpu: 0.4
+      storage:
+      - name: awesome-storage-0
+  volumeClaimTemplates:
+  - metadata:
+      name: awesome-vct
+      annotations:
+        volume.beta.kubernetes.io/storage-class: awesome-storage-class
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Mi

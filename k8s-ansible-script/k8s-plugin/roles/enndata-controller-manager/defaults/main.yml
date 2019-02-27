@@ -1,0 +1,10 @@
+---
+# vars file for autoscalemanager
+
+enndata_controller_image_url: library/enndata-controller-manager:v0.1.0
+
+##The initial password of Harbor admin, only works for the first time when Harbor starts.
+#It has no effect after the first launch of Harbor.
+#Change the admin password from UI after launching Harbor.
+harbor_admin_password: admin
+registry_url: 127.0.0.1:29006

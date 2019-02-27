@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceph-mds-{{ item }}
+  namespace: ceph
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ceph
+      daemon: mds
+      name: mds-{{ item }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ceph
+        daemon: mds
+        name: mds-{{ item }}
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/hostname: {{ item }}
+      automountServiceAccountToken: false
+      priorityClassName: enndata-podpriority-systempod
+      containers:
+      - name: ceph-mds
+        image: {{ ceph_image }}
+        imagePullPolicy: IfNotPresent
+        command:
+        - /entrypoint.sh
+        - mds
+        env:
+        - name: CEPHFS_CREATE
+          value: "1"
+        - name: CEPHFS_NAME
+          value: {{ cephfs_name }}
+        - name: CEPHFS_DATA_POOL
+          value: cephfs_data
+        - name: CEPHFS_DATA_POOL_PG
+          value: "{{ cephfs_datapool_pg }}"
+        - name: CEPHFS_METADATA_POOL
+          value: cephfs_metadata
+        - name: CEPHFS_METADATA_POOL_PG
+          value: "{{ cephfs_metadatapool_pg }}"
+        resources:
+          limits:
+            cpu: "{{ mds_limit_cpu }}"
+            memory: "{{ mds_limit_memory }}"
+          requests:
+            cpu: "{{ mds_request_cpu }}"
+            memory: "{{ mds_request_memory }}"
+        volumeMounts:
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.conf
+          subPath: ceph.conf
+        - name: ceph-config
+          mountPath: /etc/ceph/ceph.client.admin.keyring
+          subPath: ceph.client.admin.keyring
+        - name: ceph-config
+          mountPath: /var/lib/ceph/bootstrap-mds/ceph.keyring
+          subPath: bootstrap_mds
+      volumes:
+      - name: ceph-config
+        secret:
+          defaultMode: 420
+          secretName: ceph-conf-keyring

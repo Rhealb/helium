@@ -1,0 +1,3 @@
+---
+# defaults file for ntpd
+ntp_server: ""

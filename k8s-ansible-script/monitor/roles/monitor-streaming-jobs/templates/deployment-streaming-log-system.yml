@@ -1,0 +1,74 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: monitor-streaming-log-system
+  namespace: {{ namespace }}
+  labels:
+    name: monitor-streaming-log-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: monitor-streaming-log-system
+    spec:
+      containers:
+        - name: monitor-streaming-log-system
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: {{ streaming_request_memory }}
+              cpu: {{ streaming_request_cpu }}
+            limits:
+              memory: {{ streaming_limit_memory }}
+              cpu: {{ streaming_limit_cpu }}
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.namespace"
+            - name: METANAME
+              value: monitor-streaming-log-system
+            - name: SPARK_MASTER
+              value: spark://pre1-master1.monitor-essential-service:7077,pre1-master2.monitor-essential-service:7077,pre1-master3.monitor-essential-service:7077
+            - name: WORKSPACE
+              value: /opt/workspace
+            - name: JOB_JAR
+              value: streaming-log.jar
+            - name: SPARK_MASTER
+              value: spark://pre1-master1.monitor-essential-service:7077,pre1-master2.monitor-essential-service:7077,pre1-master3.monitor-essential-service:7077
+            - name: MAIN_CLASS
+              value: enn.monitor.log.streaming.Collector
+            - name: TOTAL_CORES
+              value: "2"
+            - name: EXECUTOR_MEM
+              value: 1000m
+            - name: EXECUTOR_CORES
+              value: "1"
+            - name: MAX_RATE
+              value: "1000"
+            - name: KAFKA
+              value: pre1-kafka1.monitor-essential-service:9092,pre1-kafka2.monitor-essential-service:9092,pre1-kafka3.monitor-essential-service:9092
+            - name: PROM_PUSH
+              value: prometheus-pushprom1.monitor-application:9091
+            - name: ES_URL
+              value: pre1-esclient-ex.monitor-essential-service:9300
+            - name: TOPIC_NAME
+              value: log-k8s-system
+            - name: ASYNC
+              value: "on"
+            - name: GROUP_ID
+              value: monitor-streaming
+            - name: ES_BATCH
+              value: "1000"
+            - name: RECEIVER_COUNT
+              value: "2"
+            - name: RDD_PARTITION
+              value: "0"
+            - name: SPARK_BATCH
+              value: "5"
+          image: {{ registry_url }}/monitor/monitor-streaming-jobs:{{ streaming_image_version }}
+          ports:
+            - containerPort: 4040
+          command:
+            - /opt/workspace/start-streaming-log-system.sh

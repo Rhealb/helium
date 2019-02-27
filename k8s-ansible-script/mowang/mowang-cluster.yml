@@ -1,0 +1,9 @@
+---
+- hosts: all
+  remote_user: root
+  max_fail_percentage: 0
+  gather_facts: False
+  become: true
+  become_method: sudo
+  roles:
+    - role: agile-cluster

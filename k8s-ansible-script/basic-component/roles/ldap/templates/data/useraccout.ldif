@@ -1,0 +1,19 @@
+dn: cn=bbs,dc=enncloud,dc=com
+objectClass: person
+objectClass: shadowAccount
+objectClass: top
+cn: bbs
+sn: bbs
+uid: bbs
+userPassword: password
+
+dn: cn=admin,ou=users,dc=enncloud,dc=com
+objectClass: person
+objectClass: shadowAccount
+objectClass: top
+objectClass: inetOrgPerson
+cn: admin
+uid: admin
+sn: admin
+userPassword: {{ keystone_admin_password }}
+mail: admin@enncloud.com

@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: podpriority-admission-controller
+  namespace: k8splugin
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: podpriority-admission-controller
+  namespace: k8splugin
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: podpriority-admission-controller
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+             labelSelector:
+               matchExpressions:
+               - key: app
+                 operator: In
+                 values:
+                 - podpriority-admission-controller
+             namespaces:
+             - k8splugin
+             topologyKey: kubernetes.io/hostname
+            weight: 1
+      serviceAccountName: podpriority-admission-controller
+      containers:
+      - name: admission-controller
+        image: {{ registry_url }}/{{ podpriority_image_url }}
+        command:
+          - /podpriority
+          - --system-namespaces=k8splugin,kube-system,ceph
+          - --v=4
+          - --stderrthreshold=info
+          - --config-name=podpriority
+          - --servername=podpriority-webhook
+          - --auto-regist-config=true
+          - --metric-address=:8001
+          - --address=:8000
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: tls-certs
+            mountPath: "/etc/tls-certs"
+            readOnly: true
+        resources:
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 50m
+            memory: 200Mi
+      volumes:
+        - name: tls-certs
+          secret:
+            secretName: podpriority-tls-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: podpriority-webhook
+  namespace: k8splugin
+spec:
+  ports:
+    - port: 443
+      name: https-server
+      targetPort: 8000
+      nodePort: 29108
+  type: NodePort
+  selector:
+    app: podpriority-admission-controller
+
+

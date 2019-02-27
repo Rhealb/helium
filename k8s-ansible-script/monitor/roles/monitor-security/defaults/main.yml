@@ -1,0 +1,47 @@
+registry_url: 127.0.0.1:29006
+
+monitor_security_config_server_image: monitor/enn-monitor-security-config-server:0.1.0.RELEASE
+monitor_security_config_server_cpu_request: 0.5
+monitor_security_config_server_cpu_limit: 1
+monitor_security_config_server_memory_request: 1000Mi
+monitor_security_config_server_memory_limit: 1000Mi
+monitor_security_config_server_num: 1
+monitor_security_config_server_host: enn-monitor-security-config-server
+monitor_security_config_server_listenport: 10000
+monitor_security_config_token: micklongen-config-server
+
+monitor_security_config_web_image: monitor/enn-monitor-security-config-web:0.1.0.RELEASE
+monitor_security_config_web_cpu_request: 0.5
+monitor_security_config_web_cpu_limit: 1.5
+monitor_security_config_web_memory_request: 1024Mi
+monitor_security_config_web_memory_limit: 2048Mi
+monitor_security_config_web_num: 1
+monitor_security_config_web_externport: 29013
+
+monitor_security_gateway_server_image: monitor/enn-monitor-security-gateway-server:0.3.2.RELEASE
+monitor_security_gateway_server_cpu_request: 0.5
+monitor_security_gateway_server_cpu_limit: 5
+monitor_security_gateway_server_memory_request: 1000Mi
+monitor_security_gateway_server_memory_limit: 5000Mi
+monitor_security_gateway_server_num: 1
+monitor_security_gateway_server_externport: 29014
+
+monitor_security_gateway_web_image: monitor/enn-monitor-security-gateway-web:0.1.0.RELEASE
+monitor_security_gateway_web_cpu_request: 1
+monitor_security_gateway_web_cpu_limit: 5
+monitor_security_gateway_web_memory_request: 1Gi
+monitor_security_gateway_web_memory_limit: 5Gi
+monitor_security_gateway_web_num: 1
+monitor_security_gateway_web_listenport: 10000
+monitor_security_gateway_web_externport: 29307
+
+monitor_ns_monitor_application: monitor-application
+monitor_ns_monitor_essential_service: monitor-essential-service
+
+monitor_security_test_app: security
+
+monitor_mongo_svr: mongo
+monitor_mongo_port: 27017
+
+monitor_security_gateway_server_listenport: 10000
+monitor_security_gateway_server_servername: enn-monitor-security-gateway-server.monitor-application

@@ -1,0 +1,38 @@
+- name: create /monitor
+  file: path=/monitor state=directory
+
+# - name: copy images
+#   copy:
+#     src: "../files/images/monitor/{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#   with_items:
+#     - {src: fluent-bit.tar, dest: /monitor}
+
+# - name: load docker images
+#   command: docker load -i /monitor/{{ item }}
+#   with_items:
+#     - fluent-bit.tar
+
+# - name: push image to registry
+#   command: "{{ item }}"
+#   with_items:
+#     - echo "nonsense" | docker login -uadmin -p{{ harbor_admin_password }} {{ registry_url }}
+#     - docker push {{ registry_url }}/{{monitor_fluent_bit_image}}
+
+- name: copy files
+  template:
+    src: "templates/{{item.src}}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: es-fluent-rc.yml , dest: /monitor}
+    - {src: fluent-bit.conf , dest: /monitor}
+    - {src: parsers.conf , dest: /monitor}
+    - {src: run.sh , dest: /monitor}
+
+- name: create conf
+  command: ennctl -n monitor-application create configmap fluentd-conf --from-file /monitor/fluent-bit.conf --from-file /monitor/parsers.conf --from-file /monitor/run.sh
+
+- name: create fluent-bit
+  command: kubectl create -f /monitor/{{ item }}
+  with_items:
+   - es-fluent-rc.yml

@@ -1,0 +1,30 @@
+---
+- name: create autoScaler image files dir
+  file: path=/tmp/enndata-controller-manager/images/ state=directory
+
+- name: copy images
+  copy:
+    src: "../../../files/images/k8splugin/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: enndata_controller.tar, dest: /tmp/enndata-controller-manager/images/}
+
+- name: load docker images
+  command: "{{ item}}"
+  with_items:
+    - docker load -i /tmp/enndata-controller-manager/images/enndata_controller.tar
+
+- name: copy push image script
+  template: src=push_images.sh dest=/tmp/enndata-controller-manager/images/
+
+- name: push images files
+  command: bash  /tmp/enndata-controller-manager/images/push_images.sh
+
+# clean up temp files
+- name: clean up "/tmp/enndata-controller-manager/images"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/enndata-controller-manager/images"
+

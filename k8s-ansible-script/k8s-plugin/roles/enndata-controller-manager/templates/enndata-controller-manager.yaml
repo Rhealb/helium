@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: enndata-controller-manager
+  namespace: k8splugin
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enndata-controller-manager
+  namespace: k8splugin
+  labels:
+    app: enndata-controller-manager
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: enndata-controller-manager
+  template:
+    metadata:
+      labels:
+        app: enndata-controller-manager
+    spec:
+      serviceAccountName: enndata-controller-manager
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+             labelSelector:
+               matchExpressions:
+               - key: app
+                 operator: In
+                 values:
+                 - enndata-controller-manager
+             namespaces:
+             - k8splugin
+             topologyKey: kubernetes.io/hostname
+            weight: 1      
+      containers:
+      - name: enndata-controller-manager
+        image: {{ registry_url }}/{{ enndata_controller_image_url }}
+        imagePullPolicy: Always
+        args:
+        - /enndata-controller-manager
+        - --logtostderr=true
+        - --failpodscalelimit=1500
+      

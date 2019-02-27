@@ -1,0 +1,24 @@
+---
+- name: mk directory
+  file:
+    path={{ item }}
+    state=directory
+  with_items:
+    - /{{ workspace }}/scripts
+
+- name: copy files to remote
+  template:
+    src: "{{ item }}"
+    dest: "/{{ workspace }}"
+  with_fileglob:
+    - "../templates/*"
+
+- name: copy scripts to remote
+  template:
+    src: "{{ item }}"
+    dest: "/{{ workspace }}/scripts/"
+  with_fileglob:
+    - "../scripts/*"
+
+- name: add executive previlege
+  shell: chmod +x /{{ workspace }}/scripts/*

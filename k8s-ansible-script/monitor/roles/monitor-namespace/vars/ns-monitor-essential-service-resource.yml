@@ -1,0 +1,6 @@
+monitor_essential_service_cpu_limit: 50.0
+monitor_essential_service_mem_limit: 113080Mi
+monitor_essential_service_cpu_req: 35.0
+monitor_essential_service_mem_req: 102800Mi
+monitor_essential_service_remote_disk_req: 200Gi
+monitor_essential_service_local_disk_req: 750Gi

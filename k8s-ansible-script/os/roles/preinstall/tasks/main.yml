@@ -1,0 +1,78 @@
+---
+# tasks file for security-policies
+- name: disable firewalld
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: disable NetworkManager
+  service:
+    name: NetworkManager
+    state: stopped
+    enabled: no
+
+- name: disable selinux
+  selinux:
+    state: disabled
+
+
+- name: remove swap from /etc/fstab
+  replace:
+    path: /etc/fstab
+    regexp: '(.*swap.*)'
+    replace: '# \1'
+
+- name: Disable swap
+  command: swapoff -a
+
+#- name: disable localdomain
+#  replace:
+#    path: /etc/resolv.conf
+#    regexp: '^\s*(search.*)'
+#    replace: '# \1'
+- include: resolvconf.yml
+
+- name: change hostname
+  hostname:
+    name: '{{ hostname_prefix }}-{{ "-".join(inventory_hostname.split(".")[-2:]) }}'
+  when: hostname_prefix is defined and hostname_prefix
+
+- name: Verify if br_netfilter module exists
+  shell: "modinfo br_netfilter"
+  register: modinfo_br_netfilter
+  failed_when: modinfo_br_netfilter.rc not in [0, 1]
+  changed_when: false
+
+- name: Enable br_netfilter module
+  modprobe:
+    name: br_netfilter
+    state: present
+  when: modinfo_br_netfilter.rc == 0
+
+- name: Persist br_netfilter module
+  copy:
+    dest: /etc/modules-load.d/kubespray-br_netfilter.conf
+    content: br_netfilter
+  when: modinfo_br_netfilter.rc == 0
+
+# kube-proxy needs net.bridge.bridge-nf-call-iptables enabled when found if br_netfilter is not a module
+- name: Check if bridge-nf-call-iptables key exists
+  command: "sysctl net.bridge.bridge-nf-call-iptables"
+  failed_when: false
+  changed_when: false
+  register: sysctl_bridge_nf_call_iptables
+
+- name: Enable bridge-nf-call tables
+  sysctl:
+    name: "{{ item }}"
+    state: present
+    sysctl_file: "/etc/sysctl.d/99-sysctl.conf"
+    value: 1
+    reload: yes
+  when: sysctl_bridge_nf_call_iptables.rc == 0
+  with_items:
+    - net.ipv4.ip_forward
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-arptables
+    - net.bridge.bridge-nf-call-ip6tables

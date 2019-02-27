@@ -1,0 +1,13 @@
+---
+# Keystone
+keystone_admin_username: admin
+
+# NodePort
+console_node_port: 29000
+gateway_http_node_port: 29002
+gateway_https_node_port: 29001
+terminal_node_port: 29003
+doc_node_port: 29004
+pmd_node_port: 29005
+harbor_node_port: 29006
+rabbitmq_node_port: 29104

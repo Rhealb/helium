@@ -1,0 +1,15 @@
+---
+- name: Create all harbor keys
+  shell:
+    python -c 'import random,string; print("".join(random.choice(string.ascii_letters+string.digits) for i in range(16)))'
+  register: harbor_keys
+  with_items:
+    - secret_key
+    - ui_secret
+    - jobservice_secret
+
+- name: set_fact harbor keys
+  set_fact:
+    secret_key: "{{ harbor_keys.results[0].stdout  }}"
+    ui_secret: "{{ harbor_keys.results[1].stdout  }}"
+    jobservice_secret: "{{ harbor_keys.results[2].stdout  }}"

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    X_APP: harbor
+    app: harbor
+    daemon: nginx
+  name: harbor-proxy
+  namespace: {{ harbor_namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor
+      daemon: nginx
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: "true"
+      labels:
+        app: harbor
+        daemon: nginx
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: harbor-proxy
+        image: {{ harbor_proxy_image }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          tcpSocket:
+            port: 80
+        readinessProbe:
+          tcpSocket:
+            port: 80
+        resources:
+          limits:
+            cpu: "{{ harbor_cpu_limits }}"
+            memory: {{ harbor_memory_limits }}
+          requests:
+            cpu: "{{ harbor_cpu_requests }}"
+            memory: {{ harbor_memory_requests }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: config
+      volumes:
+      - name: config
+        configMap:
+          name: harbor-nginx-config

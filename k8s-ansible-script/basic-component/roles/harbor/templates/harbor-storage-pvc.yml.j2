@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harbor-db
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_db_image_size }}
+  selector:
+    matchLabels:
+      namespaceName: {{ harbor_namespace }}
+      storageName: harbor-db
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harbor-registry
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_registry_image_size }}
+  selector:
+    matchLabels:
+      namespaceName: {{ harbor_namespace }}
+      storageName: harbor-registry
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harbor-redis
+  namespace: {{ harbor_namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ harbor_redis_image_size }}
+  selector:
+    matchLabels:
+      namespaceName: {{ harbor_namespace }}
+      storageName: harbor-redis

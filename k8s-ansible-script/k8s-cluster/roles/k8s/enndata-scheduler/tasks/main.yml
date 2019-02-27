@@ -1,0 +1,112 @@
+---
+- name: make sure /tmp/enndata-scheduler directory exist on target server
+  file:
+    path: "/tmp/enndata-scheduler"
+    state: "directory"
+    owner: kube
+    mode: 0777
+
+- name: copy script and service files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: kube
+    mode: 0644
+  with_items:
+    - {src: gencerts.sh, dest: /tmp/enndata-scheduler/gencerts.sh}
+    - {src: enndata-scheduler.service, dest: /etc/systemd/system/enndata-scheduler.service}
+
+- name: copy binary file
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ bin_dir }}/{{ item.dest }}"
+    owner: kube
+    mode: 0755
+  with_items:
+    - {src: kube/enndata-scheduler, dest: enndata-scheduler}
+
+- name: delete old ca file
+  file:
+    path: "/etc/kubernetes/enndata-scheduler"
+    state: "absent"
+    mode: 0777
+
+- name: make sure log directory exist on target server
+  file:
+    path: "/etc/kubernetes/enndata-scheduler"
+    state: "directory"
+    owner: kube
+    mode: 0644
+
+#- name: bash gencerts
+#  command: bash /tmp/enndata-scheduler/gencerts.sh false localhost
+#  ignore_errors: yes
+#  when: inventory_hostname == master_list.0
+
+- name: make sure enndata-scheduler directory exist on target server
+  file:
+    path: "/etc/kubernetes/enndata-scheduler/tls-certs"
+    state: "directory"
+    owner: kube
+
+#- name: fetch cert file from master node
+#  fetch:
+#    src: /etc/kubernetes/enndata-scheduler/tls-certs/{{ item }}
+#    dest: files/enndata-scheduler/{{ item }}
+#    flat: yes
+#  with_items:
+#    - caCert.pem
+#    - caCert.srl
+#    - caKey.pem
+#    - serverCert.pem
+#    - server.csr
+#    - serverKey.pem
+#    - basicAuth
+#  delegate_to: "{{ master_list[0] }}"
+#  run_once: yes
+
+#- name: copy cert file to node
+#  copy:
+#    src: enndata-scheduler/{{ item }}
+#    dest: /etc/kubernetes/enndata-scheduler/tls-certs/{{ item }}
+#  with_items:
+#    - caCert.pem
+#    - caCert.srl
+#    - caKey.pem
+#    - serverCert.pem
+#    - server.csr
+#    - serverKey.pem
+#    - basicAuth
+
+- name: make sure log directory exist on target server
+  file:
+    path: "/var/log/kubernetes/enndata-scheduler"
+    state: "directory"
+    mode: 0644
+    owner: kube
+
+- name: add haproxy listeners
+  template:
+    src: "apiserver-haproxy.cfg"
+    dest: "/etc/haproxy/haproxy.cfg"
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: start and enable service
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items:
+    - enndata-scheduler
+    - kube-scheduler
+    - haproxy
+
+ #clean up temp files
+- name: clean up "/tmp/enndata-scheduler"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/enndata-scheduler"

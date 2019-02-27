@@ -1,0 +1,5 @@
+etcd_name: etcd-002
+flannel_etcd_name: flannel-etcd-002
+keepalived_priority: 90
+keepalived_state: BACKUP
+keepalived_router_id: NodeB

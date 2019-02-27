@@ -1,0 +1,8 @@
+[Unit]
+Description=clean up kubernets log files
+
+[Timer]
+OnCalendar=Mon *-*-* 00:00:00
+
+[Install]
+WantedBy=timers.target

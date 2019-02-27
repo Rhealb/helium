@@ -1,0 +1,23 @@
+---
+etcd_init_servers: ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+flannel_etcd_list: ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+flanneld_subnet: "172.16.0.0/12"
+
+ntp_orphan_parents: ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+
+admin_password: "IampAssword"
+admin_username: "iAmAdmin"
+master_list: ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+cluster_ip_range: "10.254.0.0/16"
+cluster_name: "shanghai"
+domain: "enn.cn"
+
+interface: "external0"
+vip: "192.168.57.200"
+hanode_list: ["192.168.57.103", "192.168.57.101"]
+
+host_path_list:  ["192.168.57.101", "192.168.57.102", "192.168.57.103"]
+special_mounts:
+  /dev/sdb:
+    path: /xfs/disk1
+    opt: prjquota

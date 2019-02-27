@@ -1,0 +1,73 @@
+version: pro
+alias: default
+master:
+  clusterName: zhtangsh-cluster
+  clusterIpRange: 192.168.0.0/16
+  clusterDns: 192.168.0.100
+  flanneldSubnet: 172.16.0.0/16
+  domain: enn.cn
+nodeList:
+- 10.19.140.6
+- 10.19.140.10
+- 10.19.140.11
+nodeAssignment:
+  masterList:
+  - 10.19.140.6
+  - 10.19.140.10
+  - 10.19.140.11
+  etcdList:
+  - 10.19.140.6
+  - 10.19.140.10
+  - 10.19.140.11
+  flannelList:
+  - 10.19.140.6
+  - 10.19.140.10
+  - 10.19.140.11
+  haNodeList:
+  - 10.19.140.6
+  - 10.19.140.10
+  monList:
+  - 10.19.140.6
+  - 10.19.140.10
+  - 10.19.140.11
+  osdList:
+  - 10.19.140.6
+  - 10.19.140.10
+  - 10.19.140.11
+  ntpOrphanlist:
+  - 10.19.140.6
+  - 10.19.140.10
+  - 10.19.140.11
+  hostPathList:
+  - 10.19.140.6
+  - 10.19.140.10
+  - 10.19.140.11
+ceph:
+  cephPublicNetwork: 10.19.140.0/24
+  cephClusterNetwork: 10.19.140.0/24
+  rgwDnsName: enncloud.ceph.s3
+  cephImageTag: 12.2.1
+  rbdDevList:
+  - sdc
+hostPath:
+  hostPathDev: sdb
+  path: "/xfs/disk2"
+ingress:
+  ingressDnsDomain: cluster.local
+flannel:
+  backendType: vxlan
+storage:
+  storageType: nfs
+  nfsUrl: dsadas
+ca:
+  caVIP: 10.19.140.210
+  adminPassword: admin
+  adminUsername: admin
+ha:
+  interface: enp0s3
+harbor:
+  harborAdminPassword: admin
+keystone:
+  keystoneAdminPassword: admin
+console:
+  consoleVersion: 1.1-release-zhtangsh

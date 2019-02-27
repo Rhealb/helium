@@ -1,0 +1,12 @@
+- name: Create disk 0
+  ali_disk:
+    alicloud_region: '{{ alicloud_region }}'
+    alicloud_zone: '{{ alicloud_zone }}'
+    disk_name: '{{ disk_name }}-0'
+    disk_category: '{{ disk_category }}'
+    description: '{{ disk_description }}'
+    size: '{{ data_disk_size }}'
+    disk_tags: '{{ disk_tags }}'
+#    instance_id: '{{ instance.instances.0.id }}'
+#    delete_with_instance: '{{ delete_with_instance }}'
+  register: disk_details

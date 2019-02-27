@@ -1,0 +1,75 @@
+# list to change
+
+master_list: [172.32.1.129, 172.32.1.130, 172.32.1.131]
+etcd_init_servers: [172.32.1.129, 172.32.1.130, 172.32.1.131]
+flannel_etcd_list: [172.32.1.129, 172.32.1.130, 172.32.1.131]
+hanode_list: [172.32.1.132,172.32.1.133]
+mon_list: [172.32.1.129, 172.32.1.130, 172.32.1.131]
+osd_list: [172.32.1.129, 172.32.1.130, 172.32.1.131, 172.32.1.132, 172.32.1.133, 172.32.1.134,
+  172.32.1.135]
+ntp_orphan_parents: [172.32.1.129, 172.32.1.130, 172.32.1.131]
+host_path_list: [172.32.1.129, 172.32.1.130, 172.32.1.131, 172.32.1.132, 172.32.1.133,
+  172.32.1.134, 172.32.1.135]
+# special Mount
+
+special_mounts:
+  /dev/xvde:
+    path: /data
+    opt: defaults
+  /dev/xvdf:
+    path: /xfs/disk1
+    opt: prjquota
+
+# master and node
+
+install_mode: internet
+local_repo: "172.32.1.129:8009"
+cluster_name: insdustry-cloud
+cluster_ip_range: 10.254.0.0/16
+flanneld_subnet: 172.16.0.0/16
+domain: cluster.local
+
+# ca 
+
+ca_vip: 172.32.1.136
+admin_password: admin
+admin_username: Huawei12#$ 
+
+# haproxy + keepalived 
+
+interface: eth0
+
+# flannel
+
+backend_type: vxlan
+
+# storage
+
+storage_type: ceph
+nfs_url: dsadas
+
+# ingress
+
+ingress_dns_domain: g.gov.cn
+
+# ceph
+
+ceph_public_network: 172.32.1.0/24
+ceph_cluster_network: 172.32.1.0/24
+rgw_dns_name: rgw.ceph.g.gov.cn
+ceph_image_tag: 12.2.1
+rbd_dev_list: [xvdg]
+
+# harbor
+
+harbor_admin_password: Huawei12#$
+
+# keystone
+
+keystone_admin_password: Huawei12#$
+
+# console
+
+console_version: 1.1-release
+title_cn: 新智新氦应用平台
+title_en: HELIUM+ Data Platform

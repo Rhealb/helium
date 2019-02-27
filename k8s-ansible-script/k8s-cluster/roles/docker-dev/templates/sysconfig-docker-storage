@@ -1,0 +1,1 @@
+DOCKER_STORAGE_OPTIONS="--data-root={{ docker_dir }} --storage-driver={{ docker_storage_driver }}"

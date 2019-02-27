@@ -1,0 +1,11 @@
+- name: special storage setup
+  include_tasks: main_sda.yml
+  when: special_mounts is defined and disk_type is defined and disk_type == "sda"
+
+- name: special storage setup
+  include_tasks: main_loop.yml
+  when: special_mounts is defined and disk_type is defined and disk_type == "loop"
+
+- name: special storage setup
+  include_tasks: main_sdb.yml
+  when: special_mounts is defined and disk_type is not defined

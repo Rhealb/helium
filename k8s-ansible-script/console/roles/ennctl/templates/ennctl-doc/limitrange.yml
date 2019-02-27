@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: GlobalLimitRange
+metadata:
+  name: awesome-limit-range
+spec:
+  limitRange:
+    minCpu: 0.2
+    minMemory: 278435456
+    defaultRequestCpu: 0.3
+    defaultRequestMemory: 536870912
+    defaultLimitCpu: 1
+    defaultLimitMemory: 1073741824

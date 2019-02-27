@@ -1,0 +1,17 @@
+---
+# vars file for autoscalemanager
+
+scaler_image_url: library/appautoscale-scalemanager:v2
+monitor_image_url: library/appautoscale-monitor:v2
+
+# namespace in k8s
+autoscaler_namespace: kube-system
+
+# need to clean; you can bypass this by setting value in inventory file or command line
+clean_app: true
+
+##The initial password of Harbor admin, only works for the first time when Harbor starts.
+#It has no effect after the first launch of Harbor.
+#Change the admin password from UI after launching Harbor.
+harbor_admin_password: admin
+registry_url: 127.0.0.1:29006

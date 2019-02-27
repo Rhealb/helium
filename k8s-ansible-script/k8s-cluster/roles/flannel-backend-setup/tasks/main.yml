@@ -1,0 +1,9 @@
+---
+# tasks file for flannel-setup
+- name: create etcd config
+  shell: |
+    {% if DirectRouting -%}
+    etcdctl set /coreos.com/network/config '{ "Network": "{{ flanneld_subnet }}", "SubnetLen": {{ flanneld_subnetlen }}, "Backend": {"Type": "vxlan", "DirectRouting": true} }'
+    {%-   else -%}
+    etcdctl set /coreos.com/network/config '{ "Network": "{{ flanneld_subnet }}", "SubnetLen": {{ flanneld_subnetlen }}, "Backend": {"Type": "vxlan"} }'
+    {%-   endif -%}

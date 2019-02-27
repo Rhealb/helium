@@ -1,0 +1,12 @@
+[Unit]
+Description=mount loop device
+#After=network.target
+
+[Service]
+Type=oneshot
+ExecStart={{ bin_dir }}/loopdevice.sh 
+
+
+[Install]
+WantedBy=multi-user.target
+

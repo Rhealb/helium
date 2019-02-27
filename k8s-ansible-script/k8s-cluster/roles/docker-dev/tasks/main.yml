@@ -1,0 +1,68 @@
+---
+# tasks file for docker-coreos
+- name: delete old files
+  shell: 'rm -rf /usr/bin/docker*'
+  ignore_errors: yes
+
+- name: upload binary files
+  copy:
+    src: "docker/{{ item }}"
+    dest: "{{ bin_dir }}/{{ item }}"
+    mode: "a+x"
+  with_items:
+    - "{{ dockerd_version }}"
+    - docker-client
+    - runc
+    - containerd
+    - containerd-shim
+    - tini
+
+- name: make necessary link
+  file:
+    src: "{{ bin_dir }}/{{ item.dest }}"
+    dest: "{{ bin_dir }}/{{ item.src }}"
+    state: link
+  with_items:
+    - { src: "dockerd", dest: "{{ dockerd_version }}" }
+    - { src: "docker", dest: "docker-client" }
+    - { src: "docker-containerd", dest: "containerd" }
+    - { src: "docker-containerd-shim", dest: "containerd-shim" }
+    - { src: "docker-init", dest: "tini" }
+
+- name: mkdir
+  file:
+    name: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/containerd
+
+- name: upload config files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "containerd.service", dest: "/etc/systemd/system/containerd.service" }
+    - { src: "containerd-config.toml", dest: "/etc/containerd/config.toml" }
+    - { src: "docker.service", dest: "/etc/systemd/system/docker.service" }
+    - { src: "sysconfig-docker", dest: "/etc/sysconfig/docker" }
+    - { src: "sysconfig-docker-storage", dest: "/etc/sysconfig/docker-storage" }
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: add docker group
+  group:
+    name: docker
+    system: yes
+
+- name: restart-containerd
+  service:
+    name: containerd
+    enabled: yes
+    state: restarted
+
+- name: restart-docker
+  service:
+    name: docker
+    enabled: yes
+    state: restarted

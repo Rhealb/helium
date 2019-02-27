@@ -1,0 +1,96 @@
+{
+    "apiVersion": "extensions/v1beta1", 
+    "kind": "Deployment", 
+    "metadata": {
+        "labels": {
+            "app": "gitlab", 
+            "name": "gitlab"
+        }, 
+        "name": "gitlab", 
+        "namespace": "{{ ns_gitlab }}"
+    }, 
+    "spec": {
+        "replicas": 1, 
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "gitlab", 
+                    "name": "gitlab"
+                }
+            }, 
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "GITLAB_OMNIBUS_CONFIG", 
+                                "value": "external_url '{{ external_url }}'; nginx['ssl_certificate'] = '/etc/gitlab/ssl/gitlab.crt' ; nginx['ssl_certificate_key'] = '/etc/gitlab/ssl/gitlab.key'; nginx['ssl_client_certificate'] = '/etc/gitlab/ssl/ca.crt'; gitlab_rails['gitlab_shell_ssh_port'] = 30994; nginx['enable'] = true; nginx['redirect_http_to_https'] = true"
+                            }
+                        ], 
+                        "image": "127.0.0.1:30100/library/{{ gitlab_image }}",
+                        "imagePullPolicy": "IfNotPresent",
+                        "resources": {
+                            "limits": {
+                               "cpu": "4000m",
+                               "memory": "8192Mi"
+                            },
+                            "requests":{
+                               "cpu": "2000m",
+                               "memory": "4096Mi"
+                            }
+                        },
+                        "name": "gitlab", 
+                        "ports": [
+                            {
+                                "containerPort": 443,
+                                "name": "https"
+                            }, 
+                            {
+                                "containerPort": 22, 
+                                "name": "ssh"
+                            }
+                        ], 
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/etc/gitlab/ssl", 
+                                "name": "config"
+                            }, 
+                            {
+                                "mountPath": "/var/opt/gitlab", 
+                                "name": "data"
+                            }
+                        ]
+                    }
+                ], 
+                "volumes": [
+                    {
+                        "name": "config", 
+			            "configMap": {
+			                "name": "cm-gitlab"
+			                }
+                    }, 
+                    {
+                        "name": "data", 
+                        "rbd": {
+                            "fsType": "xfs", 
+                            "image": "{{ gitlab_data_image }}",
+                            "monitors": [
+                                "{{ mon_list[0] }}:6789",
+                                "{{ mon_list[1] }}:6789",
+                                "{{ mon_list[2] }}:6789",
+                                "{{ mon_list[3] }}:6789",
+                                "{{ mon_list[4] }}:6789"
+                            ], 
+                            "pool": "k8s.{{ ns_gitlab }}",
+                            "readOnly": false, 
+                            "secretRef": {
+                                "name": "ceph-secret"
+                            }, 
+                            "user": "{{ ns_gitlab }}"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

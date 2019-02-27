@@ -1,0 +1,36 @@
+---
+- name: create nfs mountpoint
+  file:
+    path: "/mnt/nfs"
+    state: "directory"
+    mode: 0777
+
+- name: mount nfs to mountpoint
+  mount:
+    path: /mnt/nfs
+    src: "{{ nfs_host }}:{{ nfs_path }}"
+    fstype: nfs
+    state: mounted
+
+- name: create required paths in nfs
+  file:
+    path: "/mnt/nfs/k8s/{{ namespace.console }}/{{ item }}"
+    state: "directory"
+    mode: 0777
+  with_items:
+  - config-server
+  - mysql
+  - conf
+
+- name: copy conf files to nfs
+  copy:
+    src: "resources/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "logo.png", dest: "/mnt/nfs/k8s/{{ namespace.console }}/conf/logo.png"}
+    - {src: "favicon.ico", dest: "/mnt/nfs/k8s/{{ namespace.console }}/conf/favicon.ico"}
+
+- name: umount nfs from mountpoint
+  mount:
+    path: /mnt/nfs
+    state: unmounted

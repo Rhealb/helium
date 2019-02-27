@@ -1,0 +1,24 @@
+---
+- name: Ceph MON | Create directory to store ceph mon deployment file
+  file:
+    path: /k8s/app/ceph/mon
+    state: directory
+
+- name: Ceph MON | Create ceph mon deployment files
+  template:
+    src: ceph-mon-deploy.yml.j2
+    dest: "/k8s/app/ceph/mon/ceph-mon-{{ item }}.yaml"
+  with_items:
+  - "{{ mon_list }}"
+
+- name: Ceph MON | Create ceph monits
+  shell:
+    kubectl apply -f /k8s/app/ceph/mon
+
+- name: Ceph MON | Waiting fot ceph mons ready
+  wait_for:
+    host: "{{ item }}"
+    port: 6789
+    delay: 15
+  with_items:
+  - "{{ mon_list }}"

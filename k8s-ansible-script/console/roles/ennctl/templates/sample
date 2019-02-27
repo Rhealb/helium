@@ -1,0 +1,17 @@
+clusters:
+- name: dev-cluster
+  cluster:
+    gatewayURL: https://{{ ca_vip }}:{{ gateway_https_node_port }}
+    terminalURL: ws://{{ ca_vip }}:{{ terminal_node_port }}/api/v1
+users:
+- name: dev-user
+  user:
+    username: "awesome-sample-username"
+    password: "awesome-sample-password"
+contexts:
+- name: dev-context
+  context:
+    cluster: dev-cluster
+    namespace: console
+    user: dev-user
+current-context: dev-context

@@ -1,0 +1,4 @@
+[Global]
+KubernetesClusterTag=enn-cluster
+KubernetesClusterID=enn-cluster
+zone=cn-north-1b

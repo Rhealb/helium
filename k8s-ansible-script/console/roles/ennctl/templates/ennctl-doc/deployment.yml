@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: awesome-deploy
+  namespace: awesome-ns
+  app: awesome-app #required, the name of application.
+  labels:
+    role : awesome-label
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  template:
+    metadata:
+      labels:
+        role: awesome-label
+    spec:
+      containers:
+      - name: awesome-container
+        image: 127.0.0.1:30100/console/mysql-utf8:5.7
+        ports:
+        - name: awesome-port
+          containerPort: 3306
+          protocol: TCP
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: 123456
+        - name: MYSQL_DATABASE
+          value: druid
+        volumeMounts:
+        - name: awesome-storage
+          mountPath: /var/lib/mysql
+          readOnly: false
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 400Mi
+          limits:
+            cpu: 0.4
+            memory: 500Mi
+      storage:
+      - name: awesome-storage #specify the name of storage you want to use.

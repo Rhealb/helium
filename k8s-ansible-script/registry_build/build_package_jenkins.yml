@@ -1,0 +1,20 @@
+---
+########################################################### 
+#this playbook is used to create package 
+##########################################################
+- hosts: localhost
+  vars:
+    k8s_version: "{{'1.9.2.76' if lookup('env', 'k8s_version')==None else lookup('env', 'k8s_version')}}"
+    ennctl_version: "{{ 'helium-1.4.0' if lookup('env', 'ennctl_version')==None else  lookup('env', 'ennctl_version')}}"
+  roles:
+     - role: k8s_binary
+     - role: basic_component
+- import_playbook: build_agile_images.yml
+  vars:
+    console_version: "{{'helium-1.4.0' if lookup('env', 'console_version')==None else lookup('env', 'console_version')}}"
+- import_playbook: build_pro_images.yml
+  vars:
+    release_version: "{{'release-1.4.0'  if lookup('env', 'release_version')==None else lookup('env', 'release_version') }}"
+    monitor_image_vesion: "{{ '1.3-release' if lookup('env', 'monitor_image_vesion')==None else lookup('env', 'monitor_image_vesion')}}"
+
+     

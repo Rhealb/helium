@@ -1,0 +1,41 @@
+---
+- name: copy and push docker images to harbor
+  include: copy_docker_images.yml
+
+- name: make sure /tmp/nsnodeselector directory exist on target server
+  file:
+    path: "/tmp/nsnodeselector"
+    state: "directory"
+    mode: 0777
+
+- name: copy script and service files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: gencerts.sh, dest: /tmp/nsnodeselector/gencerts.sh}
+    - {src: nsnodeselector-server.yaml, dest: /tmp/nsnodeselector/nsnodeselector-server.yaml}
+
+- name: clean deployment
+  command: kubectl delete -f /tmp/nsnodeselector/nsnodeselector-server.yaml
+  ignore_errors: yes
+
+- name: wait
+  command: sleep 8
+
+- name: bash gencerts
+  command: bash /tmp/nsnodeselector/gencerts.sh
+  ignore_errors: yes
+
+- name: create deployment
+  command: kubectl create -f /tmp/nsnodeselector/nsnodeselector-server.yaml
+  when: inventory_hostname == master_list.0
+
+ #clean up temp files
+- name: clean up "/tmp/nsnodeselector"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/nsnodeselector"

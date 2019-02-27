@@ -1,0 +1,6 @@
+monitor_application_cpu_limit: 53.1
+monitor_application_mem_limit: 50476Mi
+monitor_application_cpu_req: 35.4
+monitor_application_mem_req: 45888Mi
+monitor_application_remote_disk_req: 216Gi
+monitor_application_local_disk_req: 300Gi

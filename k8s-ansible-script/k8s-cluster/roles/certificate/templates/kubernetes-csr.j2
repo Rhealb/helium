@@ -1,0 +1,26 @@
+{
+  "CN": "kube-apiserver",
+  "hosts": [
+    "127.0.0.1",
+    "{{ cluster_ip_range.split('.')[:-1]|join('.') }}.1",
+    {% for host in master_list %}"{{ host }}", {% endfor %}
+    {% if ca_vip is defined and ca_vip not in master_list %}"{{ ca_vip }}", {% endif %}
+    "kubernetes",
+    "kubernetes.default",
+    "kubernetes.default.svc",
+    "kubernetes.default.svc.{{ domain }}"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "ShangHai",
+      "L": "ShangHai",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}

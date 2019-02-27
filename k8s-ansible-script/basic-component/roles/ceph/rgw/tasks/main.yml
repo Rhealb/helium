@@ -1,0 +1,40 @@
+---
+- name: Ceph RGW | Create directory to store k8s deployment file
+  file:
+    path: "/k8s/app/ceph/rgw"
+    state: directory
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- name: Ceph RGW | create rgw running file
+  template: 
+    src: "{{ item}}.j2"
+    dest: "/k8s/app/ceph/rgw/{{ item }}"
+  with_items:
+    - ceph-rgw-deploy.yml
+    - ceph-rgw-svc.yml
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- name: Ceph RGW | Create rgw daemon
+  shell:
+    kubectl apply -f /k8s/app/ceph/rgw
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- name: Ceph RGW | Wait for ceph rgw ready
+  uri:
+    url: http://127.0.0.1:{{ rgw_node_port }}
+    return_content: yes
+  register: rgw_result
+  until: rgw_result.status == 200 and 'ListAllMyBucketsResult' in rgw_result.content
+  retries: 20
+  delay: 10
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- name: Ceph RGW | Init ceph s3 admin user
+  command:
+    radosgw-admin user create --uid=admin --display-name="System Admin" --system --caps="users=*;buckets=*;metadata=*;usage=*;zone=*"
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true

@@ -1,0 +1,28 @@
+- name: set images name
+  set_fact:
+    images_tar:
+      - ingress.tar
+
+- name: copy images
+  copy:
+    src: "../files/images/system-tools/{{ item }}"
+    dest: /tmp/
+  with_items:
+    - "{{ images_tar }}"
+
+- name: load docker images
+  command: docker load -i /tmp/{{ item }}
+  with_items:
+    - "{{ images_tar }}"
+
+- name: push image to registry
+  command: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login -u{{ docker_user }} -p{{ harbor_admin_password }} 127.0.0.1:{{ harbor_node_port }}
+    - docker push {{ ingress_backend_image }}
+    - docker push {{ nginx_ingress_image }}
+
+- name: rm image tar files
+  command: rm -rf /tmp/{{ item }}
+  with_items:
+    - "{{ images_tar }}"

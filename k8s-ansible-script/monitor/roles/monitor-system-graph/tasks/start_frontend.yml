@@ -1,0 +1,8 @@
+---
+- name: create {{ workspace }} components
+  command: "{{ item }}"
+  with_items:
+    - ennctl create app grafana -n {{ namespace }}
+    - ennctl create -a grafana -f /{{ workspace }}/configmap-grafana.yml
+    - ennctl create -a grafana -f /{{ workspace }}/deployments-grafana.yml
+    # - kubectl create -f /{{ namespace }}/deployments-osticket.yml

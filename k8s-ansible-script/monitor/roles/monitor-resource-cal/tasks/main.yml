@@ -1,0 +1,19 @@
+- name: Calculate resource needs for monitor-applications
+  shell: 'cd roles/monitor-resource-cal && python ./scripts/cal.py --cluster-total-cores {{ cluster_total_cores }} --cluster-total-mem {{ cluster_total_mem }}'
+  # shell: 'pwd'
+  connection: local
+  register: monitor_application_shell_result
+
+- name: debug application vars
+  debug:
+    var: monitor_application_shell_result.stdout_lines
+
+- name: Calculate resource needs for monitor-essential-service
+  shell: 'cd  roles/monitor-resource-cal && python ./scripts/essential-service-cal.py --cluster-total-cores {{ cluster_total_cores }} --cluster-total-mem {{ cluster_total_mem }}'
+  # shell: 'pwd'
+  connection: local
+  register: monitor_essential_service_shell_result
+
+- name: debug essential service vars
+  debug:
+    var: monitor_essential_service_shell_result.stdout_lines

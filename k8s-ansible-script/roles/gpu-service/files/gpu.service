@@ -1,0 +1,12 @@
+[Unit]
+Description=GPU module reload on boot
+After=cloud-init.service
+Before=kubelet.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/start-nvidia
+
+[Install]
+WantedBy=multi-user.target
+

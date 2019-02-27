@@ -1,0 +1,40 @@
+---
+- name: create app in console namespace
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.gateway_http }}/gw/be/api/v1/kubernetes/namespaces/{{ namespace.console }}/apps
+    method: POST
+    body: ' {"name": "{{ item }}"} '
+    timeout: 300
+    validate_certs: no
+    status_code: 409,200,201
+    headers:
+      Content-Type: "application/json"
+      x-gw-user-id: admin
+      x-gw-req-id: console
+      Authorization: "Bearer {{ access_token }}"
+  with_items:
+    - "{{ console_apps }}"
+  register: result
+  until: result.status == 200 or result.status == 201 or result.status == 409
+  retries: 10
+  delay: 30
+
+- name: create app in system-tools namespace
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.gateway_http }}/gw/be/api/v1/kubernetes/namespaces/{{ namespace.system_tools }}/apps
+    method: POST
+    body: ' {"name": "{{ item }}"} '
+    timeout: 300
+    validate_certs: no
+    status_code: 409,200,201
+    headers:
+      Content-Type: "application/json"
+      x-gw-user-id: admin
+      x-gw-req-id: console
+      Authorization: "Bearer {{ access_token }}"
+  with_items:
+    - "{{ system_tools_apps }}"
+  register: result
+  until: result.status == 200 or result.status == 201 or result.status == 409
+  retries: 10
+  delay: 30

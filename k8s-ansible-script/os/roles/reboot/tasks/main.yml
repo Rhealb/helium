@@ -1,0 +1,11 @@
+---
+# tasks file for reboot
+- name: reboot the system
+  shell: sleep 2 && /sbin/reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: wait for system up
+  become: false
+  local_action: wait_for host="{{ inventory_hostname }}"  port=22 timeout=600 delay=10

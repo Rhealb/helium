@@ -1,0 +1,9 @@
+---
+# defaults file for convert-console
+auth_enabled: "true"
+access_token: "eyJhbGciOiJSUzI1NiJ9.eyJ1aWQiOiJ6aHRhbmdzaCIsInJmIjpmYWxzZSwidSI6IlppaGFuIFRhbmciLCJpc3MiOiJjYyIsImV4cCI6MTUyNTk0ODM0Nywid3RrIjoiZmE5YmZmYmYzZjU3NDE4NmI2YjI4MmE3OTg5NDk0NTAifQ.xkAarWuoB29M6qNmJea2YFsUYpxYkiBsfprW_g_-VUTyYzdAmDtF1NlQzOew3J01RJiRA8WPRkKwY60MPrGNVKiuU4rFc9Zs-tjEEteGqNUVxlnfiQPYsXKHAqZ7IojTSXJfG-l5BNJWbV1vCZpzLw7u-9FJzlmJzdeMjZeknL7pK91O3wtii-18cZ1np5LJJrmLJslW5dQPQHbaAEXOQtOhSi3JKr3nm41hSod-3R0lTPA1EVa-QqEz2m6zc9ZUTCiUzlwP6ki3COUQV3BhDXknVOaLmqMhvjYv9IZ-WJp1G7zFc9IU0KwvOkIkzx0RD-MeKrOm1Tr1I5sLrf-mDA"
+public_vip: "{{ ca_vip }}"
+nfs_host: nfs.dev.enndata.cn
+nfs_path: "/"
+cloud_name: none
+admin_username: admin

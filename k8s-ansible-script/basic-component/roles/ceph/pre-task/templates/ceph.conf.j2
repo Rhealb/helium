@@ -1,0 +1,37 @@
+[global]
+fsid = {{ fsid.stdout }}
+auth cluster required = cephx
+auth service required = cephx
+auth client required = cephx
+mon initial members = {% for host in mon_list %}mon-{{ host }}{% if not loop.last %},{% endif %}{% endfor %}
+
+mon host = {% for host in mon_list %}{{ host }}{% if not loop.last %},{% endif %}{% endfor %}
+
+public network = {{ ceph_public_network }}
+cluster network = {{ ceph_cluster_network }}
+
+osd pool default size = 3
+osd pool default min size = 1
+
+max open files = 131072
+
+mon allow pool delete = true
+
+mgr tick period = 5
+
+rgw s3 auth aws4 force boto2 compat = false
+rgw max chunk size = 1048576
+rgw cache lru size = 50000
+
+mds cache memory limit = 4294967296
+mds standby replay = true
+
+
+rbd default features = 5
+
+[client.restapi]
+  public addr = 0.0.0.0:5000
+  restapi base url = /api/v0.1
+  restapi log level = warning
+  log file = /var/log/ceph/ceph-restapi.log
+

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health
+        kubernetes enn.cn {
+          pods insecure
+          endpoint https://{{ vip }}:6442
+          tls /etc/client.pem /etc/client-key.pem /etc/ca.pem
+          upstream
+          fallthrough in-addr.arpa ip6.arpa
+        }
+        prometheus :9153
+        proxy . /etc/resolv.conf
+        cache 30
+        reload
+        loadbalance
+    }

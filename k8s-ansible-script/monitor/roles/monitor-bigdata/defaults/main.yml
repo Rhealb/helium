@@ -1,0 +1,198 @@
+---
+
+bigdata_jsonnet_example_dir: /monitor/bigdata/bigdata-deploy/jsonnet/example
+bigdata_scripts_dir: /monitor/bigdata/scripts
+bigdata_images_dir: /monitor/bigdata/images
+install_mode: "internet"
+deploy_mode: "-c"
+# variables for bigdata components
+
+monitor_bigdata_namespace: monitor-essential-service
+monitor_bigdata_suiteprefix: pre1
+registry_url: 127.0.0.1:29006
+release_version: helium-1.3.0-snapshot
+
+elasticsearch_image_tar: dep-centos7-elasticsearch-5.4.0.tgz
+hbase_image_tar: dep-centos7-hbase-1.2.6.tgz
+hadoop_hdfs_image_tar: dep-centos7-hadoop-2.7.4.tgz
+kafka_image_tar: dep-centos7-kafka-2.11-0.10.1.1.tgz
+opentsdb_image_tar: dep-centos7-opentsdb-2.3.0.tgz
+spark_image_tar: dep-centos7-spark-2.1.1-hadoop2.7.tgz
+zookeeper_image_tar: dep-centos7-zookeeper-3.5.3-beta.tgz
+centos7_jdk_image_tar: he2-centos7-jdk8.tgz
+
+amah_zookeeper_image_tar: amah-zookeeper-3.5.3-beta.tgz
+amah_kafka_image_tar: amah-kafka-2.11-0.10.1.1.tgz
+amah_elasticsearch_image_tar: amah-elasticsearch-5.4.0.tgz
+amah_hbase_image_tar: amah-hbase-1.2.6.tgz
+amah_hadoop_hdfs_image_tar: amah-hadoop-2.7.4.tgz
+amah_opentsdb_image_tar: amah-opentsdb-2.3.0.tgz
+amah_spark_image_tar: amah-spark-2.1.1-hadoop2.7.tgz
+
+centos7_jdk_image: "{{ registry_url }}/tools/he2-centos7-jdk8:0.2"
+
+# Elastic Search variables
+elasticsearch_image: "{{ registry_url }}/tools/dep-centos7-elasticsearch-5.4.0:{{ release_version }}"
+amah_elasticsearch_image : "{{ registry_url }}/tools/amah-elasticsearch-5.4.0:{{ release_version }}"
+elasticsearch_esdatastoragesize: "50Gi"
+# nodeports number should be same with "elasticsearch_client_instancecount"
+elasticsearch_nodeports_httpport: "\"29009\""
+elasticsearch_nodeports_transport: "\"29405\""
+elasticsearch_nodeports_amahport: "\"29404\""
+
+elasticsearch_master_instancecount: 2
+elasticsearch_master_requestcpu: "0.5"
+elasticsearch_master_requestmem: "1100Mi"
+elasticsearch_master_limitcpu: "0.5"
+elasticsearch_master_limitmem: "1100Mi"
+elasticsearch_master_javaXms: "350m"
+elasticsearch_master_javaXmx: "350m"
+
+elasticsearch_data_instancecount: 3
+elasticsearch_data_requestcpu: "1.0"
+elasticsearch_data_requestmem: "4400Mi"
+elasticsearch_data_limitcpu: "1.0"
+elasticsearch_data_limitmem: "4400Mi"
+elasticsearch_data_javaXms: "2000m"
+elasticsearch_data_javaXmx: "2000m"
+
+elasticsearch_client_instancecount: 1
+elasticsearch_client_requestcpu: "0.5"
+elasticsearch_client_requestmem: "2200Mi"
+elasticsearch_client_limitcpu: "0.5"
+elasticsearch_client_limitmem: "2200Mi"
+elasticsearch_client_javaXms: "900m"
+elasticsearch_client_javaXmx: "900m"
+
+# HBase variables
+hbase_image: "{{ registry_url }}/tools/dep-centos7-hbase-1.2.6:{{ release_version }}"
+amah_hbase_image: "{{ registry_url }}/tools/amah-hbase-1.2.6:{{ release_version }}"
+hbase_nodeports_amahport: "\"29414\""
+hbase_tsdbttl: 2592000
+hbase_nodeports_master_http: "\"29410\", \"29411\", \"29412\""
+
+hbase_master_instancecount: 3
+hbase_master_requestcpu: "0.3"
+hbase_master_requestmem: "1000Mi"
+hbase_master_limitcpu: "0.3"
+hbase_master_limitmem: "1000Mi"
+hbase_master_permsize: "128m"
+hbase_master_maxpermsize: "128m"
+hbase_master_xmx: "600m"
+
+hbase_regionserver_instancecount: 3
+hbase_regionserver_requestcpu: "1.0"
+hbase_regionserver_requestmem: "2000Mi"
+hbase_regionserver_limitcpu: "1.0"
+hbase_regionserver_limitmem: "2000Mi"
+hbase_regionserver_permsize: "128m"
+hbase_regionserver_maxpermsize: "128m"
+hbase_regionserver_xmx: "1600m"
+
+# HDFS variables
+hadoop_hdfs_image: "{{ registry_url }}/tools/dep-centos7-hadoop-2.7.4:{{ release_version }}"
+amah_hadoop_hdfs_image: "{{ registry_url }}/tools/amah-hadoop-2.7.4:{{ release_version }}"
+hadoop_hdfs_nodeports_amahport: "\"29417\""
+
+hadoop_hdfs_datadirpvcstoragesize: "30Gi"
+hadoop_hdfs_specusepvcstoragesize: "5Gi"
+hadoop_hdfs_datadirstoragecount: 4
+hadoop_hdfs_nodeports_nn_http_addr: "\"29415\", \"29416\""
+
+hadoop_hdfs_namenode_instancecount: 2
+hadoop_hdfs_namenode_requestcpu: "0.5"
+hadoop_hdfs_namenode_requestmem: "1500Mi"
+hadoop_hdfs_namenode_limitcpu: "0.5"
+hadoop_hdfs_namenode_limitmem: "1500Mi"
+
+hadoop_hdfs_journalnode_instancecount: 3
+hadoop_hdfs_journalnode_requestcpu: "0.5"
+hadoop_hdfs_journalnode_requestmem: "1100Mi"
+hadoop_hdfs_journalnode_limitcpu: "0.5"
+hadoop_hdfs_journalnode_limitmem: "1100Mi"
+
+hadoop_hdfs_datanode_instancecount: 3
+hadoop_hdfs_datanode_requestcpu: "0.5"
+hadoop_hdfs_datanode_requestmem: "1100Mi"
+hadoop_hdfs_datanode_limitcpu: "0.5"
+hadoop_hdfs_datanode_limitmem: "1100Mi"
+
+
+# Kafka variables
+kafka_image: "{{ registry_url }}/tools/dep-centos7-kafka-2.11-0.10.1.1:{{ release_version }}"
+amah_kafka_image: "{{ registry_url }}/tools/amah-kafka-2.11-0.10.1.1:{{ release_version }}"
+kafka_nodeports_amahport: "\"29424\""
+kafka_logpvcstoragesize: "15Gi"
+kafka_nodeports_brokerport: "\"\", \"\", \"\""
+#kafka_nodeports_brokerport: "\"29420\", \"29421\", \"29422\""
+kafka_nodeports_jmxport: "\"29425\", \"29426\", \"29427\""
+kafka_nodeportip: "{{ ca_vip }}"
+
+kafka_instancecount: 3
+kafka_requestcpu: "0.5"
+kafka_requestmem: "2200Mi"
+kafka_limitcpu: "0.5"
+kafka_limitmem: "2200Mi"
+
+# Opentsdb variables
+opentsdb_image: "{{ registry_url }}/tools/dep-centos7-opentsdb-2.3.0:{{ release_version }}"
+amah_opentsdb_image: "{{ registry_url }}/tools/amah-opentsdb-2.3.0:{{ release_version }}"
+opentsdb_nodeports_amahport: "\"29434\""
+opentsdb_logpvcstoragesize: "5Gi"
+opentsdb_nodeports_httpport: "\"29430\""
+opentsdb_nodeports_jmxport: "\"29435\""
+
+opentsdb_instancecount: 2
+opentsdb_requestcpu: "1.0"
+opentsdb_requestmem: "2200Mi"
+opentsdb_limitcpu: "1.0"
+opentsdb_limitmem: "2200Mi"
+opentsdb_javaxmx: "1800m"
+opentsdb_javaxms: "1800m"
+
+#Spark variables
+spark_image: "{{ registry_url }}/tools/dep-centos7-spark-2.1.1-hadoop2.7:{{ release_version }}"
+amah_spark_image: "{{ registry_url }}/tools/amah-spark-2.1.1-hadoop2.7:{{ release_version }}"
+spark_nodeports_amahport: "\"29444\""
+spark_workerworkdirpvcstoragesize: "20Gi"
+spark_localdirpvcstoragesize: "20Gi"
+spark_nodeports_master_ui: "\"29440\", \"29441\", \"29442\""
+spark_nodeports_master_port: "\"29445\", \"29446\", \"29447\""
+spark_nodeports_application_ui: "\"29450\", \"29451\", \"29452\""
+spark_nodeports_rest_port: "\"29455\", \"29456\", \"29457\""
+spark_nodeports_history_ui: "\"29459\""
+
+spark_master_instancecount: 3
+spark_master_requestcpu: "0.2"
+spark_master_requestmem: "1100Mi"
+spark_master_limitcpu: "0.2"
+spark_master_limitmem: "1100Mi"
+
+spark_worker_instancecount: 3
+spark_worker_requestcpu: "2.0"
+spark_worker_requestmem: "6200Mi"
+spark_worker_limitcpu: "2.0"
+spark_worker_limitmem: "6200Mi"
+spark_worker_cores: 8
+
+spark_historyserver_sparkeventlogdir: "hdfs://enncloud-hadoop/var/log/spark"
+spark_historyserver_instancecount: 1
+spark_historyserver_requestcpu: "0.2"
+spark_historyserver_requestmem: "1100Mi"
+spark_historyserver_limitcpu: "0.2"
+spark_historyserver_limitmem: "1100Mi"
+
+# zookeeper variables
+zookeeper_image: "{{ registry_url }}/tools/dep-centos7-zookeeper-3.5.3-beta:{{ release_version }}"
+amah_zookeeper_image: "{{ registry_url }}/tools/amah-zookeeper-3.5.3-beta:{{ release_version }}"
+zookeeper_nodeports_amahport: "\"29464\""
+zookeeper_datapvcstoragesize: "2Gi"
+zookeeper_datalogpvcstoragesize: "2Gi"
+zookeeper_nodeports_clientport: "\"29460\", \"29461\", \"29462\""
+zookeeper_nodeports_adminserverport: "\"29465\", \"29466\", \"29467\""
+
+zookeeper_instancecount: 3
+zookeeper_requestcpu: "0.2"
+zookeeper_requestmem: "1100Mi"
+zookeeper_limitcpu: "0.2"
+zookeeper_limitmem: "1100Mi"

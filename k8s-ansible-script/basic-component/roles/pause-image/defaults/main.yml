@@ -1,0 +1,5 @@
+---
+# defaults file for pause-image
+pause_image: "127.0.0.1:29006/library/pause-amd64:3.1"
+registry_url: 127.0.0.1:{{ harbor_node_port }}
+harbor_node_port: 29006

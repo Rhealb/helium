@@ -1,0 +1,31 @@
+---
+# tasks to push test tools to harbor
+
+- name: create directory to store tar
+  file: path=/k8s/tools state=directory
+
+- name: copy images
+  copy:
+    src: "../../../files/images/tools/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: tools.tar, dest: /k8s/tools}
+
+- name: load docker images
+  command: "{{ item }}"
+  with_items:
+    - docker load -i /k8s/tools/tools.tar
+
+
+- name: push image to registry
+  command: "{{ item }}"
+  with_items:
+    - echo "nonsense" | docker login -u{{ docker_user }} -p{{ harbor_admin_password }} 127.0.0.1:{{ harbor_node_port }}
+    - docker push {{ net_perf_image }}
+    - docker push {{ k8sft_image }}
+    - docker push {{ mtr_image }}
+
+
+
+
+

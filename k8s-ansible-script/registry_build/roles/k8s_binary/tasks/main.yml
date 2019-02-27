@@ -1,0 +1,50 @@
+- name: clean up dest directory
+  file:
+    path: ../k8s-cluster/files
+    state: absent
+
+
+- name: create dest directory
+  file:
+    path: ../k8s-cluster/files
+    state: directory
+
+
+- name: download tar 
+  get_url:
+    url: "{{ k8s_download_url }}/download/{{ k8s_version }}.tar"
+    dest: .
+
+- name: Extract tar 
+  shell: "tar -zxvf ./{{ k8s_version }}.tar" 
+
+
+- name: Create directory
+  copy:
+    src: "./{{k8s_version}}/"
+    dest: ../k8s-cluster/files/
+    mode: 0777
+
+#run same task twice because ansible copy file bug
+- name: Copy Extract files
+  copy:
+    src: "./{{k8s_version}}/"
+    dest: ../k8s-cluster/files/
+    mode: 0777
+
+- name: create kube directory 
+  file:
+    path: ../files/kube
+    state: directory
+
+- name: move nshostpathpvprivilege binary file
+  copy:
+    src: "../k8s-cluster/files/kube/nshostpathprivilege"
+    dest: ../files/kube/nshostpathprivilege
+
+- name: delete old file
+  file:
+    path: "../k8s-cluster/files/kube/nshostpathprivilege"
+    state: absent
+
+

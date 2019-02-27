@@ -1,0 +1,39 @@
+---
+- name: copy ennctl binary
+  copy:
+    src: "../files/bin/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: 0755
+  with_items:
+    - ennctl
+
+- name: mk ennctl config directory
+  become: yes
+  file:
+    path={{ item }}
+    state=directory
+  with_items:
+    - ~/.ennctl
+    - ~/info/ennctl
+    - ~/info/kubectl
+    - ~/info/ennctl-doc
+
+- name: copy ennctl config to remote
+  become: yes
+  template:
+    src: "templates/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: config, dest: ~/.ennctl/config}
+    - {src: urls.md, dest: ~/info/urls.md}
+    - {src: sample, dest: ~/info/ennctl/config}
+    - {src: kube, dest: ~/info/kubectl/kube}
+
+- name: copy enctl doc files
+  become: yes
+  copy:
+    src: "templates/{{ item.src }}"
+    dest:  "{{ item.dest }}"
+    mode: 0755
+  with_items:
+    - {src: ennctl-doc/, dest: ~/info/ennctl-doc/}

@@ -1,0 +1,177 @@
+---
+all:
+  vars:
+    ###### 云环境部署 #######
+    #### tencent ali"
+    cloud_name: "tencent"  
+    #####服务器时间同步##############
+    ## ntp_orphan_parents:  required, recommendate use two of master node as ntp_orphan_parents
+    ntp_orphan_parents: [172.17.0.11, 172.17.0.12]  
+
+    ## ntp_server, optional, if not provided, cluster use ntp_orphan_paraents to sync
+    ## ntp_server: ""
+
+    ###########集群信息############
+    ## master_list three master node IP
+    ## required 
+    master_list: [172.17.0.11, 172.17.0.12, 172.17.0.16] 
+    
+    ## etcd_init_servers: etcd cluster IP
+    ##required
+    ##recommmendate reuse master node ips
+    etcd_init_servers: [172.17.0.11, 172.17.0.12, 172.17.0.16] 
+
+    ##hanode_list: HA node ip for KeepAlive node
+    ##required
+    ##
+    ##for cloud installation, keep HA as empty
+    ##for on premise installation, use two of master node, like master0, master1
+    hanode_list: []
+
+    ##host_path_list: hostpath nodes list
+    ## required
+    host_path_list: [172.17.0.11, 172.17.0.12, 172.17.0.16] 
+
+    ## cluster_name:
+    ## required
+    cluster_name: "enc-cluster"
+    
+    ## 集群中服务（service）IP
+    ## required
+    cluster_ip_range: "192.168.0.0/16"
+    
+    ##domain: 集群DNS域名
+    ##required 
+    domain: "cluster.local"
+    
+    ## kl_interface
+    ##comment kl_interface or set this to "", ansible will check the default using interface.
+    ##or you can set this manually
+    kl_interface: eth0
+
+    ### host search in /etc/resolv.conf, if exist
+    searchdomains: []
+    
+    ### host nameserver in /etc/resolv.conf, if exist
+    nameservers: [183.60.83.19, 183.60.82.98]
+    
+    ## max_pods: 一个节点上可以起的最大POD数
+    #max_pods: 100
+
+    ## cpu_reserved 预留的CPU
+    # cpu_reserved: 0
+    
+    ##memory_reserved
+    #memory_reserved: 0
+    
+    ##kubelet_dir: Kubelet的地址
+    #kubelet_dir: "/data/kubelet"
+    
+    ##sample_rate: 监控数据收集频率，单位：秒／次
+    #sample_rate: 30
+
+    ##flannel用的etcd节点
+    #required
+    flannel_etcd_list: [172.17.0.11, 172.17.0.12, 172.17.0.16] 
+    
+    ##backend_type： Flannel backend type： vxlan ||vxlan-over-hostgw 
+    #backend_type: "vxlan"
+    DirectRouting: false 
+    ##flanneld_subnet： 集群中pod IP
+    flanneld_subnet: "10.0.0.0/8"
+    
+    ## local_repo: local repo地址，一般是安装机器的ip:8009
+    local_repo: "172.17.0.6:8009"
+
+    ##ca_vip: 内网LB地址
+    ca_vip: "172.17.0.11"
+    ## publich_vip: 外网LB地址 
+    public_vip: "212.64.45.181" 
+    
+    ##集群密码
+    admin_password: admin
+    
+    ##集群用户名
+    admin_username: admin
+    
+    #storage：集群默认存储类型，可选，默认是ceph，可以是ceph或者nfs或者ebs
+    #对于私有云：CEPH
+    #阿里云，华为云，腾讯云：nfs
+    #亚马逊：ebs
+    storage_type: nfs
+
+    ##nfs地址，如果没有nfs，可以忽略
+    nfs_enabled: "true"
+    nfs_host: 10.66.158.232
+    nfs_path: /
+    
+    #ingress：Ingress dns域名
+    ingress_dns_domain: enn.ingress.cn
+    
+    ##########CEPH##################
+    ceph_enabled: false
+    # mon_list: [10.19.140.6, 10.19.140.10, 10.19.140.14]
+    # osd_list: [10.19.140.6, 10.19.140.10, 10.19.140.14]
+    # ceph_public_network: 10.19.140.0/24
+    # ceph_cluster_network: 10.19.140.0/24
+    # rgw_dns_name: enncloud.ceph.s3
+
+    # rbd_dev_list: [sdc]
+    
+    ##############HARBOR ################
+    ##local_registry_port：无须改动
+    local_registry_port: 5000
+    ## harbor登陆密码
+    harbor_admin_password: admin
+    
+    ########## CONSOLE##############
+    ## console image的版本，无须改动
+    console_version: release-1.5.0
+    ## 公司名称；主要用于用户注册
+    company_name: 新智认知
+    ## branding
+    title_cn: 新智认知新氦云平台
+    title_en: ENC Cloud Platform +
+
+    ## CONSOLE 默认登陆密码
+    keystone_admin_password: admin
+
+    ## CONSOLE LICENSE，
+    is_trial_version: 2 # 1: 试用版   2：正式版
+    months: 0 #使用月数 （正式版请输入0）
+    days: 0 #使用天数 （正式版请输入0）
+
+
+    # will be override by script for ceph s3 case
+    # 对于私有安装：无须填写
+    # 对于云安装，请填写 s3_host s3_access_key  s3_secret_key
+    s3_host: cos.ap-shanghai.myqcloud.com
+    s3_access_key: AKIDwFLCnFQZNkvqWwA3lDPP9drpY1D9mMZW 
+    s3_secret_key: rSounUvBG7i38zd1A4j9JDuOhofGfohS 
+    s3_app_id:  1258271314
+    #bigdata image vesion; 无须改动
+    release_version: helium-1.4.0
+  children:
+    centos:
+      vars:
+        #机器域名默认前缀
+        hostname_prefix: enn
+        ansible_ssh_user: root
+        ansible_ssh_pass: Test1234
+        ansible_ssh_port: 22
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+        ####对HOSTPATH盘进行分区和挂载，可以通过lsblk命令查看设备号######
+        ####如果有独立的docker数据盘，docker数据盘也需要进行分区和挂载####
+        ####docker分区和挂载请参见以下/dev/sda, 请uncomment后修改docker盘设备号###### 
+        special_mounts:
+          /dev/vdc:
+            path: /xfs/disk1
+            opt: prjquota
+          /dev/vdb:
+            path: /data
+            opt: defaults 
+      hosts:
+        172.17.0.11: 
+        172.17.0.12:
+        172.17.0.16:

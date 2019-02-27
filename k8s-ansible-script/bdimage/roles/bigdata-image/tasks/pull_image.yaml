@@ -1,0 +1,143 @@
+---
+
+# build bigdata images and push to repo
+- name: make sure directory ../files/images exists on target server
+  file:
+    path: "{{ save_image_tar_dir }}"
+    state: "directory"
+    mode: 0777
+
+- name: pull basis iamge from repo
+  command: "{{ item }}"
+  with_items:
+  - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh basis {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull zookeeper iamge from repo
+  command: "{{ item }}"
+  with_items:
+  - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh zookeeper {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull redis image from repo
+  command: "{{ item }}"
+  with_items:
+  - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh redis {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull kafka iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh kafka {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull hadoop iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh hadoop {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull hbase iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh hbase {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull spark iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh spark {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull opentsdb iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh opentsdb {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull elasticsearch iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh elasticsearch {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull druid iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh druid {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull mongodb iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh mongodb {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull ping iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh ping {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull haproxy iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh haproxy {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull plyql iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh plyql {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull mysql iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh mysql {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull kafka-manager iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh kafka-manager {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-zookeeper iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-zookeeper {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-kafka iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-kafka {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-hadoop iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-hadoop {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-spark iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-spark {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-hbase iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-hbase {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-opentsdb iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-opentsdb {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-elasticsearch iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-elasticsearch {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-druid iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-druid {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-mongodb iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-mongodb {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-mysql iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-mysql {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"
+
+- name: pull amah-redis-cluster iamge from repo
+  command: "{{ item }}"
+  with_items:
+    - "{{ bigdata_images_build_dir }}/pull_bigdata_image.sh amah-redis {{ registry_url }} {{ release_version }} {{ save_image_tar_dir }}"

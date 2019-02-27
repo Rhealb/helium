@@ -1,0 +1,73 @@
+{
+    "apiVersion": "extensions/v1beta1",
+    "kind": "Deployment",
+    "metadata": {
+        "labels": {
+            "app": "dns-controller",
+            "class": "{{ ingress_class }}"
+        },
+        "name": "dns-controller-{{ ingress_class }}",
+        "namespace": "kube-system"
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "matchLabels": {
+                "app": "dns-controller",
+                 "class": "{{ ingress_class }}"
+            }
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "dns-controller",
+                    "class": "{{ ingress_class }}"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "dns",
+                        "image": "{{ dns_controller_image }}",
+                        "args": [
+                            "--dns-controller-type={{ ingress_class }}",
+                            "--domain={{ ingress_dns_domain }}",
+                            "--dns-port=53",
+                            "--ingress-controller-type={{ ingress_class }}",
+                            "--ingress-controller-address={{ ingress_export_ip }}",
+                            "--v=2",
+                            "--kubecfg-file=/etc/kubernetes/kubeconfig"
+                        ],
+                        "ports": [
+                            {
+                                "containerPort": 53,
+                                "name": "dns-local",
+                                "protocol": "UDP"
+                            },
+                            {
+                                "containerPort": 53,
+                                "name": "dns-tcp-local",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/etc/kubernetes/",
+                                "name": "kubeconfig"
+                            }
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+			    "defaultMode": 420,
+                            "name": "kubeconfig"
+                        },
+                        "name": "kubeconfig"
+                    }
+                ]
+            }
+        }
+    }
+}

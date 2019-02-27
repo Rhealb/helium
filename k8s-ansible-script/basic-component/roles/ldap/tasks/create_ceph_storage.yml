@@ -1,0 +1,12 @@
+---
+- name: check ceph rbd images
+  shell: rbd  -p k8s.{{ ldap_namespace }} ls | grep ldapdata | cat
+  register: ceph_image_created
+  ignore_errors: true 
+
+# create rbd image for ldapdata
+- name: create ceph rbd images
+  shell: rbd create k8s.{{ ldap_namespace }}/{{ item }} --size 2048 --image-feature layering
+  with_items:
+    - "ldapdata"
+  when: ceph_image_created.stdout.find("ldapdata") == -1

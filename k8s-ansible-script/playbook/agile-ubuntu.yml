@@ -1,0 +1,12 @@
+---
+#- include: ../os/install-ubuntu-packages.yml
+- include: ../k8s-cluster/k8s-ubuntu.yml
+- import_playbook: ../basic-component/basic-component-agile.yml
+- import_playbook: ../registry_build/push_consoleagile_images.yml
+- import_playbook: ../console/console-1.4.yml
+  vars:
+    auth_enabled: "false"
+    ceph_enabled: "false"
+    nfs_enabled: "false"
+    s3_enabled: "false"
+    is_agile: true

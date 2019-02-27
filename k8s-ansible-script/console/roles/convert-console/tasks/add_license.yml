@@ -1,0 +1,49 @@
+---
+# tasks file for convert-console
+#  请对照示例参数顺序，修改一下shell语句 generate-license/zulu-linux/bin/java -jar generate-license/trial-encode.jar 2 0 0 10.19.137.140 10.19.137.141 10.19.137.142
+# is_trial_version： 1:试用版  2：正式版
+# months 使用月数 （正式版请输入0）
+# days 使用天数 （正式版请输入0）
+# ip1 ：master节点ip 可以输入多个
+
+- name: get current role path
+  set_fact:
+   ansible_base_path: "{{role_path}}"
+
+- name: generate license
+  shell: "java -jar {{ansible_base_path}}/templates/generate_license/trial-encode.jar {{ is_trial_version }} {{ months }} {{ days }} {{ master_list[0] }} {{ master_list[1] }} {{ master_list[2] }} "
+  delegate_to: 127.0.0.1
+  register: result_license_token
+
+- name: set license sql files
+  set_fact:
+    insert_license_sql_files:
+      - {src: insert_license.sql , dst: insert_license.sql }
+
+- name: insert license sql files dir
+  file: path=/console/ state=directory
+
+- name: generate license sql files
+  template:
+    src: "{{ item.src }}"
+    dest: "/console/{{ item.dst }}"
+  with_items:
+    - "{{ insert_license_sql_files }}"
+
+- name: get console mysql pod name (retry 10 delay 10s)
+  shell: "kubectl -n console get po | grep cc-mysql | awk '{print $1}'"
+
+  register: console_mysql_pod_name
+  until: console_mysql_pod_name.stdout != ""
+  retries: 10
+  delay: 10
+
+- name: wait for console mysql ready (retry 10 delay 30s)
+  shell: "kubectl -n console exec -it {{ console_mysql_pod_name.stdout }} -- mysql -u root -proot -e 'select NOW();'"
+  register: result
+  until: result.stdout.find('NOW()') != -1
+  retries: 10
+  delay: 30
+
+- name: insert license mysql
+  shell: "kubectl -n console exec -it {{ console_mysql_pod_name.stdout }} -- mysql -u root -proot cc < /console/insert_license.sql"

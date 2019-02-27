@@ -1,0 +1,31 @@
+---
+- name: Gen_K8S_certs | Create k8s cert dir
+  file:
+    path: "files/ssl/kube"
+    state: directory
+  delegate_to: 127.0.0.1
+  run_once: yes
+
+- name: Gen_K8S_certs | Create kube-proxy cert
+  shell:
+    echo '{"CN":"system:kube-proxy:{{ inventory_hostname }}","hosts":[""],"key":{"algo":"rsa","size":2048},"names":[{"O":"system:node-proxier"}]}' | cfssl gencert \
+    -ca=../ca.pem \
+    -ca-key=../ca-key.pem \
+    -config={{ role_path }}/files/ca-config.json \
+    -profile=client \
+    -hostname {{ inventory_hostname }} -| cfssljson -bare kube-proxy-{{ inventory_hostname }}
+  args:
+    chdir: "files/ssl/kube"
+  delegate_to: 127.0.0.1
+
+- name: Gen_K8S_certs | Create kubelet cert
+  shell:
+    echo '{"CN":"system:node:{{ inventory_hostname }}","hosts":[""],"key":{"algo":"rsa","size":2048},"names":[{"O":"system:nodes"}]}' | cfssl gencert \
+    -ca=../ca.pem \
+    -ca-key=../ca-key.pem \
+    -config={{ role_path }}/files/ca-config.json \
+    -profile=client \
+    -hostname {{ inventory_hostname }} -| cfssljson -bare kubelet-{{ inventory_hostname }}
+  args:
+    chdir: "files/ssl/kube"
+  delegate_to: 127.0.0.1

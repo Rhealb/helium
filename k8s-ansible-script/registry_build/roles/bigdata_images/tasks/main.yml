@@ -1,0 +1,130 @@
+- name: cleanup docker directory
+  file:
+    state: absent
+    path: "images/docker"
+  when: 
+    - build == true
+    
+
+- name: start local registry
+  local_action: shell scripts/start_local_registry.sh
+  when: 
+    - build == true
+
+- name: pull bigdata images to local registry
+  local_action: "shell scripts/push_images.sh {{ release_harbor_url }}/{{ item }} {{registry_url}}:{{ local_registry_port }}"
+  with_items:
+    - "{{bigdata_image.druid_image }}"
+    - "{{bigdata_image.elasticsearch_image }}"
+    - "{{bigdata_image.hadoop_hdfs_image }}"
+    - "{{bigdata_image.hbase_image }}"
+    - "{{bigdata_image.kafka_image }}"
+    - "{{bigdata_image.kafkamanager_image }}"
+    - "{{bigdata_image.mongodb_image }}"
+    - "{{bigdata_image.opentsdb_image }}"
+    - "{{bigdata_image.ping_image }}"
+    - "{{bigdata_image.plyql_image }}"
+    - "{{bigdata_image.spark_image }}"
+    - "{{bigdata_image.zookeeper_image }}"
+    - "{{bigdata_image.mysql_image }}"
+    - "{{bigdata_image.haproxy_image }}"
+    - "{{bigdata_image.centos7_jdk_image }}"
+    - "{{bigdata_image.redis_image}}"
+    - "{{bigdata_image.amah_druid_image }}"
+    - "{{bigdata_image.amah_elasticsearch_image }}"
+    - "{{bigdata_image.amah_hadoop_image }}"
+    - "{{bigdata_image.amah_hbase_image }}"
+    - "{{bigdata_image.amah_kafka_image }}"
+    - "{{bigdata_image.amah_mongodb_image }}"
+    - "{{bigdata_image.amah_mysql_image }}"
+    - "{{bigdata_image.amah_opentsdb_image }}"
+    - "{{bigdata_image.amah_redis_image }}"
+    - "{{bigdata_image.amah_spark_image }}"
+    - "{{bigdata_image.amah_zookeeper_image }}"
+    - "{{bigdata_image.redisstandalone_image }}"
+  when: 
+    - build == true
+   
+
+- name: build bigdata images 
+  shell: "sh scripts/build_images.sh files/images/bigdata/bigdata.zip"
+  when: 
+    - build == true
+
+
+#----------------------below tasks is executes on customer site---------------------#
+- name: create bigdata directory
+  file:
+    path: "/bigdata"
+    state: "directory"
+    mode: 0777
+  when: 
+    - push == true
+
+- name: copy images
+  copy:
+    src: "../files/images/bigdata/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: bigdata.zip, dest: /bigdata/bigdata.zip}
+  when: 
+    - push == true
+
+
+- name:  unzip console images 
+  shell: "unzip -o /bigdata/bigdata.zip -d /bigdata"
+  when: 
+    - push == true
+
+- name: start bigdata local registry
+  shell: "sh /bigdata/scripts/start_local_registry.sh"
+  when: 
+    - push == true
+
+- name: copy script
+  copy:
+    src: "scripts/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: push_images_to_harbor.sh, dest: /bigdata/scripts/push_images_to_harbor.sh}
+  when:
+    - push == true
+
+- name: login to harbor 
+  command:  "echo 'nonsense' | docker login -u admin -p {{ harbor_admin_password }}  {{local_harbor_url}}:{{harbor_port}}"
+  when:
+    - push == true
+
+- name: push images to harbor 
+  shell: "sh /bigdata/scripts/push_images_to_harbor.sh {{local_harbor_url}}:{{local_registry_port}}/{{ item }} {{local_harbor_url}}:{{harbor_port}}/{{ item }} "
+  with_items:
+    - "{{bigdata_image.druid_image }}"
+    - "{{bigdata_image.elasticsearch_image }}"
+    - "{{bigdata_image.hadoop_hdfs_image }}"
+    - "{{bigdata_image.hbase_image }}"
+    - "{{bigdata_image.kafka_image }}"
+    - "{{bigdata_image.kafkamanager_image }}"
+    - "{{bigdata_image.mongodb_image }}"
+    - "{{bigdata_image.opentsdb_image }}"
+    - "{{bigdata_image.ping_image }}"
+    - "{{bigdata_image.plyql_image }}"
+    - "{{bigdata_image.spark_image }}"
+    - "{{bigdata_image.zookeeper_image }}"
+    - "{{bigdata_image.mysql_image }}"
+    - "{{bigdata_image.haproxy_image }}"
+    - "{{bigdata_image.centos7_jdk_image }}"
+    - "{{bigdata_image.redis_image}}"
+    - "{{bigdata_image.amah_druid_image }}"
+    - "{{bigdata_image.amah_elasticsearch_image }}"
+    - "{{bigdata_image.amah_hadoop_image }}"
+    - "{{bigdata_image.amah_hbase_image }}"
+    - "{{bigdata_image.amah_kafka_image }}"
+    - "{{bigdata_image.amah_mongodb_image }}"
+    - "{{bigdata_image.amah_mysql_image }}"
+    - "{{bigdata_image.amah_opentsdb_image }}"
+    - "{{bigdata_image.amah_redis_image }}"
+    - "{{bigdata_image.amah_spark_image }}"
+    - "{{bigdata_image.amah_zookeeper_image }}"
+    - "{{bigdata_image.redisstandalone_image }}"
+  when: 
+    - push == true

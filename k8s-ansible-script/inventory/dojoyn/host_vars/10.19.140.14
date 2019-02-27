@@ -1,0 +1,2 @@
+etcd_name: etcd-003
+flannel_etcd_name: flannel-etcd-003

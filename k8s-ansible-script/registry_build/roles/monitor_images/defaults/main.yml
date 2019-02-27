@@ -1,0 +1,44 @@
+
+#harbor url to pull images from 
+release_harbor_url: 10.19.140.200:29006
+local_harbor_url: 127.0.0.1
+harbor_port: 29006
+registry_url: 127.0.0.1
+harbor_monitor_project: monitor
+harbor_tools_project: tools
+monitor_image_vesion: 1.3-release
+harbor_monitor_project: monitor
+monitor_release_version: helium-1.4.0
+monitor_image_version: 1.3-release
+
+monitor_image:
+  init_container: "{{ harbor_tools_project }}/init-container:1.0"
+  monitor_mongo: "{{harbor_monitor_project}}/mongo-3.4:0.1.0.RELEASE"
+  monitor_mysql: "{{harbor_tools_project}}/dep-debian-mysql-5.7.18:{{ monitor_release_version }}"
+  fluent_bit: "{{ harbor_monitor_project }}/fluent-bit:0.3.1.RELEASE"
+  config_service_server: "{{ harbor_monitor_project }}/enn-monitor-config-service-server:0.3.0.RELEASE"
+  config_service_web:  "{{ harbor_monitor_project }}/enn-monitor-config-service-web:0.3.1.RELEASE"
+  prometheus_engine: "{{ harbor_monitor_project }}/prometheus-engine-s3:{{ monitor_release_version }}"
+  prometheus_alertmanager: "{{ harbor_monitor_project }}/prometheus-alertmanager-s3:{{ monitor_release_version }}"
+  prometheus_pushgateway:  "{{ harbor_monitor_project }}/prometheus-pushgateway-s3:{{ monitor_release_version }}"
+  prometheus_script_exporter: "{{ harbor_monitor_project }}/prometheus-script-exporter-s3:{{ monitor_release_version }}"
+  cloudcmd: "{{ harbor_monitor_project }}/cloudcmd:{{ monitor_image_version }}"
+  prometheus_admin_center: "{{ harbor_monitor_project }}/prometheus-admin-center-s3:{{ monitor_release_version }}"
+  prometheus_admin_center_web:  "{{ harbor_monitor_project }}/prometheus-admin-center-web-s3:{{ monitor_release_version }}"
+  prometheus_pushprom: "{{ harbor_monitor_project }}/prometheus-pushprom-s3:{{ monitor_release_version }}"
+  prometheus_automation: "{{ harbor_monitor_project }}/prometheus-automation-s3:{{ monitor_release_version }}"
+  mock_server: "{{ harbor_monitor_project }}/mock-server:{{ monitor_release_version }}"
+  msc_console: "{{ harbor_monitor_project }}/msc-console:{{ monitor_release_version }}"
+  enn_monitor_tracing:  "{{ harbor_monitor_project }}/enn-monitor-tracing:1.3-release"
+  enn_monitor_trace_data_api: "{{harbor_monitor_project}}/enn-monitor-trace-data-api:1.3-release"
+  mt_console: "{{ harbor_monitor_project }}/mt-console:1.3-release"
+  grafana: "{{ harbor_monitor_project }}/monitor-grafana:1.3-release"
+  monitor_streaming_jobs: "{{ harbor_monitor_project }}/monitor-streaming-jobs:1.3.2-release"
+  security_gateway_server: "{{ harbor_monitor_project }}/enn-monitor-security-gateway-server:0.3.2.RELEASE"
+  security_config_server: "{{ harbor_monitor_project }}/enn-monitor-security-config-server:0.1.0.RELEASE"
+  security_config_web: "{{ harbor_monitor_project }}/enn-monitor-security-config-web:0.1.0.RELEASE"
+  security_gateway_web: "{{harbor_monitor_project}}/enn-monitor-security-gateway-web:0.1.0.RELEASE"
+  enn_monitor_log_archive_server: "{{ harbor_monitor_project }}/enn-monitor-log-archive-server:0.2.0.RELEASE"
+  kibana: "{{ harbor_monitor_project }}/kibana-5.4.0:0.1.0.RELEASE"
+
+

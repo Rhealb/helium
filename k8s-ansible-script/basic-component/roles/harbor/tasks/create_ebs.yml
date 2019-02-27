@@ -1,0 +1,29 @@
+- name: Create EBS harbor-db
+  local_action:
+    module: ec2_vol
+    volume_type: gp2
+    volume_size: "{{ harbor_db_image_size }}"
+    name: harbor-db
+    zone: cn-north-1b
+    region: cn-north-1
+  register: ec2_vol_db
+
+- name: Create EBS harbor-registry
+  local_action:
+    module: ec2_vol
+    volume_type: gp2
+    volume_size: "{{ haror_registry_image_size }}"
+    name: harbor-registry
+    zone: cn-north-1b
+    region: cn-north-1
+  register: ec2_vol_registry
+
+- name: Create EBS harbor-redis
+  local_action:
+    module: ec2_vol
+    volume_type: gp2
+    volume_size: "{{ haror_redis_image_size }}"
+    name: harbor-redis
+    zone: cn-north-1b
+    region: cn-north-1
+  register: ec2_vol_redis

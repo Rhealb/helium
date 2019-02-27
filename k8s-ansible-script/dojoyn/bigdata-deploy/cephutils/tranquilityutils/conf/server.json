@@ -1,0 +1,58 @@
+{
+  "dataSources" : [
+    {
+      "spec" : {
+        "dataSchema" : {
+          "dataSource" : "pageviews",
+          "metricsSpec" : [
+            {
+              "type" : "count",
+              "name" : "views"
+            },
+            {
+              "fieldName" : "latencyMs",
+              "type" : "doubleSum",
+              "name" : "latencyMs"
+            }
+          ],
+          "granularitySpec" : {
+            "segmentGranularity" : "hour",
+            "queryGranularity" : "none",
+            "type" : "uniform"
+          },
+          "parser" : {
+            "type" : "string",
+            "parseSpec" : {
+              "format" : "json",
+              "timestampSpec" : {
+                "column" : "time",
+                "format" : "auto"
+              },
+              "dimensionsSpec" : {
+                "dimensions" : [
+                  "url",
+                  "user"
+                ]
+              }
+            }
+          }
+        },
+        "tuningConfig" : {
+          "type" : "realtime",
+          "windowPeriod" : "PT10M",
+          "intermediatePersistPeriod" : "PT10M",
+          "maxRowsInMemory" : 75000
+        }
+      },
+      "properties" : {
+        "task.partitions" : "1",
+        "task.replicants" : "1"
+      }
+    }
+  ],
+  "properties" : {
+    "zookeeper.connect" : "%BD_SUITE_PREFIX%-zookeeper1:2181,%BD_SUITE_PREFIX%-zookeeper2:2181,%BD_SUITE_PREFIX%-zookeeper3:2181",
+    "http.port" : "8200",
+    "http.threads" : "40"
+  }
+}

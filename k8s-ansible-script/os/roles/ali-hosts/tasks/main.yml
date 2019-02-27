@@ -1,0 +1,45 @@
+---
+# tasks file for ali-hosts
+- name: registry nodename
+  shell: echo `curl -s http://100.100.100.200/latest/meta-data/region-id`.`curl -s http://100.100.100.200/latest/meta-data/instance-id`
+  register: nodename
+
+- name: delete old hosts
+  template:
+    src: ali-hosts-all
+    dest: /etc/hosts
+
+- name: write nodename in file
+  lineinfile: 
+    path: /etc/hosts
+    line: "{{ inventory_hostname }} {{ nodename.stdout }}"
+    insertafter: EOF
+    state: present
+
+- name: make sure /tmp/ali-hosts directory exist on local
+  file:
+    path: "/tmp/ali-hosts"
+    state: "directory"
+    mode: 0777
+  delegate_to: localhost
+
+- name: fetch hosts name
+  fetch: 
+    src: /etc/hosts
+    dest: /tmp/ali-hosts/ 
+
+- name: gather all hosts name in file ali-hosts-all
+  shell: roles/ali-hosts/templates/gather-ali-hosts.sh
+  delegate_to: localhost
+  when: inventory_hostname == master_list.0
+
+- name: add all hosts to nodes
+  template:
+    src: ali-hosts-all-new
+    dest: /etc/hosts
+
+- name: delete local old hosts
+  file:
+    path: "/tmp/ali-hosts"
+    state: "absent"
+  delegate_to: localhost

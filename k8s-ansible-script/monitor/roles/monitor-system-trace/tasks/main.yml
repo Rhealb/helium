@@ -1,0 +1,3 @@
+- include: copy_files.yml
+#- include: copy_images.yml
+- include: start_k8s.yml

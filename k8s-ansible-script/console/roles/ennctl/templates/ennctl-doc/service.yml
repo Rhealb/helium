@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: awesome-svc #required
+  namespace: awesome-ns #required
+  app: awesome-app #required, the name of application.
+  labels:
+    role: druid
+spec:
+  type: NodePort #required NodePort/ClusterIP/None/External
+  ports: #required
+  - name: awesome-port-name
+    port: 3306
+    targetPort: 3306
+    nodePort: 31115
+    protocol: TCP
+  selector: #required
+    app: mysql-deploy #select pod with this label.

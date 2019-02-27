@@ -1,0 +1,115 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-dns-v20
+  namespace: kube-system
+  labels:
+    k8s-app: kube-dns
+    version: v20
+    kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kube-dns
+      version: v20
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-dns
+        version: v20
+        kubernetes.io/cluster-service: "true"
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: 'true'
+        scheduler.alpha.kubernetes.io/tolerations: '[{"key":"CriticalAddonsOnly", "operator":"Exists"}]'
+    spec:
+      containers:
+      - name: kubedns
+        image: {{ kubedns_image }}
+        imagePullPolicy: IfNotPresent
+        resources:
+          # TODO: Set memory limits when we've profiled the container for large
+          # clusters, then set request = limit to keep this container in
+          # guaranteed class. Currently, this container falls into the
+          # "burstable" category so the kubelet doesn't backoff from restarting it.
+          limits:
+            cpu: 100m
+            memory: 170Mi
+          requests:
+            cpu: 100m
+            memory: 70Mi
+#        livenessProbe:
+#          httpGet:
+#            path: /healthz
+#            port: 8080
+#            scheme: HTTP
+#          initialDelaySeconds: 60
+#          timeoutSeconds: 5
+#          successThreshold: 1
+#          failureThreshold: 5
+#        readinessProbe:
+#          httpGet:
+#            path: /readiness
+#            port: 8081
+#            scheme: HTTP
+          # we poll on pod startup for the Kubernetes master service and
+          # only setup the /readiness HTTP server once that's available.
+#          initialDelaySeconds: 30
+#          timeoutSeconds: 5
+        args:
+        - --kubecfg-file=/etc/kubernetes/kubeconfig
+#        - --kube-master-url=http://127.0.0.1:8080
+        - --domain={{ domain }}
+        - --dns-port=10053
+        - --v=0
+        ports:
+        - containerPort: 10053
+          name: dns-local
+          protocol: UDP
+        - containerPort: 10053
+          name: dns-tcp-local
+          protocol: TCP
+        volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/kubernetes
+      - name: dnsmasq
+        image: {{ dnsmasq_image }}
+        imagePullPolicy: IfNotPresent
+        args:
+        - --cache-size=1000
+        - --no-resolv
+        - --server=127.0.0.1#10053
+        ports:
+        - containerPort: 53
+          name: dns
+          protocol: UDP
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+      - name: healthz
+        image: {{ exechealthz_image }}
+        imagePullPolicy: IfNotPresent
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          limits:
+            cpu: 10m
+            memory: 50Mi
+          requests:
+            cpu: 10m
+            # Note that this container shouldn't really need 50Mi of memory. The
+            # limits are set higher than expected pending investigation on #29688.
+            # The extra memory was stolen from the kubedns container to keep the
+            # net memory requested by the pod constant.
+            memory: 50Mi
+        args:
+        - -cmd=nslookup kubernetes.default.svc.enn.cn 127.0.0.1 >/dev/null && nslookup kubernetes.default.svc.enn.cn 127.0.0.1:10053 >/dev/null
+        - -port=8080
+        - -quiet
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+      dnsPolicy: Default  # Don't use cluster DNS.
+      volumes:
+      - name: kubeconfig
+        configMap:
+          name: api-config

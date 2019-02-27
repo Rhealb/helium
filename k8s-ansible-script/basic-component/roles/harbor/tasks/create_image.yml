@@ -1,0 +1,14 @@
+---
+- name: set rbd image names
+  set_fact:
+    rbd_images:
+      - harbor-db
+      - harbor-registry
+      - harbor-redis
+
+- name: create ceph rbd images
+  shell: rbd create k8s.{{ harbor_namespace }}/{{ item.0 }} --size {{ item.1 }} --image-feature layering
+  with_together:
+    - "{{ rbd_images }}"
+    - ["{{ harbor_db_image_size }}", "{{ harbor_registry_image_size }}","{{ harbor_redis_image_size }}"]
+  ignore_errors: True

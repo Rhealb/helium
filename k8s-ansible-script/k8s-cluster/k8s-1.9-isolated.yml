@@ -1,0 +1,34 @@
+---
+- hosts: all
+  remote_user: root
+  # serial: 1
+  max_fail_percentage: 0
+  # gather_facts: False 
+  become: true
+  become_method: sudo
+  roles:
+    - { role: date-check, become: false }
+    - { role: certificate, become: false }
+    - rootca
+    - { role: special-storage-setup, when: inventory_hostname in host_path_list }
+    - { role: etcd3, when: inventory_hostname in etcd_init_servers }
+    - { role: etcd3-flannel, when: (inventory_hostname in flannel_etcd_list) and (flannel_etcd_list != etcd_init_servers) }
+    - { role:  flannel-backend-setup, when: inventory_hostname == flannel_etcd_list.0 }
+    - flannel
+    - docker-ce
+    - log-cleanup
+    - k8s/kubeconfig
+    - { role:  k8s/apiserver, when: inventory_hostname in master_list }
+    - k8s/apiserver-haproxy
+    - k8s/kubectl
+    - { role: k8s/controller-manager, when: inventory_hostname in master_list }
+    - { role: k8s/scheduler, when: inventory_hostname in master_list }
+    - { role: k8s/enndata-scheduler, when: inventory_hostname in master_list }
+    - k8s/proxy
+    - k8s/kubelet
+    - { role: keepalived, when: inventory_hostname in hanode_list }
+    - dns-images
+    - { role: core-dns, become: false, when: inventory_hostname == master_list.0 }
+    - health-check
+    - { role: ali-controller-manager, when: alicloud is defined }
+    

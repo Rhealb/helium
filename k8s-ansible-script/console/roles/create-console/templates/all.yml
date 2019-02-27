@@ -1,0 +1,26 @@
+---
+all:
+  vars:
+    ntp_orphan_parents: {{ ntp_orphan_parents | to_json }}
+    ntp_server: {{ ntp_server }}
+    master_list: {{ master_list | to_json }}
+    etcd_init_servers: {{ etcd_init_servers | to_json }}
+    hanode_list: {{ hanode_list | to_json }}
+    host_path_list: {{ host_path_list | to_json }}
+    cluster_name: {{ cluster_name }}
+    cluster_ip_range: {{ cluster_ip_range }}
+    domain: {{ domain }}
+    max_pods: {{ max_pods }}
+    cpu_reserved: {{ cpu_reserved }}
+    memory_reserved: {{ memory_reserved }}
+    sample_rate: {{ sample_rate }}
+    flannel_etcd_list: {{ flannel_etcd_list | to_json }}
+    flanneld_subnet: {{ flanneld_subnet }}
+    local_repo: {{ ca_vip }}:29271
+    ca_vip: {{ ca_vip }}
+    admin_password: {{ admin_password }}
+    admin_username: {{ admin_username }}
+    kl_interface: {{ kl_interface }}
+    storage_type: {{ storage_type }}
+    nameservers: {{ nameservers | to_json }}
+    searchdomains: {{ searchdomains | to_json }}

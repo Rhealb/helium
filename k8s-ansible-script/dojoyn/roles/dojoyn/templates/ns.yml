@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dojoyn
+spec:
+  nsadmin:
+  - bitmap
+  allowPrivilege: true
+  allowHostpath: true
+  allowCriticalPod: true
+  resources:
+    limits:
+      cpu: {{ limit_cpu }}
+      memory: {{ limit_mem }}
+    requests:
+      cpu: {{ request_cpu }}
+      memory: {{ request_mem }}
+      localStorage: {{ local_storage }}
+      remoteStorage: {{ remote_storage }}

@@ -1,0 +1,37 @@
+---
+# tasks file for convert-console
+- name: move console deployment to app
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.gateway_http }}/gw/in/api/v1/namespaces/{{ namespace.console }}/deployment/{{ item }}/add_to_app/console
+    method: POST
+    timeout: 300
+    validate_certs: no
+    headers:
+      Content-Type: "application/json"
+      x-gw-user-id: admin
+      x-gw-req-id: console
+      Authorization: "Bearer {{ access_token }}"
+  with_items:
+    - "{{ console_deployments }}"
+  register: result
+  until: result.status == 200 or result.status == 201 or result.status == 400
+  retries: 10
+  delay: 30
+
+- name: move console service to app
+  uri:
+    url: http://{{ master_list[0] }}:{{ node_port.gateway_http }}/gw/in/api/v1/namespaces/{{ namespace.console }}/service/{{ item }}/add_to_app/console
+    method: POST
+    timeout: 300
+    validate_certs: no
+    headers:
+      Content-Type: "application/json"
+      x-gw-user-id: admin
+      x-gw-req-id: console
+      Authorization: "Bearer {{ access_token }}"
+  with_items:
+    - "{{ console_services }}"
+  register: result
+  until: result.status == 200 or result.status == 201 or result.status == 400
+  retries: 10
+  delay: 30

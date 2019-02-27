@@ -1,0 +1,46 @@
+sep='||'
+ret=$(uname -a)
+ret=$ret$sep$(kubelet --version)
+
+if [ -x "$(command -v ceph)" ]; then
+  ret=$ret$sep$(ceph -v | grep -o 'ceph version [^ ]*')
+else
+  ret=$ret$sep"not found"
+fi
+if [ -x "$(command -v etcd)" ]; then
+  ret=$ret$sep$(etcd --version | grep -o 'etcd Version: [^ ]*')
+else
+  ret=$ret$sep"not found"
+fi
+ret=$ret$sep$(docker -v)
+
+if [ -x "$(command -v kube-controller-manager)" ]; then
+  ret=$ret$sep$(kube-controller-manager --version)
+else
+  ret=$ret$sep'not found'
+fi
+
+if [ -x "$(command -v kube-apiserver)" ]; then
+  ret=$ret$sep$(kube-apiserver --version)
+else
+  ret=$ret$sep'not found'
+fi
+
+if [ -x "$(command -v kube-scheduler)" ]; then
+  ret=$ret$sep$(kube-scheduler --version)
+else
+  ret=$ret$sep'not found'
+fi
+
+if [ -n "$(command -v kube-proxy)" ]; then
+  ret=$ret$sep$(kube-proxy --version)
+else
+  ret=$ret$sep'not found'
+fi
+
+if [ -x $(command -v flanneld) ]; then
+  ret=$ret$sep'flanneld: '$(flanneld -version 2>&1 >/dev/null)
+else
+  ret=$ret$sep"not found"
+fi
+echo $ret

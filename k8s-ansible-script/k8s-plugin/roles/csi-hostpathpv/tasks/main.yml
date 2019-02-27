@@ -1,0 +1,56 @@
+---
+ #make sure the directory exist
+- name: make sure /tmp/csi-hostpathpv directory exist on target server
+  file:
+    path: "/tmp/csi-hostpathpv"
+    state: "directory"
+    mode: 0777
+
+- name: copy and push docker images to harbor
+  include: copy_docker_images.yml
+
+- name: copy script and yaml files to /tmp/csi-hostpathpv
+  template:
+    src: "{{ item.src }}"
+    dest: "/tmp/csi-hostpathpv/{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: gencerts.sh, dest: gencerts.sh}
+    - {src: hostpath-csi-attacher.yaml, dest: hostpath-csi-attacher.yaml}
+    - {src: hostpath-csi-plugin.yaml, dest: hostpath-csi-plugin.yaml}
+
+- name: clean deployment
+  when: not is_agile
+  command: "{{ item }}"
+  with_items:
+    - kubectl delete -f /tmp/csi-hostpathpv/hostpath-csi-attacher.yaml
+    - kubectl delete -f /tmp/csi-hostpathpv/hostpath-csi-plugin.yaml
+    - sleep 6
+  ignore_errors: yes
+
+- name: bash gencerts
+  command: bash /tmp/csi-hostpathpv/gencerts.sh
+
+- name: label hostpathpv node
+  shell: kubectl label node {{ item }} io.enndata/hasquotapath=true --overwrite
+  with_items:
+  - "{{ host_path_list }}"
+
+- name: label hostpathpv node
+  shell: kubectl label node {{ item }} node-role.kubernetes.io/hostpath=true --overwrite
+  with_items:
+  - "{{ host_path_list }}"
+
+- name: create deployment
+  command: "{{ item }}"
+  with_items:
+    - kubectl create -f /tmp/csi-hostpathpv/hostpath-csi-attacher.yaml
+    - kubectl create -f /tmp/csi-hostpathpv/hostpath-csi-plugin.yaml
+
+ #clean up temp files
+- name: clean up "/tmp/csi-hostpathpv"
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  with_items:
+  - "/tmp/csi-hostpathpv"

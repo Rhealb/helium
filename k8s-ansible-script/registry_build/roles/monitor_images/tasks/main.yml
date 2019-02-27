@@ -1,0 +1,132 @@
+- name: cleanup docker directory
+  file:
+    state: absent
+    path: "images/docker"
+  when: 
+    - build == true
+    
+
+- name: start local registry
+  local_action: shell scripts/start_local_registry.sh
+  when: 
+    - build == true
+
+- name: pull monitor images to local registry
+  local_action: "shell scripts/push_images.sh {{ release_harbor_url }}/{{ item }} {{registry_url}}:{{ local_registry_port }}"
+  with_items:
+    - "{{ monitor_image.init_container }}"
+    - "{{ monitor_image.monitor_mongo }}"
+    - "{{ monitor_image.monitor_mysql }}"
+    - "{{ monitor_image.fluent_bit }}"
+    - "{{ monitor_image.config_service_server }}"
+    - "{{ monitor_image.config_service_web }}"
+    - "{{ monitor_image.prometheus_engine }}"
+    - "{{ monitor_image.prometheus_alertmanager }}"
+    - "{{ monitor_image.prometheus_pushgateway }}"
+    - "{{ monitor_image.prometheus_script_exporter }}"
+    - "{{ monitor_image.prometheus_admin_center }}"
+    - "{{ monitor_image.prometheus_admin_center_web }}"
+    - "{{ monitor_image.prometheus_pushprom }}"
+    - "{{ monitor_image.prometheus_automation }}"
+    - "{{ monitor_image.mock_server }}"
+    - "{{ monitor_image.msc_console }}"
+    - "{{ monitor_image.enn_monitor_tracing }}"
+    - "{{ monitor_image.enn_monitor_trace_data_api }}"
+    - "{{ monitor_image.mt_console }}"
+    - "{{ monitor_image.grafana }}"
+    - "{{ monitor_image.security_gateway_server }}"
+    - "{{ monitor_image.security_gateway_web }} "
+    - "{{ monitor_image.security_config_server }}"
+    - "{{ monitor_image.security_config_web }}"
+    - "{{ monitor_image.enn_monitor_log_archive_server}}"
+    - "{{ monitor_image.kibana}}"
+    - "{{ monitor_image.cloudcmd}}"
+    - "{{ monitor_image.monitor_streaming_jobs }}"
+  when: 
+    - build == true
+   
+
+- name: build monitor images 
+  shell: "sh scripts/build_images.sh files/images/monitor/monitor.zip"
+  when: 
+    - build == true
+
+
+##----------------------below tasks is executes on customer site---------------------#
+- name: create monitor directory
+  file:
+    path: "/monitor"
+    state: "directory"
+    mode: 0777
+  when: 
+    - push == true
+
+- name: copy monitor images
+  copy:
+    src: "../files/images/monitor/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: monitor.zip, dest: /monitor/monitor.zip}
+  when: 
+    - push == true
+
+
+- name:  unzip monitor images 
+  shell: "unzip -o /monitor/monitor.zip -d /monitor"
+  when: 
+    - push == true
+
+- name: start monitor local registry
+  shell: "sh /monitor/scripts/start_local_registry.sh"
+  when: 
+    - push == true
+
+
+- name: copy script
+  copy:
+    src: "scripts/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: push_images_to_harbor.sh, dest: /monitor/scripts/push_images_to_harbor.sh}
+  when:
+    - push == true
+
+- name: login to harbor 
+  command:  "echo 'nonsense' | docker login -u admin -p {{ harbor_admin_password }}  {{local_harbor_url}}:{{harbor_port}}"
+  when:
+    - push == true
+
+- name: push monitor images to harbor 
+  shell: "sh /monitor/scripts/push_images_to_harbor.sh {{local_harbor_url}}:{{local_registry_port}}/{{ item }} {{local_harbor_url}}:{{harbor_port}}/{{ item }} "
+  with_items:
+    - "{{ monitor_image.init_container }}"
+    - "{{ monitor_image.monitor_mongo }}"
+    - "{{ monitor_image.monitor_mysql }}"
+    - "{{ monitor_image.fluent_bit}}"
+    - "{{ monitor_image.config_service_server }}"
+    - "{{ monitor_image.config_service_web }}"
+    - "{{ monitor_image.prometheus_engine }}"
+    - "{{ monitor_image.prometheus_alertmanager }}"
+    - "{{ monitor_image.prometheus_pushgateway }}"
+    - "{{ monitor_image.prometheus_script_exporter }}"
+    - "{{ monitor_image.prometheus_admin_center }}"
+    - "{{ monitor_image.prometheus_admin_center_web }}"
+    - "{{ monitor_image.prometheus_pushprom }}"
+    - "{{ monitor_image.prometheus_automation }}"
+    - "{{ monitor_image.mock_server }}"
+    - "{{ monitor_image.msc_console }}"
+    - "{{ monitor_image.enn_monitor_tracing }}"
+    - "{{ monitor_image.enn_monitor_trace_data_api }}"
+    - "{{ monitor_image.mt_console }}"
+    - "{{ monitor_image.grafana }}"
+    - "{{ monitor_image.security_gateway_server }}"
+    - "{{ monitor_image.security_gateway_web }} "
+    - "{{ monitor_image.security_config_server }}"
+    - "{{ monitor_image.security_config_web }}"
+    - "{{ monitor_image.enn_monitor_log_archive_server}}"
+    - "{{ monitor_image.kibana}}"
+    - "{{ monitor_image.cloudcmd}}"
+    - "{{ monitor_image.monitor_streaming_jobs }}"
+
+  when: 
+    - push == true

@@ -1,0 +1,12 @@
+---
+########################################################### 
+#this playbook is used to create package 
+##########################################################
+- hosts: localhost
+  roles:
+     - role: wizard
+     - role: k8s_binary
+     - role: basic_component
+- import_playbook: build_agile_images.yml
+- import_playbook: build_pro_images.yml
+ 

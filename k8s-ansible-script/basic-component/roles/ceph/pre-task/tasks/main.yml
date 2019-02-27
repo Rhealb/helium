@@ -1,0 +1,34 @@
+---
+- name: check whether rbd or cephfs are used
+  shell: ls /sys/kernel/debug/ceph/ | wc -l
+  register: ceph_status
+
+- fail: msg="RBD or CEPHFS are still used by node {{ inventory_hostname }}. Please release all rbd images"
+  when: ceph_status.stdout != "0"
+
+- include_tasks: upload_image.yml
+  when: inventory_hostname in mon_list + osd_list + ceph_mds_list
+
+- block:
+  - name: delete ceph namespace if exist
+    shell: kubectl delete ns ceph
+    register: ceph_ns_exist
+    ignore_errors: yes
+
+  - name: ensure ceph namespace delete
+    shell: kubectl get ns ceph
+    register: result
+    until: result.failed
+    ignore_errors: yes
+    retries: 50
+    delay: 20
+    when: ceph_ns_exist is succeeded
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true
+
+- include_tasks: clean_old_data.yml
+  when: inventory_hostname in mon_list + osd_list
+
+- include_tasks: gen_k8s_files.yml
+  delegate_to: "{{ master_list[0] }}"
+  run_once: true

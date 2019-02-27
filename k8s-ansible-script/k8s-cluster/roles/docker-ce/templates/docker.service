@@ -1,0 +1,37 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=http://docs.docker.com
+After=network-online.target flanneld.service
+Requires=flanneld.service
+
+[Service]
+Type=notify
+EnvironmentFile=-/run/flannel/docker
+EnvironmentFile=-/etc/sysconfig/docker-storage
+EnvironmentFile=-/etc/sysconfig/docker
+ExecStart=/usr/bin/dockerd \
+          --log-level warn \
+          --live-restore \
+          --exec-opt native.cgroupdriver={{ cgroup_driver }} \
+          $OPTIONS \
+          $DOCKER_STORAGE_OPTIONS \
+          $DOCKER_NETWORK_OPTIONS \
+          $ADD_REGISTRY \
+          $BLOCK_REGISTRY \
+          $INSECURE_REGISTRY\
+	      $REGISTRIES
+ExecReload=/bin/kill -s HUP $MAINPID
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+RestartSec=2
+TimeoutSec=0
+Restart=always
+KillMode=process
+StartLimitBurst=3
+StartLimitInterval=60s
+Delegate=yes
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,12 @@
+- name: get mysql pod name
+  shell: "kubectl -n monitor-essential-service get pod | grep monitor-mysql | awk '{ print $1}'"
+  register: to_check_pod
+
+- name: check mysql root privilege
+  shell: 'kubectl -n monitor-essential-service exec -it {{ to_check_pod.stdout }}
+    -- mysql -uroot -penncloud -e ''select * from information_schema.USER_PRIVILEGES;''
+     | grep ''%'' | grep ''CREATE TABLESPACE'''
+  register: result
+  until: result.stdout.find("YES") != -1
+  retries: 16
+  delay: 30

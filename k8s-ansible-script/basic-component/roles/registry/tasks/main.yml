@@ -1,0 +1,37 @@
+---
+# tasks file for registry
+- name: Docker Registry | create a directory to store deployment files
+  file:
+    path: "{{ app_deploy_dir }}/registry"
+    state: directory
+
+- name: Docker Registry | set_fact deploy_files
+  set_fact:
+    deploy_files:
+      - registry-data-pvc.yaml
+      - registry-data-pv.yaml
+      - registry-config.yaml
+      - registry-secret.yaml
+      - registry-dp.yaml
+      - registry-svc.yaml
+
+- name: Docker Registry | generagte hasharedsecret
+  shell: cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 32
+  register: ha_shared_secret
+
+- name: Docker Registry | write deployment files
+  template:
+    src: "{{ item }}.jinja"
+    dest: "{{ app_deploy_dir }}/registry/{{ item }}"
+  with_items:
+   - "{{ deploy_files }}"
+
+- name: Docker Registry | create registry
+  shell:
+    kubectl create -f {{ app_deploy_dir }}/registry
+
+- name: Docker Registry | wait for registry be ready
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: "{{ registry_nodeport }}"
+    delay: 5

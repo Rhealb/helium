@@ -1,0 +1,10 @@
+---
+registry_url: 127.0.0.1:29006
+streaming_image_version: 1.3.2-release
+workspace: monitor-streaming-jobs
+namespace: monitor-application
+
+streaming_request_cpu: 0.2
+streaming_request_memory: 1500Mi
+streaming_limit_cpu: 1
+streaming_limit_memory: 1500Mi

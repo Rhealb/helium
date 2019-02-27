@@ -1,0 +1,76 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: enn-monitor-log-archive-server
+    labels:
+        name: enn-monitor-log-archive-server
+    namespace: {{monitor_ns_monitor_application}}
+spec:
+    replicas: 1
+    strategy:
+        type: RollingUpdate
+        maxUnavailable: 1
+        maxSurge: 0
+    template:
+        metadata:
+            labels:
+                name: enn-monitor-log-archive-server
+        spec:
+            containers:
+                -
+                    name: enn-monitor-log-archive-server
+                    image: {{ registry_url }}/{{ monitor_log_archive_server_images }}
+                    resources:
+                        requests:
+                            memory: {{ monitor_log_archive_server_memory_request }}
+                            cpu: {{ monitor_log_archive_server_cpu_request }}
+                        limits:
+                            memory: {{ monitor_log_archive_server_memory_limit }}
+                            cpu: {{ monitor_log_archive_server_cpu_limit }}
+                    ports:
+                        -
+                            name: port
+                            containerPort: {{ monitor_log_archive_server_listenport }}
+
+                    env:
+                        -
+                            name: NAMESPACE
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.namespace
+                        -
+                            name: PODNAME
+                            valueFrom:
+                                fieldRef:
+                                    fieldPath: metadata.name
+                        -
+                            name: APPNAME
+                            value: enn-monitor-log-archive-server
+                        -
+                            name: LOGPATTERN
+                            value: '^(?<dateTime>[\d\-]+[\s]+[\d\:\.]+)[\s]*\[(?<threadName>[^\]\s]*)\][\s]*(?<logLevel>[^\s]*)[\s]*(?<position>[^\s]*)[\s\-]*\[(?<traceId>[^\]]*)\][\s\-]*\[(?<parentPod>[^\]]*)\][\s\-]*(?<log>.*)$'
+                        -
+                            name: LOGASSEMBLE
+                            value: '%logLevel%,%position%,%log%,%dateTime%,%traceId%,%parentPod%,%threadName%'
+                    command:
+                        - "java"
+                        - "-cp"
+                        - "/opt/enn-monitor-log-archive-server.jar"
+                        - "enn.monitor.log.archive.server.EnnMonitorLogArchiveServer"
+                        - "--listen_port"
+                        - "{{ monitor_log_archive_server_listenport }}"
+                        - "--mongoUrl"
+                        - "mongodb://{{monitor_mongo_svr}}.monitor-essential-service:{{monitor_mongo_port}}/EnnMonitorLogArchive"
+                        - "--dbName"
+                        - "EnnMonitorLogArchive"
+                        - "--es_url"
+                        - "pre1-esclient-ex.monitor-essential-service:9300"
+                        - "--es_cluster_name"
+                        - "es-log"
+                        - "--token"
+                        - "{{ monitor_log_archive_server_token }}"
+                        - "--enable_metrics"
+                        - "--gateway_server"
+                        - "{{ monitor_security_gateway_server_servername }}"
+                        - "--gatewayPort"
+                        - "{{ monitor_security_gateway_server_listenport }}"

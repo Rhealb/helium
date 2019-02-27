@@ -1,0 +1,6 @@
+[Unit]
+Description=clean up old files under /var/log/kubernetes
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh -c '/usr/bin/find /var/log/kubernetes -mtime +60 -type f | /usr/bin/xargs -I{} rm -f {}'

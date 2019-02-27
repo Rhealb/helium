@@ -1,0 +1,54 @@
+---
+all:
+  vars:
+    etcd_init_servers: ["172.16.2.51", "172.16.2.53", "172.16.2.52"]
+    flannel_etcd_list: ["172.16.2.51", "172.16.2.53", "172.16.2.52"]
+    flanneld_subnet: "10.253.0.0/16"
+    ntp_orphan_parents: ["172.16.2.51", "172.16.2.53", "172.16.2.52"]
+    ntp_server: "192.168.20.221"
+    admin_password: "IampAssword"
+    admin_username: "iAmAdmin"
+    master_list: ["172.16.2.51", "172.16.2.53", "172.16.2.52"]
+    cluster_ip_range: "10.254.0.0/16"
+    cluster_name: "cloud-office"
+    domain: "cluster.local"
+    ingress_dns_domain: "cluster.local"
+    interface: "eth0"
+    vip: "172.16.2.50"
+    ca_vip: "172.16.2.50"
+    hanode_list: ["172.16.2.54", "172.16.2.55"]
+    backend_type: "vxlan"
+    mon_list: ["172.16.2.55", "172.16.2.54", "172.16.2.53"]
+    osd_list: ["172.16.2.51", "172.16.2.52", "172.16.2.55", "172.16.2.54", "172.16.2.53"]
+    ceph_public_network: "172.16.2.0/21"
+    ceph_cluster_network: "172.16.2.0/21"
+    rgw_dns_name: "enncloud.ceph.s3"
+    ceph_image_tag: "12.2.1"
+    rbd_dev_list: ["xvdb"]
+    harbor_admin_password: admin
+    keystone_admin_password: admin
+    console_version: release-1.1.1
+    storage_type: "ceph"
+    install_mode: "local"
+    hostname_prefix: "bj-cloud"
+    local_repo: "192.168.22.182:8002"
+
+  children:
+    centos:
+      vars:
+        ansible_ssh_user: root
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+        special_mounts:
+          /dev/xvdc:
+            path: /xfs/disk1
+            opt: prjquota
+#           /dev/sdb:
+#             path: /data
+#             opt: defaults
+      hosts:
+        172.16.2.51:
+        172.16.2.52:
+        172.16.2.53:
+        172.16.2.54:
+        172.16.2.55:

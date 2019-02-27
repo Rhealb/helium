@@ -1,0 +1,90 @@
+{
+    "apiVersion": "apps/v1beta1",
+    "kind": "StatefulSet",
+    "metadata": {
+        "labels": {
+            "run": "ldaps-ha",
+            "X_APP": "ldap"
+        },
+        "name": "ldaps-ha",
+        "namespace": "{{ ldap_namespace }}"
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "matchLabels": {
+                "run": "ldaps-ha"
+            }
+        },
+        "serviceName": "ldaps-ha",
+        "template": {
+            "metadata": {
+                "annotations": {
+                    "scheduler.alpha.kubernetes.io/critical-pod": "true"
+                },
+                "labels": {
+                    "run": "ldaps-ha",
+                    "X_APP": "ldap",
+                    "X_NAMESPACE": "system-tools"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "{{ registry_url }}/{{ ldap_image_url }}",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "ldpas",
+                        "resources": {
+                            "limits": {
+                                "cpu": "0.9",
+                                "memory": "3Gi"
+                            },
+                            "requests": {
+                                "cpu": "0.4",
+                                "memory": "1Gi"
+                            }
+                        },
+                        "ports": [
+                            {
+                                "containerPort": 389,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 636,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 8888,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data",
+                                "name": "ldap-data"
+                            },
+                            {
+                                "mountPath": "/config",
+                                "name": "config"
+                            }
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "ldap-data",
+                        "persistentVolumeClaim": {
+                            "claimName": "{{ ldap_namespace }}-ldapdata-pvc"
+                        }
+                    },
+                    {
+                        "name": "config",
+                        "configMap": {
+                            "name": "ldap-config"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

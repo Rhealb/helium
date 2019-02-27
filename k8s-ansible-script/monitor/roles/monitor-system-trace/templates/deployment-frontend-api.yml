@@ -1,0 +1,83 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: trace-fe-api
+      namespace: {{ namespace }}
+      labels:
+        app: monitor-tracing
+        name: trace-fe-api
+        tier: backend
+    spec:
+      ports:
+        - name: p1
+          port: 8090
+          nodePort: 29313
+      type: NodePort
+      selector:
+        name: trace-fe-api
+
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: trace-fe-api
+      namespace: {{ namespace }}
+      labels:
+        name: trace-fe-api
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            name: trace-fe-api
+        spec:
+          containers:
+            - name: trace-fe-api
+              imagePullPolicy: IfNotPresent
+              image: {{ registry_url }}/monitor/enn-monitor-tracing:{{ image_version }}
+              resources:
+                requests:
+                  memory: {{ fe_api_mem_req }}
+                  cpu: {{ fe_api_cpu_req }}
+                limits:
+                  memory: {{ fe_api_mem_limit }}
+                  cpu: {{ fe_api_cpu_limit }}
+              ports:
+                - containerPort: 8090
+                  protocol: TCP
+              volumeMounts:
+                - name: monitor-properties
+                  mountPath: /opt/monitor.properties
+                  subPath: monitor.properties
+              env:
+                - name: NAMESPACE
+                  valueFrom:
+                      fieldRef:
+                          fieldPath: metadata.namespace
+                - name: PODNAME
+                  valueFrom:
+                      fieldRef:
+                          fieldPath: metadata.name
+                - name: APPNAME
+                  value: trace-fe-api
+              command:
+                  - "java"
+                  - "-Xms1024m"
+                  - "-Xmx1800m"
+                  - "-jar"
+                  - "/opt/enn-monitor-tracing-1.0.0.jar"
+                  - "--config_service_host"
+                  - "enn-monitor-config-service-server.monitor-application"
+                  - "--config_service_port"
+                  - "10000"
+                  - "--trace_host"
+                  - "trace-data-api.monitor-application"
+                  - "--trace_port"
+                  - "8888"
+          volumes:
+            - name: monitor-properties
+              configMap:
+                name: monitor-properties-fe-api

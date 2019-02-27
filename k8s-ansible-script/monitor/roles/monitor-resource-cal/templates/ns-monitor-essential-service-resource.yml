@@ -1,0 +1,6 @@
+monitor_essential_service_cpu_limit: $monitor-essential-service_cpu_limit
+monitor_essential_service_mem_limit: $monitor-essential-service_mem_limit
+monitor_essential_service_cpu_req: $monitor-essential-service_cpu_req
+monitor_essential_service_mem_req: $monitor-essential-service_mem_req
+monitor_essential_service_remote_disk_req: $monitor-essential-service_remote_disk_req
+monitor_essential_service_local_disk_req: $monitor-essential-service_local_disk_req

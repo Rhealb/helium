@@ -1,0 +1,6 @@
+monitor_application_cpu_limit: $monitor-application_cpu_limit
+monitor_application_mem_limit: $monitor-application_mem_limit
+monitor_application_cpu_req: $monitor-application_cpu_req
+monitor_application_mem_req: $monitor-application_mem_req
+monitor_application_remote_disk_req: $monitor-application_remote_disk_req
+monitor_application_local_disk_req: $monitor-application_local_disk_req

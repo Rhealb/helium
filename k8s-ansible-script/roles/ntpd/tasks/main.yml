@@ -1,0 +1,27 @@
+---
+# tasks file for ntpd
+- name: install ntp package
+  yum:
+    name: ntp
+    state: installed
+
+- name: remove chrony package
+  yum:
+    name: chrony
+    state: removed
+
+- name: upload config file
+  template:
+    src: ntp.conf
+    dest: /etc/ntp.conf
+
+- name: enable ntpdate service
+  service:
+    name: ntpdate
+    enabled: yes
+
+- name: restart and enable ntp service
+  service:
+    name: ntpd
+    enabled: yes
+    state: restarted

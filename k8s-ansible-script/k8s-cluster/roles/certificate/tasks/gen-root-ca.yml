@@ -1,0 +1,15 @@
+---
+- name: Gen_Root_CA | Create ssl dir
+  file:
+    path: "files/ssl"
+    state: directory
+  delegate_to: 127.0.0.1
+  run_once: yes
+
+- name: Gen_Root_CA | Create root ca cert
+  shell:
+    cfssl gencert -initca {{ role_path }}/files/ca-csr.json | cfssljson -bare ca
+  args:
+    chdir: "files/ssl"
+  delegate_to: 127.0.0.1
+  run_once: yes

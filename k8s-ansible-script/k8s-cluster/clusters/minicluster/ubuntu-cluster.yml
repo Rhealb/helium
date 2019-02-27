@@ -1,0 +1,78 @@
+---
+all:
+  vars:
+  # ntp
+    ntp_orphan_parents: [10.19.138.63]
+    ntp_server: "10.19.138.63"
+  # master and node
+    master_list: [10.19.138.63]
+    etcd_init_servers: [10.19.138.63]
+    hanode_list: [10.19.138.63]
+    host_path_list: [10.19.138.63]
+    cluster_name: "qa-cluster"
+    cluster_ip_range: "192.168.0.0/16"
+    domain: "cluster.local"
+    max_pods: 100
+    cpu_reserved: 0
+    memory_reserved: 0
+    kubelet_dir: "/data/kubelet"
+    sample_rate: 30
+    cluster_total_cores: 72
+    cluster_total_mem: 192
+  # flannel
+    flannel_etcd_list: [10.19.138.63]
+    backend_type: "vxlan"
+    flanneld_subnet: "172.16.0.0/12"
+  # cluster
+    local_repo: "10.19.138.132:8009"
+    ca_vip: "10.19.138.63"
+    admin_password: admin
+    admin_username: admin
+    interface: external0
+    single_node: true
+    ubuntu_system: true
+  # storage
+    storage_type: hostpath
+    nfs_host: 1111
+    nfs_path: dddd
+  # ingress
+    ingress_dns_domain: enn.ingress.cn
+  # harbor
+    local_registry_port: 5000
+    harbor_admin_password: admin
+ 
+  # console
+    console_version: release-1.4.0
+    company_name: 新智认知
+    title_cn: 容器云
+    title_en: Data Platform +
+  #bigdata image vesion
+    release_version: helium-1.4.0
+  children:
+    centos:
+      vars:
+        hostname_prefix: enn
+        ansible_ssh_user: root
+        ansible_ssh_pass: 123456
+        ansible_ssh_port: 22
+        bin_dir: "/usr/bin"
+        cgroup_driver: "cgroupfs"
+        osissue: "centos"
+        kernel_version: "kernel"
+        #disk_type: sda
+        #disk_type: loop
+        special_mounts:
+          #/dev/loop:
+          #  path: /xfs/disk1
+          #  opt: prjquota
+          #  num: 0
+          #  size: 307200
+          #/dev/sda:
+          #  path: /xfs/disk1
+          #  opt: prjquota
+          #  num: 3
+          /dev/sdb:
+             path: /xfs/disk1
+             opt: prjquota
+      hosts:
+        10.19.138.63:

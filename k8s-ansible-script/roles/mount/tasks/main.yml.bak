@@ -1,0 +1,43 @@
+---
+- name: mkdir 
+  file: 
+    path={{ item }}
+    state=directory
+  with_items:
+    - /xfs
+    - /xfs/disk1
+    - /xfs/disk2
+    - /xfs/disk3
+    - /xfs/disk4
+
+- name: copy file
+  copy: 
+    src: files/kubelet_mount.sh
+    dest: /tmp/kubelet_mount.sh
+    mode: 0755
+
+- name: shell
+  shell: ./kubelet_mount.sh
+  args:
+    chdir: /tmp/
+
+- name: fdisk create new partition
+  parted:
+    device: /dev/{{ item }}
+    number: 1
+    state: present
+  with_items: "{{ disk_list }}"
+
+- name: create xfs filesystem
+  filesystem:
+    fstype: xfs
+    dev: /dev/{{ item }}
+  with_items: "{{ disk_list }}"
+
+- name: mount
+  mount:
+    path: /xfs/{{ item.src }}
+    src: /dev/{{ item.dest }}
+    fstype: xfs
+    opts: prjquota
+    state: mounted

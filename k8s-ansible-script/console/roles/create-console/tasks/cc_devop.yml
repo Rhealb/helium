@@ -1,0 +1,24 @@
+---
+- name: create cc-devop directory
+  file:
+    path: "/console/cc-devop"
+    state: "directory"
+    mode: 0777
+
+- name: copy cc-devop
+  synchronize:
+    src: "modules/{{ item }}"
+    dest: "/console/{{ item }}"
+  with_items:
+    - cc-devop/jsonnet/
+    - cc-devop/script/
+    - cc-devop/housekeeper/
+    - cc-devop/Makefile
+
+- name: copy install config jsonnet
+  template:
+    src: "templates/{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: install-config.jsonnet, dest: /console/cc-devop/jsonnet/example/install-config.jsonnet}
+    - {src: all.yml, dest: /console/cc-devop/all.yml}

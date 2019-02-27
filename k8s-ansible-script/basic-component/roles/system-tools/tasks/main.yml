@@ -1,0 +1,58 @@
+---
+# tasks file for system-tools
+- name: create ceph rbd pool for system-tools
+  command: ceph osd pool create k8s.system-tools 8 8
+  when: storage_type == "ceph"
+
+- name: enable rbd application on k8s.system-tools pool
+  command: ceph osd pool application enable k8s.system-tools rbd
+  when: storage_type == "ceph"
+
+- name: add quota for k8s.system-tools pool
+  command: ceph osd pool set-quota k8s.system-tools max_bytes 1024G
+  when: storage_type == "ceph"
+
+- name: create ceph user for system-tools
+  command: ceph auth get-or-create client.system-tools mon 'allow *' osd 'allow * pool=k8s.system-tools, allow rw pool=cephfs_data' mds 'allow r path=/, allow rw path=/k8s/system-tools'
+  when: storage_type == "ceph"
+
+- name: get ceph secret key
+  shell: ceph auth get-key client.system-tools | base64
+  register: ceph_secret_key
+  when: storage_type == "ceph"
+
+- name: make sure /k8s directory exist on target server
+  file:
+    path: "/k8s"
+    state: "directory"
+    mode: 0777
+
+- name: set k8s_deploy_files fact
+  set_fact:
+    k8s_deploy_files:
+      - {src: system-tools-ns.j2 , dst: /k8s/system-tools-ns.json }
+
+- name: set k8s deploy files ceph
+  set_fact:
+    secret_deploy_files:
+      - {src: system-tools-secret.j2 , dst: /k8s/system-tools-secret.json }
+  when: storage_type == "ceph"
+
+- name: merge secret file to ns file
+  set_fact:
+    k8s_deploy_files: "{{ k8s_deploy_files + secret_deploy_files }}"
+  when: storage_type == "ceph"
+
+- name: cp namespace and secret json file to node
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dst }}"
+  with_items:
+    - "{{ k8s_deploy_files }}"
+
+
+- name: create namespace and ceph secret
+  command: kubectl create -f {{ item.dst }}
+  with_items:
+    - "{{ k8s_deploy_files }}"
+  ignore_errors: yes

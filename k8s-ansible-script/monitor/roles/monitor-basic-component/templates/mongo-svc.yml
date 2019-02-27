@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{monitor_mongo_svr}}
+    namespace: {{ monitor_ns_monitor_essential_service }}
+spec:
+    type: ClusterIP
+    ports:
+        -
+            protocol: TCP
+            targetPort: {{monitor_mongo_port}}
+            name: p1
+            port: {{monitor_mongo_port}}
+    selector:
+        name: mongo

@@ -1,0 +1,89 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloud-controller-manager
+  namespace: kube-system
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: cloud-controller-manager
+    tier: control-plane
+  name: cloud-controller-manager
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-controller-manager
+      tier: control-plane
+  template:
+    metadata:
+      labels:
+        app: cloud-controller-manager
+        tier: control-plane
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      serviceAccountName: cloud-controller-manager
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+        key: node-role.kubernetes.io/master
+      - effect: NoSchedule
+        operator: Exists
+        key: node.cloudprovider.kubernetes.io/uninitialized
+      containers:
+      - command:
+        -  /cloud-controller-manager
+        - --kubeconfig=/etc/kubernetes/kubeconfig
+        - --address=127.0.0.1
+        - --allow-untagged-cloud=true
+        - --leader-elect=true
+        - --cloud-provider=alicloud
+        - --allocate-node-cidrs=true
+        - --cluster-cidr=192.168.0.0/16
+        - --use-service-account-credentials=true
+        - --route-reconciliation-period=30s
+        - --v=5
+        image: "{{ registry_url }}/{{ alicloud_image_url }}"
+        env:
+        - name: ACCESS_KEY_ID
+          valueFrom:
+            configMapKeyRef:
+              name: cloud-config
+              key: special.keyid
+        - name: ACCESS_KEY_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: cloud-config
+              key: special.keysecret
+        livenessProbe:
+          failureThreshold: 8
+          httpGet:
+            host: 127.0.0.1
+            path: /healthz
+            port: 10252
+            scheme: HTTP
+          initialDelaySeconds: 15
+          timeoutSeconds: 15
+        name: cloud-controller-manager
+        resources:
+          requests:
+            cpu: 200m
+        volumeMounts:
+        - mountPath: /etc/kubernetes/
+          name: k8s
+          readOnly: true
+        - mountPath: /etc/ssl/kube
+          name: kube
+      hostNetwork: true
+      volumes:
+      - hostPath:
+          path: /etc/kubernetes
+        name: k8s
+      - hostPath:
+          path: /etc/ssl/kube
+        name: kube

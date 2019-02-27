@@ -1,0 +1,42 @@
+{
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": {
+        "labels": {
+            "app": "nginx-ingress-controller",
+            "type": "service",
+            "class": "{{ ingress_class }}"
+        },
+        "name": "nginx-ingress-controller-{{ ingress_class }}",
+        "namespace": "kube-system"
+    },
+    "spec": {
+        "externalIPs": [
+            "{{ca_vip}}"
+        ],
+        "ports": [
+            {
+                "name": "status",
+                "port": 18081,
+                "protocol": "TCP",
+                "targetPort": 18080
+            },
+            {
+                "name": "http",
+                "port": 80,
+                "protocol": "TCP",
+                "targetPort": 80
+            },
+            {
+                "name": "https",
+                "port": 443,
+                "protocol": "TCP",
+                "targetPort": 443
+            }
+        ],
+        "selector": {
+            "app": "nginx-ingress-controller",
+            "class": "{{ ingress_class }}"
+        }
+    }
+}

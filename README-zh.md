@@ -28,7 +28,7 @@
 
 ### 1.3 下载安装镜像
 
-docker pull enndata/library/helium:1.5
+docker pull enndata/helium:1.5
 
 ### 1.4 配置inventory
 
@@ -44,7 +44,7 @@ bash no-boardmachine-ansible-docker.sh start
 
 2.将配置好的inventory file挂载到/opt/k8s-ansible-script/inventory/，等待容器运行完成。
 
-docker -H 127.0.0.1:2375 run -it --privileged -v $PWD/inventory.yml:/opt/k8s-ansible-script/inventory.yml  enndata/library/helium:1.5  sh
+docker -H 127.0.0.1:2375 run -it --privileged -v $PWD/inventory.yml:/opt/k8s-ansible-script/inventory.yml  enndata/helium:1.5  sh
 
 ## 3.代码
 

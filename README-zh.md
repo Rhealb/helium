@@ -32,7 +32,7 @@ docker pull enndata/helium:1.5
 
 ### 1.4 配置inventory
 
-安装三台以上机器的集群配置inventory时参照inventory.yml，安装单机版集群参照k8s-cluster/clusters/minicluster/centos-cluster.yml
+安装三台以上机器的集群配置inventory时参照k8s-ansible-script/inventory.yml，安装单机版集群参照k8s-ansible-script/k8s-cluster/clusters/minicluster/centos-cluster.yml
 
 ## 2.安装步骤
 

@@ -104,7 +104,7 @@ EOF
 
 if [ "$#" == "1" ];then
   if [ "$1" == "start" ];then
-     #install_packages
+     install_packages
      prepare_config
      prepare_network
      systemctl daemon-reload

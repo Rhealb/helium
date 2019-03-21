@@ -2,15 +2,15 @@
 all:
   vars:
   # ntp
-    ntp_orphan_parents: [192.168.122.248]
-    ntp_server: "192.168.122.248"
+    ntp_orphan_parents: [192.168.122.131, 192.168.122.41]
+    ntp_server: "10.36.8.40"
   # master and node
-    master_list: [192.168.122.248]
-    etcd_init_servers: [192.168.122.248]
-    hanode_list: []
-    host_path_list: [192.168.122.248]
-    cluster_name: "qa-cluster"
-    cluster_ip_range: "192.168.0.0/16"
+    master_list: [192.168.122.131, 192.168.122.41, 192.168.122.177]
+    etcd_init_servers: [192.168.122.131, 192.168.122.41, 192.168.122.177]
+    hanode_list: [192.168.122.131, 192.168.122.41]
+    host_path_list: [192.168.122.131, 192.168.122.41, 192.168.122.177]
+    cluster_name: "enc-cluster"
+    cluster_ip_range: "10.254.0.0/16"
     domain: "cluster.local"
     max_pods: 100
     cpu_reserved: 0
@@ -20,28 +20,28 @@ all:
     cluster_total_cores: 72
     cluster_total_mem: 192
   # flannel
-    flannel_etcd_list: [192.168.122.248]
+    flannel_etcd_list: [192.168.122.131, 192.168.122.41, 192.168.122.177]
     backend_type: "vxlan"
     flanneld_subnet: "172.16.0.0/12"
+    DirectRouting: False
   # cluster
     local_repo: "10.19.138.132:8009"
-    ca_vip: "192.168.122.248"
+    ca_vip: "192.168.122.41"
     admin_password: admin
     admin_username: admin
-    interface: external0
-    single_node: true
+    kl_interface: external0
     nameservers: []
   # storage
-    storage_type: hostpath
-    nfs_host: 1111
-    nfs_path: dddd
+    storage_type: nfs
+    nfs_host: 10.19.138.132
+    nfs_path: "/home/nfsroot"
   # ingress
     ingress_dns_domain: enn.ingress.cn
   # harbor
     local_registry_port: 5000
     harbor_admin_password: admin
     registry_data_pv_size: 10Gi
- 
+
   # console
     console_version: release-1.5.0
     company_name: 新智认知
@@ -58,26 +58,17 @@ all:
       vars:
         hostname_prefix: enn
         ansible_ssh_user: root
-        ansible_ssh_pass: enncloud
+        ansible_ssh_pass: 123456
         ansible_ssh_port: 22
         bin_dir: "/usr/bin"
         cgroup_driver: "systemd"
         osissue: "centos"
         kernel_version: "kernel"
-        #disk_type: sda
-        #disk_type: loop
         special_mounts:
-          #/dev/loop:
-          #  path: /xfs/disk1
-          #  opt: prjquota
-          #  num: 0
-          #  size: 307200000
-          #/dev/sda:
-          #  path: /xfs/disk1
-          #  opt: prjquota
-          #  num: 3
           /dev/vdb:
-             path: /xfs/disk1
-             opt: prjquota
+            path: /xfs/disk1
+            opt: prjquota
       hosts:
-        192.168.122.248:
+        192.168.122.41:
+        192.168.122.177:
+        192.168.122.131:
